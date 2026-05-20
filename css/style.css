@@ -5231,7 +5231,7 @@ button { font-family: 'Inter', sans-serif; }
     .booking-container h2 { font-size: 1.15rem; }
     .booking-container p  { font-size: 0.84rem; }
     .booking-form input,
-    .booking-form select  { padding: 9px 12px; font-size: 0.86rem; }
+    .booking-form select  { padding: 9px 12px; font-size: 1rem; }
     /* Force single-column form rows on small phones */
     .form-row             { grid-template-columns: 1fr !important; gap: 14px; }
     /* Keep adv QR grid single-column to prevent horizontal overflow */
@@ -6122,6 +6122,23 @@ button { font-family: 'Inter', sans-serif; }
 .coupon-code-text { font-size: 1.25rem; font-weight: 800; letter-spacing: 0.1em; font-family: 'Courier New', monospace; color: var(--accent); }
 .coupon-name-text { font-size: 0.8rem; color: rgba(255,255,255,0.72); margin-top: 3px; }
 .coupon-value-pill { display: inline-block; padding: 3px 12px; border-radius: 20px; background: var(--accent); color: var(--dark); font-size: 0.85rem; font-weight: 800; margin-top: 8px; }
+
+/* ── Prevent iOS auto-zoom: all inputs must be ≥ 16px on touch devices ── */
+@media (hover: none) and (pointer: coarse) {
+    input,
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    input[type="number"],
+    input[type="password"],
+    input[type="search"],
+    input[type="month"],
+    select,
+    textarea {
+        font-size: 16px !important;
+    }
+}
 .coupon-card-body { padding: 14px 18px; }
 .coupon-info-row { font-size: 0.81rem; color: var(--mid); margin-bottom: 5px; display: flex; gap: 6px; }
 .coupon-info-row strong { color: var(--dark); }
