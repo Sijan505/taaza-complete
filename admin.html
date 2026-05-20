@@ -3299,14 +3299,6 @@ function renderTableOrderPanel() {
     var menuItems = getData(DELIVERY_KEY);
     if (!menuItems.length) menuItems = getData(MENU_KEY);
 
-    var optionsHtml = menuItems
-        .filter(function(m) { return m.available !== false; })
-        .map(function(m) {
-            return '<option value="' + esc(m.name) + '" data-price="' + m.price + '" data-emoji="' + (m.emoji||'🍽️') + '">' +
-                esc(m.name) + ' — Rs. ' + m.price +
-            '</option>';
-        }).join('');
-
     var itemsHtml = order.items.length ? order.items.map(function(item, idx) {
         return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed var(--border)">' +
             '<span style="font-size:1.1rem">' + (item.emoji||'🍽️') + '</span>' +
@@ -3336,17 +3328,13 @@ function renderTableOrderPanel() {
                 'style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box">' +
         '</div>' +
 
-        '<div style="margin-bottom:12px">' +
+        '<div style="margin-bottom:12px;position:relative">' +
             '<label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">ADD ITEM</label>' +
-            '<input id="tblSearch" type="text" placeholder="&#x1F50D; Search item name..." oninput="filterTableItems()" autocomplete="off" ' +
-                'style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;box-sizing:border-box;margin-bottom:8px">' +
-            '<div style="display:flex;gap:8px">' +
-                '<select id="tblItemSelect" size="1" style="flex:1;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.85rem">' +
-                    '<option value="">— Select item —</option>' + optionsHtml +
-                '</select>' +
-                '<button onclick="addTableItem(' + activeTable + ')" style="background:var(--green);color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1.2rem">+</button>' +
-            '</div>' +
-            '<div id="tblMatchCount" style="font-size:0.75rem;color:var(--mid);margin-top:4px"></div>' +
+            '<input id="tblSearch" type="text" placeholder="&#x1F50D; Type item name to search..." oninput="filterTableItems()" autocomplete="off" ' +
+                'onkeydown="if(event.key===\'Escape\'){var d=document.getElementById(\'tblDropdown\');if(d)d.style.display=\'none\';this.value=\'\';}" ' +
+                'onblur="setTimeout(function(){var d=document.getElementById(\'tblDropdown\');if(d)d.style.display=\'none\';},180)" ' +
+                'style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;box-sizing:border-box">' +
+            '<div id="tblDropdown" style="display:none;position:absolute;left:0;right:0;background:#fff;border:1.5px solid var(--accent);border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,0.13);z-index:9999;max-height:220px;overflow-y:auto;margin-top:3px"></div>' +
         '</div>' +
 
         '<div style="min-height:120px;max-height:240px;overflow-y:auto;margin-bottom:12px">' + itemsHtml + '</div>' +
@@ -3367,44 +3355,53 @@ function saveGuestName(tableNum, name) {
 }
 
 function filterTableItems() {
-    var query  = document.getElementById('tblSearch').value.trim().toLowerCase();
-    var sel    = document.getElementById('tblItemSelect');
-    var count  = 0;
-    var firstMatch = null;
-    for (var i = 0; i < sel.options.length; i++) {
-        var opt = sel.options[i];
-        if (!opt.value) { opt.style.display = ''; continue; }
-        var matches = !query || opt.text.toLowerCase().includes(query);
-        opt.style.display = matches ? '' : 'none';
-        if (matches) {
-            count++;
-            if (!firstMatch) firstMatch = opt;
-        }
+    var query = (document.getElementById('tblSearch').value || '').trim().toLowerCase();
+    var drop  = document.getElementById('tblDropdown');
+    if (!drop) return;
+    if (!query) { drop.style.display = 'none'; return; }
+
+    var items = getData(DELIVERY_KEY);
+    if (!items.length) items = getData(MENU_KEY);
+    var matches = items.filter(function(m) {
+        return m.available !== false && (m.name || '').toLowerCase().indexOf(query) !== -1;
+    });
+
+    if (!matches.length) {
+        drop.innerHTML = '<div style="padding:10px 14px;color:var(--mid);font-size:0.85rem;font-family:Inter,sans-serif">No items found</div>';
+        drop.style.display = 'block';
+        return;
     }
-    if (query && firstMatch) sel.value = firstMatch.value;
-    else if (!query) sel.selectedIndex = 0;
-    var badge = document.getElementById('tblMatchCount');
-    if (badge) badge.textContent = query ? count + ' item(s) found' : '';
+
+    drop.innerHTML = matches.map(function(m) {
+        var safeName  = esc(m.name);
+        var safeEmoji = esc(m.emoji || '🍽️');
+        return '<div onmousedown="event.preventDefault()" ' +
+            'onclick="selectTblItem(' + JSON.stringify(m.name) + ',' + Number(m.price) + ',' + JSON.stringify(m.emoji || '🍽️') + ')" ' +
+            'style="padding:9px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;' +
+            'border-bottom:1px solid #f0f0f0;font-size:0.87rem;font-family:Inter,sans-serif;transition:background 0.1s" ' +
+            'onmouseover="this.style.background=\'#f6fff8\'" onmouseout="this.style.background=\'\'">' +
+            '<span>' + safeEmoji + ' ' + safeName + '</span>' +
+            '<span style="color:var(--mid);font-size:0.8rem">Rs. ' + Number(m.price) + '</span>' +
+            '</div>';
+    }).join('');
+    drop.style.display = 'block';
 }
 
-function addTableItem(tableNum) {
-    var sel   = document.getElementById('tblItemSelect');
-    var opt   = sel.options[sel.selectedIndex];
-    if (!opt || !opt.value) { alert('Please select an item.'); return; }
-    var name  = opt.value;
-    var price = Number(opt.getAttribute('data-price'));
-    var emoji = opt.getAttribute('data-emoji') || '🍽️';
+function selectTblItem(name, price, emoji) {
+    var drop     = document.getElementById('tblDropdown');
+    var searchEl = document.getElementById('tblSearch');
+    if (drop)     drop.style.display = 'none';
+    if (searchEl) searchEl.value = '';
 
     var orders = getTableOrders();
-    if (!orders[tableNum]) orders[tableNum] = { items: [], guestName: '', openedAt: new Date().toISOString() };
-    var existing = orders[tableNum].items.find(function(i){ return i.name === name; });
+    if (!orders[activeTable]) orders[activeTable] = { items: [], guestName: '', openedAt: new Date().toISOString() };
+    var existing = orders[activeTable].items.find(function(i) { return i.name === name; });
     if (existing) {
         existing.qty++;
     } else {
-        orders[tableNum].items.push({ name: name, price: price, emoji: emoji, qty: 1 });
+        orders[activeTable].items.push({ name: name, price: price, emoji: emoji || '🍽️', qty: 1 });
     }
     saveTableOrders(orders);
-    sel.selectedIndex = 0;
     renderTableOrderPanel();
     renderTablesGrid();
 }
