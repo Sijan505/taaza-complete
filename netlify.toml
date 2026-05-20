@@ -1,0 +1,1 @@
+﻿[[redirects]]  from = "https://admin.taazaresort.com/*"  to = "/admin.html"  status = 200  force = true[[redirects]]  from = "/*"  to = "/index.html"  status = 200
