@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rooms &amp; Suites — Taaza Resort | Bharatpur, Nepal</title>
+    <link rel="icon" href="images/logo-dark.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar">
+        <div class="container">
+            <a href="index.html" class="logo">
+                <img src="images/logo-dark.png" alt="Taaza Resort" class="nav-logo" onerror="this.style.display='none'">
+                <span>
+                    <span class="logo-text">Taaza Resort</span>
+                    <span class="logo-sub">Bharatpur-5, Narayanpur</span>
+                </span>
+            </a>
+            <ul class="nav-links" id="navLinks">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="rooms.html" class="active">Rooms</a></li>
+                <li><a href="amenities.html">Amenities</a></li>
+                <li class="nav-book"><a href="booking.html">Book Now</a></li>
+                <li><a href="delivery.html">Online Delivery</a></li>
+                <li><a href="menu.html" class="nav-menu">🍽️ Menu</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li class="nav-admin-link"><a href="admin.html">&#x1F512; Admin</a></li>
+            </ul>
+            <div class="nav-dots-menu">
+                <a href="delivery.html" class="cart-nav-btn" id="cartNavBtn">
+                    &#x1F6D2; <span class="cart-nav-count" id="cartNavCount">0</span>
+                </a>
+                <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <button class="dots-btn" onclick="toggleDotsMenu()" title="More options">&#8942;</button>
+                <div class="dots-dropdown" id="dotsDropdown">
+                    <a href="index.html">&#x1F3E0; Home</a>
+                    <a href="rooms.html" class="active">&#x1F6CF;&#xFE0F; Rooms &amp; Suites</a>
+                    <a href="amenities.html">&#x2728; Amenities</a>
+                    <a href="delivery.html">&#x1F6F5; Online Delivery</a>
+                    <a href="menu.html">&#x1F374; Digital Menu</a>
+                    <a href="contact.html">&#x1F4DE; Contact Us</a>
+                    <div class="dropdown-divider"></div>
+                    <a href="admin.html" class="admin-link">&#x1F512; Admin Panel</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ===== PAGE HEADER ===== -->
+    <section class="page-header">
+        <div class="container">
+            <span class="section-label">Accommodations</span>
+            <h1>Rooms &amp; Suites</h1>
+            <p>Each room is a sanctuary of comfort, designed with meticulous attention to detail and your utmost
+                relaxation in mind</p>
+        </div>
+    </section>
+
+    <!-- ===== ROOMS ===== -->
+    <section class="rooms-section">
+        <div class="container">
+
+            <!-- AC Room -->
+            <div class="room-detail">
+                <div class="room-detail-image" style="background: url('images/room-deluxe.jpg') center/cover no-repeat; border-radius:12px;"></div>
+                <div class="room-detail-content">
+                    <span class="section-label">AC</span>
+                    <h2>AC Room</h2>
+                    <p class="room-price">Rs. 1,500 <span>/ night</span></p>
+                    <p class="room-description">Our AC Rooms feature premium furnishings and stunning views of the
+                        surrounding Chitwan landscape. The perfect choice for a more indulgent, luxurious experience.
+                    </p>
+                    <div class="room-features">
+                        <h3>Room Highlights</h3>
+                        <ul>
+                            <li>Double bed with quality bedding &amp; pillows</li>
+                            <li>Air conditioning</li>
+                            <li>Ceiling fan with light</li>
+                            <li>Attached bathroom with washbasin</li>
+                            <li>Fresh towels &amp; towel stand</li>
+                            <li>Hardwood flooring</li>
+                            <li>Ambient wall lamp</li>
+                            <li>Side table &amp; mirror</li>
+                            <li>Daily housekeeping</li>
+                        </ul>
+                    </div>
+                    <a href="booking.html" class="btn-primary">Book This Room</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- ===== AMENITIES SUMMARY ===== -->
+    <section class="amenities-summary">
+        <div class="container">
+            <div class="section-header" style="margin-bottom:0">
+                <span class="section-label">Standard Inclusions</span>
+                <h2>All Rooms Include</h2>
+                <span class="gold-divider center"></span>
+            </div>
+            <div class="amenities-grid">
+                <div class="amenity-item"><span class="amenity-icon">&#x1F6CF;&#xFE0F;</span>
+                    <p>Quality Bedding</p>
+                </div>
+                <div class="amenity-item"><span class="amenity-icon">&#x1F4E1;</span>
+                    <p>High-Speed WiFi</p>
+                </div>
+                <div class="amenity-item"><span class="amenity-icon">&#x1F321;&#xFE0F;</span>
+                    <p>Climate Control</p>
+                </div>
+                <div class="amenity-item"><span class="amenity-icon">&#x1F4FA;</span>
+                    <p>Smart TV</p>
+                </div>
+                <div class="amenity-item"><span class="amenity-icon">&#x1F9F4;</span>
+                    <p>Premium Toiletries</p>
+                </div>
+                <div class="amenity-item"><span class="amenity-icon">&#x1F9F9;</span>
+                    <p>Daily Housekeeping</p>
+                </div>
+                <div class="amenity-item"><span class="amenity-icon">&#x1F6AA;</span>
+                    <p>24/7 Room Service</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <span class="logo-text">Taaza Resort</span>
+                    <span class="logo-sub">Bharatpur-5, Narayanpur, Nepal</span>
+                    <p>A premier luxury destination where traditional Nepali warmth meets modern elegance.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="rooms.html">Rooms &amp; Suites</a></li>
+                        <li><a href="amenities.html">Amenities</a></li>
+                        <li><a href="menu.html">Digital Menu</a></li>
+                        <li><a href="delivery.html">Online Delivery</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Contact</h4>
+                    <div class="footer-contact-item">
+                        <span class="ico">&#x1F4CD;</span>
+                        <p>Bharatpur-5, Narayanpur<br>Chitwan, Nepal</p>
+                    </div>
+                    <div class="footer-contact-item">
+                        <span class="ico">&#x1F4DE;</span>
+                        <p>+977 9742864405</p>
+                    </div>
+                    <div class="footer-contact-item">
+                        <span class="ico">&#x2709;&#xFE0F;</span>
+                        <p>tamanganish421@gmail.com</p>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>Follow Us</h4>
+                    <div class="social-links">
+                        <a href="https://www.facebook.com/TaazaResort" target="_blank" rel="noopener noreferrer" title="Facebook">f</a>
+                        <a href="https://www.instagram.com/anish.tamang" target="_blank" rel="noopener noreferrer" title="Instagram">&#x1F4F7;</a>
+                        <a href="https://wa.me/9779742864405" target="_blank" rel="noopener noreferrer" title="WhatsApp">&#x1F4F2;</a>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Taaza Resort. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="cart-toast" id="cartToast"></div>
+    <script src="js/script.js"></script>
+
+<nav class="mobile-btm-nav">
+  <a href="index.html"><span class="mbn-icon">🏠</span>Home</a>
+  <a href="rooms.html" class="active"><span class="mbn-icon">🛏️</span>Rooms</a>
+  <a href="booking.html"><span class="mbn-icon">📅</span>Book</a>
+  <a href="delivery.html"><span class="mbn-icon">🛵</span>Order</a>
+  <a href="contact.html"><span class="mbn-icon">📞</span>Contact</a>
+</nav>
+</body>
+
+</html>

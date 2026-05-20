@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Your Stay — Taaza Resort | Bharatpur, Nepal</title>
+    <link rel="icon" href="images/logo-dark.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+    <div class="container">
+        <a href="index.html" class="logo">
+            <img src="images/logo-dark.png" alt="Taaza Resort" class="nav-logo" onerror="this.style.display='none'">
+            <span>
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur</span>
+            </span>
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="rooms.html">Rooms</a></li>
+            <li><a href="amenities.html">Amenities</a></li>
+            <li class="nav-book"><a href="booking.html" class="active">Book Now</a></li>
+            <li><a href="delivery.html">Online Delivery</a></li>
+            <li><a href="menu.html" class="nav-menu">🍽️ Menu</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li class="nav-admin-link"><a href="admin.html">&#x1F512; Admin</a></li>
+        </ul>
+        <div class="nav-dots-menu">
+            <a href="delivery.html" class="cart-nav-btn" id="cartNavBtn">
+                &#x1F6D2; <span class="cart-nav-count" id="cartNavCount">0</span>
+            </a>
+            <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <button class="dots-btn" onclick="toggleDotsMenu()" title="More options">&#8942;</button>
+            <div class="dots-dropdown" id="dotsDropdown">
+                <a href="index.html">&#x1F3E0; Home</a>
+                <a href="rooms.html">&#x1F6CF;&#xFE0F; Rooms &amp; Suites</a>
+                <a href="amenities.html">&#x2728; Amenities</a>
+                <a href="delivery.html">&#x1F6F5; Online Delivery</a>
+                <a href="menu.html">&#x1F374; Digital Menu</a>
+                <a href="contact.html">&#x1F4DE; Contact Us</a>
+                <div class="dropdown-divider"></div>
+                <a href="admin.html" class="admin-link">&#x1F512; Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== PAGE HEADER ===== -->
+<section class="page-header">
+    <div class="container">
+        <span class="section-label">Reservations</span>
+        <h1>Book Your Stay</h1>
+        <p>Find the perfect room and reserve your place in our sanctuary of luxury</p>
+    </div>
+</section>
+
+<!-- ===== BOOKING ===== -->
+<section class="booking-section">
+    <div class="container">
+        <div class="booking-container">
+            <span class="section-label">Check Availability</span>
+            <h2>Search &amp; Reserve</h2>
+            <p>Fill in your details below and we will confirm availability within the hour</p>
+
+            <form class="booking-form" onsubmit="handleBookingSearch(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="check-in">Check-in Date</label>
+                        <input type="date" id="check-in" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="check-out">Check-out Date</label>
+                        <input type="date" id="check-out" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="full-name">Full Name</label>
+                        <input type="text" id="full-name" placeholder="Enter your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Contact Number</label>
+                        <input type="tel" id="phone" placeholder="Enter your phone number" required>
+                    </div>
+                </div>
+                <div class="form-row" style="grid-template-columns:1fr">
+                    <div class="form-group">
+                        <label for="guest-email">&#x1F4E7; Email Address <span style="font-size:0.8em;font-weight:400;color:var(--mid)">(booking confirmation sent automatically)</span></label>
+                        <input type="email" id="guest-email" placeholder="Enter your email address for confirmation">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="guests">Number of Guests</label>
+                        <select id="guests" required onchange="updateRoomsByGuests()">
+                            <option value="">Select guests</option>
+                            <option value="1">1 Guest</option>
+                            <option value="2">2 Guests</option>
+                            <option value="3">3 Guests</option>
+                            <option value="4">4 Guests</option>
+                            <option value="5+">5 or more Guests</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="room-type">Room Type</label>
+                        <select id="room-type" required onchange="updateGuestOptions()">
+                            <option value="">Select room type</option>
+                            <option value="AC Room">AC Room (Rs. 1,500/night)</option>
+                            <option value="Banquet Hall">Banquet Hall — Wedding / Mehendi (Rs. 5,000/day)</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- Loyalty widget (auto-shown after phone entered) -->
+                <div id="bookingLoyaltyWidget" class="booking-loyalty-widget" style="display:none"></div>
+
+                <!-- Coupon / Promo Code -->
+                <div class="form-row" style="grid-template-columns:1fr;margin-top:4px">
+                    <div class="form-group">
+                        <label for="couponInput">&#x1F39F;&#xFE0F; Promo Code / Coupon <span style="font-size:0.8em;font-weight:400;color:var(--mid)">(optional)</span></label>
+                        <div class="booking-coupon-row">
+                            <input type="text" id="couponInput" placeholder="e.g. DASHAIN25" autocomplete="off">
+                            <button type="button" class="coupon-apply-btn" onclick="applyCouponCode()">Apply</button>
+                        </div>
+                        <div class="coupon-feedback" id="couponFeedback"></div>
+                        <div class="coupon-discount-line" id="couponDiscountLine" style="display:none"></div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary" style="margin-top:8px" onclick="handleBookingSearch(event)">
+                    &#x1F50D; Check Availability
+                </button>
+            </form>
+
+            <!-- Weather preview for selected dates -->
+            <div id="bookingWeatherPreview" class="booking-weather-preview" style="display:none"></div>
+
+            <div class="booking-result-box" id="bookingResult" style="display:none">
+                <div class="booking-result-header">
+                    <h3>&#x2705; Availability Confirmed</h3>
+                    <p>One step away from booking your room. Contact us or choose advance booking with online payment.</p>
+                </div>
+                <div class="booking-contact-details">
+                    <p><strong>Reservation Desk:</strong> +977 9742864405</p>
+                    <p><strong>Email:</strong> tamanganish421@gmail.com</p>
+                </div>
+                <div class="booking-summary" id="bookingSummary"></div>
+
+                <!-- Notification status (shown after booking saved) -->
+                <div id="bookingNotifStatus" style="display:none;margin:14px 0 0;padding:12px 16px;border-radius:10px;font-size:0.88rem;background:#f0fdf4;border:1px solid #86efac">
+                    <div id="bookingNotifEmailLine" style="margin-bottom:6px"></div>
+                    <div id="bookingNotifWhatsappLine"></div>
+                </div>
+
+                <div class="booking-actions" style="flex-wrap:wrap;gap:10px">
+                    <button class="btn-primary" onclick="openAdvanceBooking()">&#x1F4B3; Advance Book</button>
+                </div>
+
+                <div id="advancePaymentInfo" class="advance-payment-info" style="display:none">
+                    <div class="payment-info-card">
+                        <h4>&#x1F4B3; Advance Payment</h4>
+                        <p>Scan a QR code with eSewa or FonePay to pay your advance and secure your reservation.</p>
+                        <div class="adv-amount-row">
+                            Advance Amount (35%): <strong id="advanceDepositAmount">Rs. 0</strong>
+                        </div>
+                        <div class="adv-qr-grid">
+                            <div class="adv-qr-block">
+                                <p class="adv-qr-label esewa-label">eSewa</p>
+                                <img src="images/esewa-qr.png" alt="eSewa QR Code" class="adv-qr-img">
+                                <p class="adv-qr-name">Anish Tamang</p>
+                                <p class="adv-qr-num">9821179139</p>
+                            </div>
+                            <div class="adv-qr-block">
+                                <p class="adv-qr-label fonepay-label">FonePay</p>
+                                <img src="images/fonepay-qr.png" alt="FonePay QR Code" class="adv-qr-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                                <div class="adv-qr-placeholder">FonePay QR<br><span>Add fonepay-qr.png</span></div>
+                                <p class="adv-qr-name">Anish Tamang</p>
+                                <p class="adv-qr-num">9742864405</p>
+                            </div>
+                        </div>
+                        <div class="adv-upload-section">
+                            <label class="adv-upload-label">&#x1F4F7; Upload Payment Screenshot *</label>
+                            <input type="file" id="advanceScreenshot" accept="image/*" class="adv-upload-input">
+                            <p class="adv-upload-hint">Required — upload your payment confirmation screenshot for instant verification.</p>
+                        </div>
+                        <button class="btn-primary adv-confirm-btn" onclick="submitAdvancePayment()">&#x2705; Confirm Advance Booking</button>
+                        <p class="payment-note">Our team will call you within a few hours to confirm your reservation.</p>
+                    </div>
+                </div>
+
+                <p class="booking-note">Our team will contact you after advance booking to confirm room allocation and complete the payment process.</p>
+
+                <!-- Leave a Review (shown after booking is confirmed) -->
+                <div id="bookingReviewSection" class="booking-review-section" style="display:none">
+                    <h4>&#x2B50; Share Your Experience</h4>
+                    <div id="revSubmittedOk" class="rev-submitted-ok" style="display:none">
+                        &#x2705; Thank you for your review! Our team will publish it after a quick check.
+                    </div>
+                    <form id="guestReviewForm" onsubmit="submitGuestReview(event)">
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                            <div class="form-group">
+                                <label>Your Name *</label>
+                                <input type="text" id="revName" placeholder="Full name" required style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
+                            </div>
+                            <div class="form-group">
+                                <label>Phone (optional)</label>
+                                <input type="tel" id="revPhone" placeholder="Your phone" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Room / Service *</label>
+                            <select id="revRoom" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
+                                <option value="">Select...</option>
+                                <option>AC Room</option>
+                                <option>Banquet Hall</option>
+                                <option>Restaurant</option>
+                                <option>Swimming Pool</option>
+                                <option>Overall Experience</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Your Rating *</label>
+                            <div class="stars-input-wrap">
+                                <input type="radio" name="guestRating" id="star5" value="5"><label for="star5">&#9733;</label>
+                                <input type="radio" name="guestRating" id="star4" value="4"><label for="star4">&#9733;</label>
+                                <input type="radio" name="guestRating" id="star3" value="3"><label for="star3">&#9733;</label>
+                                <input type="radio" name="guestRating" id="star2" value="2"><label for="star2">&#9733;</label>
+                                <input type="radio" name="guestRating" id="star1" value="1"><label for="star1">&#9733;</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Your Review *</label>
+                            <textarea id="revComment" placeholder="Share your experience..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-primary" style="width:100%">&#x1F4E8; Submit Review</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="booking-info-section">
+                <h3>&#x1F4CB; Reservation Policies</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <h4>Flexible Cancellation</h4>
+                        <p>Free cancellation up to 7 days before your arrival date</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Best Price Guarantee</h4>
+                        <p>Book direct to enjoy our best available rates</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Secure Payment</h4>
+                        <p>100% secure and encrypted transactions guaranteed</p>
+                    </div>
+                    <div class="info-item">
+                        <h4>Instant Confirmation</h4>
+                        <p>Receive your booking confirmation immediately</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PACKAGES ===== -->
+<section class="pricing-section">
+    <div class="container">
+        <div class="section-header" style="margin-bottom:0">
+            <span class="section-label">Special Offers</span>
+            <h2>Curated Packages</h2>
+            <span class="gold-divider center"></span>
+            <p>Hand-crafted packages designed for every kind of getaway</p>
+        </div>
+        <div class="packages-grid">
+            <div class="package">
+                <h3>&#x1F389; Weekend Escape</h3>
+                <p class="package-price">Rs. 15,999</p>
+                <p class="package-desc">2 nights stay</p>
+                <ul class="package-list">
+                    <li>Deluxe accommodation</li>
+                    <li>Daily breakfast included</li>
+                    <li>20% spa discount</li>
+                    <li>Welcome fruit basket</li>
+                </ul>
+                <button class="btn" onclick="selectPackage('Weekend Escape', 15999)">Select Package</button>
+            </div>
+
+            <div class="package">
+                <h3>&#x1F491; Honeymoon Special</h3>
+                <p class="package-price">Rs. 27,999</p>
+                <p class="package-desc">3 nights stay</p>
+                <ul class="package-list">
+                    <li>Romantic room decoration</li>
+                    <li>Candlelight dinner for two</li>
+                    <li>Couples spa session</li>
+                    <li>Late checkout (2 PM)</li>
+                </ul>
+                <button class="btn" onclick="selectPackage('Honeymoon Special', 27999)">Select Package</button>
+            </div>
+
+            <div class="package featured">
+                <h3>&#x1F468;&#x200D;&#x1F469;&#x200D;&#x1F467; Family Adventure</h3>
+                <p class="package-price">Rs. 34,999</p>
+                <p class="package-desc">4 nights stay</p>
+                <ul class="package-list">
+                    <li>Family Suite accommodation</li>
+                    <li>Kids club access included</li>
+                    <li>All meals included</li>
+                    <li>Jungle safari for family</li>
+                </ul>
+                <button class="btn" onclick="selectPackage('Family Adventure', 34999)">Select Package</button>
+            </div>
+
+            <div class="package">
+                <h3>&#x1F4BC; Corporate Retreat</h3>
+                <p class="package-price">Rs. 24,999</p>
+                <p class="package-desc">2 nights stay</p>
+                <ul class="package-list">
+                    <li>Conference room access</li>
+                    <li>High-speed WiFi &amp; AV setup</li>
+                    <li>Full catering service</li>
+                    <li>Business amenities</li>
+                </ul>
+                <button class="btn" onclick="selectPackage('Corporate Retreat', 24999)">Select Package</button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== PAYMENT METHODS ===== -->
+<section class="payment-methods">
+    <div class="container">
+        <div class="section-header" style="margin-bottom:0">
+            <span class="section-label">Payment</span>
+            <h2>Payment Options</h2>
+            <span class="gold-divider center"></span>
+        </div>
+        <div class="methods-grid">
+            <div class="method">
+                <span>&#x1F4B3;</span>
+                <h4>Credit / Debit Card</h4>
+                <p>Visa, Mastercard, American Express</p>
+            </div>
+            <div class="method">
+                <span>&#x1F4F1;</span>
+                <h4>eSewa &amp; Khalti</h4>
+                <p>Nepal's leading digital payment platforms</p>
+            </div>
+            <div class="method">
+                <span>&#x1F3E6;</span>
+                <h4>Bank Transfer</h4>
+                <p>Direct bank deposit to our account</p>
+            </div>
+            <div class="method">
+                <span>&#x1F4B5;</span>
+                <h4>Cash on Arrival</h4>
+                <p>Pay in Nepali Rupees at check-in</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FAQ ===== -->
+<section class="faq-section">
+    <div class="container">
+        <div class="section-header" style="margin-bottom:0">
+            <span class="section-label">FAQ</span>
+            <h2>Frequently Asked Questions</h2>
+            <span class="gold-divider center"></span>
+        </div>
+        <div class="faq-grid">
+            <div class="faq-item">
+                <h4>What is your cancellation policy?</h4>
+                <p>We offer free cancellation up to 7 days before your check-in date. Cancellations within 7 days may incur a one-night charge.</p>
+            </div>
+            <div class="faq-item">
+                <h4>What time is check-in and check-out?</h4>
+                <p>Check-in is from 2:00 PM and check-out is at 11:00 AM. Early check-in and late checkout are subject to availability.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Are taxes included in the room rates?</h4>
+                <p>Room rates are inclusive of all charges. No additional fees will be added during checkout.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Do you offer group bookings?</h4>
+                <p>Yes! We offer special rates for group bookings of 5 rooms or more. Contact us directly for customised group quotes.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Is WiFi complimentary in all rooms?</h4>
+                <p>Yes, high-speed WiFi is completely complimentary in all rooms and throughout the resort.</p>
+            </div>
+            <div class="faq-item">
+                <h4>Can I modify my booking?</h4>
+                <p>Yes, you can modify your booking up to 7 days before check-in without any charges. Contact our reservations team for assistance.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CTA ===== -->
+<section class="cta-section">
+    <div class="container">
+        <span class="section-label" style="color:var(--gold-light)">Need Help?</span>
+        <h2>Speak with Our Reservations Team</h2>
+        <p>Our team is available daily from 8 AM to 10 PM to assist with your booking</p>
+        <div class="contact-methods">
+            <a href="tel:+9779742864405" class="cta-btn">&#x1F4DE; +977 9742864405</a>
+            <a href="mailto:tamanganish421@gmail.com" class="cta-btn">&#x2709;&#xFE0F; tamanganish421@gmail.com</a>
+            <a href="contact.html" class="cta-btn">&#x1F4AC; Send a Message</a>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur, Nepal</span>
+                <p>A premier luxury destination where traditional Nepali warmth meets modern elegance.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="rooms.html">Rooms &amp; Suites</a></li>
+                    <li><a href="amenities.html">Amenities</a></li>
+                    <li><a href="menu.html">Digital Menu</a></li>
+                    <li><a href="delivery.html">Online Delivery</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x1F4CD;</span>
+                    <p>Bharatpur-5, Narayanpur<br>Chitwan, Nepal</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x1F4DE;</span>
+                    <p>+977 9742864405</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x2709;&#xFE0F;</span>
+                    <p>tamanganish421@gmail.com</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/TaazaResort" target="_blank" rel="noopener noreferrer" title="Facebook">f</a>
+                    <a href="https://www.instagram.com/anish.tamang" target="_blank" rel="noopener noreferrer" title="Instagram">&#x1F4F7;</a>
+                    <a href="https://wa.me/9779742864405" target="_blank" rel="noopener noreferrer" title="WhatsApp">&#x1F4F2;</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Taaza Resort. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div class="cart-toast" id="cartToast"></div>
+<script src="js/script.js?v=2"></script>
+<script src="js/weather.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    initBookingWeather();
+    var ci = document.getElementById('check-in');
+    var co = document.getElementById('check-out');
+    if (ci) ci.addEventListener('change', updateBookingWeatherPreview);
+    if (co) co.addEventListener('change', updateBookingWeatherPreview);
+    /* Loyalty lookup on phone blur */
+    var ph = document.getElementById('phone');
+    if (ph) ph.addEventListener('blur', lookupLoyaltyByPhone);
+});
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="js/firebase-config.js?v=2"></script>
+<script src="js/firebase-sync.js?v=2"></script>
+<script>
+// Inline reservation sync — ensures Firestore save even on cached devices
+(function () {
+  var _hooked = false;
+  function hookSync() {
+    if (_hooked || !window._taazaDB) return;
+    _hooked = true;
+    var _p = Storage.prototype.setItem;
+    Storage.prototype.setItem = function (key, value) {
+      _p.call(this, key, value);
+      if (this !== window.localStorage || key !== 'taaza_reservations') return;
+      try {
+        var items = JSON.parse(value);
+        if (!Array.isArray(items)) return;
+        items.forEach(function (item) {
+          if (!item.id) return;
+          var d = Object.assign({}, item);
+          delete d.paymentScreenshot;
+          window._taazaDB.collection('taaza_reservations').doc(d.id).set(d)
+            .catch(function (e) { console.error('[Taaza] inline save err:', e); });
+        });
+      } catch (e) {}
+    };
+  }
+  hookSync();
+  setTimeout(hookSync, 300);
+  setTimeout(hookSync, 1500);
+}());
+</script>
+
+<nav class="mobile-btm-nav">
+  <a href="index.html"><span class="mbn-icon">🏠</span>Home</a>
+  <a href="rooms.html"><span class="mbn-icon">🛏️</span>Rooms</a>
+  <a href="booking.html" class="active"><span class="mbn-icon">📅</span>Book</a>
+  <a href="delivery.html"><span class="mbn-icon">🛵</span>Order</a>
+  <a href="contact.html"><span class="mbn-icon">📞</span>Contact</a>
+</nav>
+</body>
+</html>

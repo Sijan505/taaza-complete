@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Online Delivery — Taaza Resort | Bharatpur</title>
+    <link rel="icon" href="images/logo-dark.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+    <div class="container">
+        <a href="index.html" class="logo">
+            <img src="images/logo-dark.png" alt="Taaza Resort" class="nav-logo" onerror="this.style.display='none'">
+            <span>
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur</span>
+            </span>
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="rooms.html">Rooms</a></li>
+            <li><a href="amenities.html">Amenities</a></li>
+            <li class="nav-book"><a href="booking.html">Book Now</a></li>
+            <li><a href="delivery.html" class="active">Online Delivery</a></li>
+            <li><a href="menu.html" class="nav-menu">🍽️ Menu</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li class="nav-admin-link"><a href="admin.html">&#x1F512; Admin</a></li>
+        </ul>
+
+        <div class="nav-dots-menu">
+            <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+                <span></span><span></span><span></span>
+            </button>
+
+
+
+            <!-- Navbar Cart Button -->
+            <a href="delivery.html" class="cart-nav-btn" id="cartNavBtn">
+                &#x1F6D2; <span class="cart-nav-count" id="cartNavCount">0</span>
+            </a>
+
+            <button class="dots-btn" onclick="toggleDotsMenu()" title="More options">&#8942;</button>
+            <div class="dots-dropdown" id="dotsDropdown">
+                <a href="index.html">&#x1F3E0; Home</a>
+                <a href="rooms.html">&#x1F6CF;&#xFE0F; Rooms &amp; Suites</a>
+                <a href="amenities.html">&#x2728; Amenities</a>
+                <a href="delivery.html" style="color:var(--gold);font-weight:600">&#x1F6F5; Online Delivery</a>
+                <a href="menu.html">&#x1F374; Digital Menu</a>
+                <a href="contact.html">&#x1F4DE; Contact Us</a>
+                <div class="dropdown-divider"></div>
+                <a href="admin.html" class="admin-link">&#x1F512; Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="delivery-hero">
+    <div class="container">
+        <span class="section-label" style="color:var(--gold-light)">Premium Service</span>
+        <h1>Fresh Food Delivery</h1>
+        <p>Savor the authentic flavors of Taaza Resort from the comfort of your home. Freshly prepared, elegantly packed, and delivered with care.</p>
+        <div class="delivery-area-badge">
+            &#x1F4CD; Serving Bharatpur &amp; Surroundings &nbsp;&middot;&nbsp; &#x23F1; 30-45 Mins
+        </div>
+    </div>
+</section>
+
+<!-- ===== SEARCH + CATEGORY CONTROLS ===== -->
+<div class="delivery-controls" id="deliveryControls">
+    <div class="delivery-search-wrap">
+        <div class="delivery-search-inner">
+            <span class="delivery-search-icon">&#x1F50D;</span>
+            <input type="text" id="foodSearch" class="delivery-search-input" placeholder="Search dishes, snacks, drinks..." oninput="searchFoods(this.value)" autocomplete="off">
+            <button class="delivery-search-clear" id="searchClear" onclick="clearSearch()" style="display:none" title="Clear">&#x2715;</button>
+        </div>
+    </div>
+    <div class="delivery-filters" id="filterBar">
+        <button class="filter-btn active" onclick="filterFoods('all', this)">All Delicacies</button>
+    </div>
+</div>
+
+<!-- ===== FOOD GRID ===== -->
+<section class="delivery-section" style="padding-top:40px;">
+    <div class="container">
+        <div class="delivery-section-header">
+            <div>
+                <span class="section-label" id="sectionLabel">Our Menu</span>
+                <h2 id="sectionTitle" style="margin:0;">Selection of the Day</h2>
+            </div>
+            <div class="live-kitchen-badge"><span>&#x25CF;</span> Live Kitchen</div>
+        </div>
+        <div class="delivery-grid" id="foodGrid">
+            <div class="empty-state">Preparing our freshest menu for you&hellip;</div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== CART FAB ===== -->
+<button class="cart-fab" id="cartFab" onclick="openCartModal()" style="display:none" title="View Cart">
+    &#x1F6D2;
+    <span class="cart-badge" id="cartBadge">0</span>
+</button>
+
+
+<!-- ===== CART OVERLAY ===== -->
+<div class="modal-overlay" id="cartOverlay" onclick="closeCartModal()" style="display:none"></div>
+
+<!-- ===== CART SIDE PANEL ===== -->
+<div class="cart-modal" id="cartModal" style="display:none">
+    <div class="cart-modal-header">
+        <h2>&#x1F6D2; Your Bill</h2>
+        <button class="cart-close-btn" onclick="closeCartModal()" title="Close">&#x2715;</button>
+    </div>
+
+    <div class="cart-body">
+        <!-- Customer Info -->
+        <div class="cart-customer-form">
+            <p class="cart-section-label">Delivery Details</p>
+            <input type="text"  id="custName"    placeholder="Your Name *" autocomplete="name">
+            <input type="tel"   id="custPhone"   placeholder="Phone Number * (e.g. 98XXXXXXXX)" autocomplete="tel">
+            <textarea          id="custAddress"  placeholder="Delivery Address * (Street, Ward, Bharatpur)"></textarea>
+        </div>
+
+        <!-- Cart Items -->
+        <div class="cart-items-section">
+            <p class="cart-section-label">Order Items</p>
+            <div id="cartItemsList">
+                <p class="cart-empty-msg">No items yet. Add food from the menu below.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer: Totals + Place Order -->
+    <div class="cart-footer">
+        <div class="cart-total-line"><span>Subtotal</span><span id="cartSubtotal">Rs. 0</span></div>
+        <div class="cart-total-line grand"><span>Grand Total</span><span id="cartGrand">Rs. 0</span></div>
+        <button class="place-order-btn" onclick="placeOrder()">&#x2705; Place Order &amp; Get Bill</button>
+    </div>
+</div>
+
+<!-- ===== PAYMENT MODAL ===== -->
+<div class="payment-modal-wrap" id="paymentModalWrap" style="display:none">
+    <div class="payment-modal">
+        <div class="payment-modal-header">
+            <h2>&#x1F4B3; Payment Method</h2>
+            <button class="payment-close-btn" onclick="closePaymentModal()" title="Close">&#x2715;</button>
+        </div>
+
+        <!-- Step 1: Choose method -->
+        <div id="deliveryPaymentMethodsSection">
+            <div class="payment-description">
+                <p>Please choose how you would like to pay for your order.</p>
+            </div>
+            <div class="payment-options">
+                <button class="payment-option-btn" onclick="choosePayment('cod')">
+                    &#x1F4B5; Cash on Delivery &mdash; Pay when your order arrives
+                </button>
+                <button class="payment-option-btn online" onclick="choosePayment('online')">
+                    &#x1F4F1; Online Payment &mdash; eSewa
+                </button>
+            </div>
+            <div class="payment-summary">
+                <p>Order Total: <span id="paymentTotal">Rs. 0</span></p>
+            </div>
+        </div>
+
+        <!-- Step 2: QR + screenshot (online only) -->
+        <div id="deliveryOnlinePaySection" style="display:none">
+            <div class="payment-description">
+                <p>Scan the QR code with your payment app, then upload your payment screenshot below.</p>
+            </div>
+
+            <!-- QR Tabs Removed -->
+
+            <div id="delivEsewaQRBlock" style="text-align:center;padding:16px 20px">
+                <p style="font-weight:600;font-size:0.95rem;color:var(--dark);margin-bottom:12px">eSewa QR Code</p>
+                <img src="images/esewa-qr.png" alt="eSewa QR Code"
+                     style="max-width:260px;width:100%;border-radius:10px;border:2px solid #60bb46;box-shadow:0 4px 16px rgba(96,187,70,0.15)">
+                <p style="margin-top:10px;font-size:0.95rem;font-weight:700;color:var(--dark)">Anish Tamang</p>
+                <p style="margin:2px 0 6px;font-size:0.9rem;color:#60bb46;font-weight:600">9821179139</p>
+                <p style="font-size:0.9rem;color:var(--mid)">Amount: <strong id="delivQRAmountEsewa" style="color:var(--dark)">Rs. 0</strong></p>
+            </div>
+
+            <!-- FonePay QR Removed -->
+
+            <!-- Payment app selector removed, defaulted to eSewa -->
+            <div style="display:none;">
+                <select id="delivPaymentApp">
+                    <option value="eSewa" selected>eSewa</option>
+                </select>
+            </div>
+
+            <div style="margin:12px 0">
+                <label style="display:block;font-size:0.9rem;font-weight:600;margin-bottom:8px;color:var(--dark)">Upload Payment Screenshot *</label>
+                <input type="file" id="delivPaymentScreenshot" accept="image/*" style="width:100%;padding:8px;border:1px solid var(--border);border-radius:6px;background:#fff">
+                <p style="margin:5px 0 0;font-size:0.78rem;color:var(--mid)">A screenshot of your payment confirmation is required.</p>
+            </div>
+
+            <button class="btn-primary" onclick="confirmDeliveryOnlinePayment()" style="width:100%;margin-top:14px">&#x2705; Confirm Payment &amp; Place Order</button>
+            <button onclick="backToDeliveryPaymentMethods()" style="width:100%;margin-top:8px;padding:10px;background:var(--border);color:var(--dark);border:none;border-radius:6px;cursor:pointer;font-size:0.9rem">&#x2190; Back</button>
+        </div>
+    </div>
+</div>
+
+<!-- ===== BILL MODAL ===== -->
+<div class="bill-modal-wrap" id="billModalWrap" style="display:none">
+    <div class="bill-modal-inner">
+        <div class="bill-actions">
+            <button class="print-bill-btn" onclick="createOrder()">Create Order</button>
+            <button class="close-bill-btn" onclick="closeBillModal()">&#x2715; Close</button>
+        </div>
+        <div class="receipt" id="receiptContent">
+            <!-- Filled by JS -->
+        </div>
+    </div>
+</div>
+
+<!-- Toast -->
+<div class="cart-toast" id="cartToast"></div>
+
+<script src="js/script.js"></script>
+<script>
+var CART_KEY     = window.CART_KEY || 'taaza_cart';
+var DELIVERY_KEY = 'taaza_delivery_foods';
+var allFoods = [];
+var cart     = [];
+try {
+    cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    window.cart = cart; // Explicitly attach to window for script.js sync
+} catch(e) { 
+    cart = []; 
+    window.cart = [];
+}
+
+/* ===== DEFAULT MENU — version-controlled, auto-refreshes on update ===== */
+var MENU_VERSION = 'v5';
+
+var DEFAULT_DELIVERY_MENU = [
+    /* BREAKFAST */
+    { name:'Milk Tea',             category:'Breakfast', price:35,  deliveryTime:'15', emoji:'🍵', image:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80', description:'Aromatic tea brewed with fresh milk and spices.', available:true },
+    { name:'Black Tea',            category:'Breakfast', price:20,  deliveryTime:'15', emoji:'🍵', image:'https://images.unsplash.com/photo-1564890369478-c89ca6d9cde9?w=600&q=80', description:'Strong and refreshing classic black tea.', available:true },
+    { name:'Lemon Tea',            category:'Breakfast', price:25,  deliveryTime:'15', emoji:'🍋', image:'https://images.unsplash.com/photo-1556679343-c7306c1976bc?w=600&q=80', description:'Zesty tea with fresh lemon and honey.', available:true },
+    { name:'Milk Coffee',          category:'Breakfast', price:100, deliveryTime:'15', emoji:'☕', image:'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=600&q=80', description:'Rich brewed coffee with creamy milk.', available:true },
+    { name:'Black Coffee',         category:'Breakfast', price:60,  deliveryTime:'15', emoji:'☕', image:'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&q=80', description:'Pure, bold brewed coffee.', available:true },
+    { name:'Toast Bread & Omlete', category:'Breakfast', price:150, deliveryTime:'25', emoji:'🍳', image:'https://images.unsplash.com/photo-1525351484163-7529414344d8?w=600&q=80', description:'Buttered toast served with a fluffy omelette.', available:true },
+    { name:'Plain Omlete',         category:'Breakfast', price:100, deliveryTime:'15', emoji:'🍳', image:'https://images.unsplash.com/photo-1612240498936-65f5101365d2?w=600&q=80', description:'Classic two-egg plain omelette.', available:true },
+    { name:'Masala Omlete',        category:'Breakfast', price:150, deliveryTime:'20', emoji:'🍳', image:'https://images.unsplash.com/photo-1576146330834-c1a6f8de2bf6?w=600&q=80', description:'Spiced omelette with onions, tomatoes and green chillies.', available:true },
+
+    /* MO:MO */
+    { name:'Veg Momo (Steam)',     category:'Mo:Mo', price:150, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1534422298391-e4f8c170db76?w=600&q=80', description:'Steamed vegetable dumplings with spicy sesame tomato achar.', available:true },
+    { name:'Veg Momo (Fry)',       category:'Mo:Mo', price:170, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1534422298391-e4f8c170db76?w=600&q=80', description:'Crispy pan-fried vegetable dumplings.', available:true },
+    { name:'Veg Momo (Chilly)',    category:'Mo:Mo', price:200, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1534422298391-e4f8c170db76?w=600&q=80', description:'Vegetable dumplings tossed in spicy chilly sauce.', available:true },
+    { name:'Chicken Momo (Steam)', category:'Mo:Mo', price:150, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?w=600&q=80', description:'Juicy minced chicken dumplings, steamed to perfection.', available:true },
+    { name:'Chicken Momo (Fry)',   category:'Mo:Mo', price:170, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?w=600&q=80', description:'Crispy fried chicken dumplings.', available:true },
+    { name:'Chicken Momo (Chilly)',category:'Mo:Mo', price:200, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1625220194771-7ebdea0b70b9?w=600&q=80', description:'Chicken dumplings in spicy chilly sauce.', available:true },
+    { name:'Buff Momo (Steam)',    category:'Mo:Mo', price:120, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=600&q=80', description:'Traditional buffalo momo, steamed.', available:true },
+    { name:'Buff Momo (Fry)',      category:'Mo:Mo', price:150, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=600&q=80', description:'Traditional buffalo momo, pan-fried.', available:true },
+    { name:'Buff Momo (Chilly)',   category:'Mo:Mo', price:180, deliveryTime:'25', emoji:'🥟', image:'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=600&q=80', description:'Buffalo momo tossed in chilly sauce.', available:true },
+    { name:'Kothe Momo / Jhol Momo', category:'Mo:Mo', price:180, deliveryTime:'30', emoji:'🥟', image:'https://images.unsplash.com/photo-1534422298391-e4f8c170db76?w=600&q=80', description:'Pan-fried or served in spicy traditional broth.', available:true },
+
+    /* CHOWMEIN */
+    { name:'Veg Chowmein',     category:'Chowmein', price:100, deliveryTime:'20', emoji:'🍝', image:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80', description:'Stir-fried noodles with mixed vegetables and aromatic spices.', available:true },
+    { name:'Chicken Chowmein', category:'Chowmein', price:200, deliveryTime:'20', emoji:'🍝', image:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80', description:'Stir-fried noodles with tender chicken and crunchy vegetables.', available:true },
+    { name:'Buff Chowmein',    category:'Chowmein', price:200, deliveryTime:'25', emoji:'🍝', image:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80', description:'Flavorful noodles with marinated buff meat.', available:true },
+    { name:'Egg Chowmein',     category:'Chowmein', price:150, deliveryTime:'20', emoji:'🍝', image:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80', description:'Noodles with scrambled eggs and mixed vegetables.', available:true },
+    { name:'Mix Chowmein',     category:'Chowmein', price:250, deliveryTime:'25', emoji:'🍝', image:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80', description:'Premium mix of vegetables, chicken, and buff.', available:true },
+
+    /* MEAT DELIGHTS — Buff */
+    { name:'Sukuti',       category:'Meat Delights', price:300, deliveryTime:'30', emoji:'🍖', image:'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80', description:'Traditional dried buff meat seasoned with spices.', available:true },
+    { name:'Buff Chilly',  category:'Meat Delights', price:300, deliveryTime:'30', emoji:'🍖', image:'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80', description:'Tender buff pieces in spicy chilly sauce.', available:true },
+    { name:'Buff Sandeko', category:'Meat Delights', price:300, deliveryTime:'30', emoji:'🍖', image:'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80', description:'Sliced buff with peppers and onions, lightly spiced.', available:true },
+    { name:'Buff Choila',  category:'Meat Delights', price:300, deliveryTime:'30', emoji:'🍖', image:'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80', description:'Grilled buff served with traditional achar.', available:true },
+    /* Meat Delights — Chicken */
+    { name:'Chicken Fry',       category:'Meat Delights', price:300, deliveryTime:'35', emoji:'🍗', image:'https://images.unsplash.com/photo-1626082927389-6cd097cda687?w=600&q=80', description:'Crispy deep-fried chicken marinated in aromatic spices.', available:true },
+    { name:'Chicken Chilly',    category:'Meat Delights', price:350, deliveryTime:'35', emoji:'🍗', image:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&q=80', description:'Tender chicken in spicy chilly sauce with onions and peppers.', available:true },
+    { name:'Chicken Lolipop',   category:'Meat Delights', price:300, deliveryTime:'30', emoji:'🍗', image:'https://images.unsplash.com/photo-1626082927389-6cd097cda687?w=600&q=80', description:'Chicken lollipop marinated and deep-fried until golden.', available:true },
+    { name:'Chicken Curry',     category:'Meat Delights', price:350, deliveryTime:'35', emoji:'🍛', image:'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80', description:'Chicken cooked in rich, aromatic curry sauce.', available:true },
+    { name:'Pangra Fry',        category:'Meat Delights', price:350, deliveryTime:'35', emoji:'🍗', image:'https://images.unsplash.com/photo-1626082927389-6cd097cda687?w=600&q=80', description:'Crispy fried chicken pieces with traditional spice blend.', available:true },
+    { name:'Pangra Sandeko',    category:'Meat Delights', price:350, deliveryTime:'35', emoji:'🍗', image:'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&q=80', description:'Grilled chicken with peppers, onions, and tomatoes.', available:true },
+    { name:'Chicken Boiled',    category:'Meat Delights', price:300, deliveryTime:'30', emoji:'🍗', image:'https://images.unsplash.com/photo-1626082927389-6cd097cda687?w=600&q=80', description:'Tender boiled chicken served with light spice.', available:true },
+    { name:'Local Chicken Curry',category:'Meat Delights', price:450, deliveryTime:'40', emoji:'🍛', image:'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80', description:'Premium local chicken in rich traditional curry.', available:true },
+
+    /* PAPAD ITEMS */
+    { name:'Dry Papad',    category:'Papad Items', price:50,  deliveryTime:'10', emoji:'🫓', image:'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&q=80', description:'Crispy dry papad.', available:true },
+    { name:'Fry Papad',    category:'Papad Items', price:50,  deliveryTime:'15', emoji:'🫓', image:'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&q=80', description:'Golden crispy fried papad.', available:true },
+    { name:'Masala Papad', category:'Papad Items', price:100, deliveryTime:'15', emoji:'🫓', image:'https://images.unsplash.com/photo-1589302168068-964664d93dc0?w=600&q=80', description:'Papad topped with spiced onion-tomato mixture.', available:true },
+    { name:'Prawan Fry',   category:'Papad Items', price:150, deliveryTime:'20', emoji:'🦐', image:'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&q=80', description:'Crispy fried prawns with light seasoning.', available:true },
+    { name:'Pop Corn',     category:'Papad Items', price:50,  deliveryTime:'15', emoji:'🍿', image:'https://images.unsplash.com/photo-1585951237318-9ea266b8a312?w=600&q=80', description:'Freshly popped corn with light seasoning.', available:true },
+
+    /* SALADS */
+    { name:'Green Salad',  category:'Salads', price:150, deliveryTime:'10', emoji:'🥗', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Fresh mixed green salad with light dressing.', available:true },
+    { name:'Nepali Salad', category:'Salads', price:200, deliveryTime:'15', emoji:'🥗', image:'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=600&q=80', description:'Traditional Nepali-style salad with local ingredients.', available:true },
+    { name:'Fruit Salad',  category:'Salads', price:350, deliveryTime:'15', emoji:'🍎', image:'https://images.unsplash.com/photo-1488459716781-bc3ee4d8a4ba?w=600&q=80', description:'Seasonal fresh fruits in light honey dressing.', available:true },
+
+    /* SPECIAL ITEMS */
+    { name:'Ghonghi',        category:'Special Items', price:200, deliveryTime:'30', emoji:'🐚', image:'https://images.unsplash.com/photo-1504674900152-cb9d6e4e9f80?w=600&q=80', description:'River snails prepared with traditional Nepali spices.', available:true },
+    { name:'Hot Dog',        category:'Special Items', price:200, deliveryTime:'20', emoji:'🌭', image:'https://images.unsplash.com/photo-1619881590738-a111d176d906?w=600&q=80', description:'Juicy hot dog in a soft bun with toppings.', available:true },
+    { name:'Corn Dog',       category:'Special Items', price:300, deliveryTime:'25', emoji:'🌭', image:'https://images.unsplash.com/photo-1619881590738-a111d176d906?w=600&q=80', description:'Corn-battered hot dog, crispy outside and juicy inside.', available:true },
+    { name:'Chicken Pizza',  category:'Special Items', price:450, deliveryTime:'40', emoji:'🍕', image:'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80', description:'Wood-fired pizza with chicken, cheese, and fresh herbs.', available:true },
+    { name:'Chicken Sizzler',category:'Special Items', price:400, deliveryTime:'35', emoji:'🍳', image:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80', description:'Chicken served on a sizzling hot plate with sides.', available:true },
+    { name:'Chicken Burger', category:'Special Items', price:250, deliveryTime:'25', emoji:'🍔', image:'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80', description:'Grilled chicken patty in a soft burger bun with veggies.', available:true },
+
+    /* ROLLS */
+    { name:'Veg Spring Roll', category:'Rolls', price:200, deliveryTime:'20', emoji:'🌯', image:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=600&q=80', description:'Crispy fried vegetable spring roll.', available:true },
+    { name:'Chicken Roll',    category:'Rolls', price:250, deliveryTime:'20', emoji:'🌯', image:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=600&q=80', description:'Spiced chicken in a crispy roll wrapper.', available:true },
+    { name:'Buff Roll',       category:'Rolls', price:250, deliveryTime:'25', emoji:'🌯', image:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=600&q=80', description:'Buff meat in a golden fried roll.', available:true },
+    { name:'Mix Roll',        category:'Rolls', price:300, deliveryTime:'25', emoji:'🌯', image:'https://images.unsplash.com/photo-1559847844-5315695dadae?w=600&q=80', description:'Premium mix of vegetables and meat in a roll.', available:true },
+
+    /* SEKUWA */
+    { name:'Wings Poleko',    category:'Sekuwa', price:300, deliveryTime:'35', emoji:'🍖', image:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80', description:'Grilled chicken wings with traditional marinade.', available:true },
+    { name:'Chicken Sekuwa',  category:'Sekuwa', price:300, deliveryTime:'35', emoji:'🍖', image:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80', description:'Traditional Nepali BBQ chicken grilled over charcoal.', available:true },
+    { name:'Mutton Sekuwa',   category:'Sekuwa', price:400, deliveryTime:'40', emoji:'🍖', image:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80', description:'Tender mutton pieces grilled over charcoal.', available:true },
+    { name:'Buff Sekuwa',     category:'Sekuwa', price:200, deliveryTime:'35', emoji:'🍖', image:'https://images.unsplash.com/photo-1529193591184-b1d58069ecdd?w=600&q=80', description:'Buff meat grilled with traditional spices.', available:true },
+    { name:'Mushroom Sekuwa', category:'Sekuwa', price:300, deliveryTime:'30', emoji:'🍄', image:'https://images.unsplash.com/photo-1540420773420-3366772f4999?w=600&q=80', description:'Grilled mushroom pieces with aromatic spices.', available:true },
+
+    /* SOUP */
+    { name:'Veg Soup',        category:'Soup', price:150, deliveryTime:'25', emoji:'🍲', image:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80', description:'Hot vegetable soup with garden-fresh vegetables.', available:true },
+    { name:'Chicken Soup',    category:'Soup', price:200, deliveryTime:'30', emoji:'🍲', image:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80', description:'Warm chicken broth with tender meat pieces.', available:true },
+    { name:'Mutton Soup',     category:'Soup', price:250, deliveryTime:'35', emoji:'🍲', image:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80', description:'Rich mutton soup with aromatic spices.', available:true },
+    { name:'Mushroom Soup',   category:'Soup', price:200, deliveryTime:'25', emoji:'🍲', image:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80', description:'Creamy mushroom soup.', available:true },
+    { name:'Hot & Sour Soup', category:'Soup', price:200, deliveryTime:'25', emoji:'🌶️', image:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80', description:'Spicy and tangy hot & sour soup.', available:true },
+    { name:'Mix Soup',        category:'Soup', price:250, deliveryTime:'30', emoji:'🍲', image:'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&q=80', description:'Mix of vegetables and meat in hot broth.', available:true },
+
+    /* THUKPA */
+    { name:'Veg Thukpa',    category:'Thukpa', price:150, deliveryTime:'30', emoji:'🍜', image:'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600&q=80', description:'Vegetable thukpa with noodles in clear broth.', available:true },
+    { name:'Chicken Thukpa',category:'Thukpa', price:250, deliveryTime:'35', emoji:'🍜', image:'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600&q=80', description:'Chicken thukpa with soft noodles and spiced broth.', available:true },
+    { name:'Buff Thukpa',   category:'Thukpa', price:250, deliveryTime:'35', emoji:'🍜', image:'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600&q=80', description:'Buff meat thukpa with noodles in rich broth.', available:true },
+    { name:'Mutton Thukpa', category:'Thukpa', price:300, deliveryTime:'40', emoji:'🍜', image:'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600&q=80', description:'Tender mutton thukpa with aromatic broth.', available:true },
+
+    /* MUTTON */
+    { name:'Mutton Fry',     category:'Mutton Items', price:400, deliveryTime:'40', emoji:'🍖', image:'https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80', description:'Crispy fried mutton pieces with traditional spices.', available:true },
+    { name:'Mutton Tass',    category:'Mutton Items', price:400, deliveryTime:'40', emoji:'🍖', image:'https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80', description:'Mutton in spicy tomato gravy.', available:true },
+    { name:'Mutton Boiled',  category:'Mutton Items', price:400, deliveryTime:'40', emoji:'🍖', image:'https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80', description:'Tender boiled mutton served with light spices.', available:true },
+    { name:'Mutton Sandeko', category:'Mutton Items', price:400, deliveryTime:'40', emoji:'🍖', image:'https://images.unsplash.com/photo-1574484284002-952d92456975?w=600&q=80', description:'Mutton with peppers and onions, traditional style.', available:true },
+
+    /* DUCK */
+    { name:'Duck Choila',  category:'Duck Items', price:400, deliveryTime:'40', emoji:'🦆', image:'https://images.unsplash.com/photo-1604306309707-6e99d1ae1e6e?w=600&q=80', description:'Grilled duck served with traditional achar.', available:true },
+    { name:'Duck Curry',   category:'Duck Items', price:400, deliveryTime:'45', emoji:'🦆', image:'https://images.unsplash.com/photo-1604306309707-6e99d1ae1e6e?w=600&q=80', description:'Duck cooked in rich aromatic curry sauce.', available:true },
+    { name:'Duck Sandeko', category:'Duck Items', price:400, deliveryTime:'40', emoji:'🦆', image:'https://images.unsplash.com/photo-1604306309707-6e99d1ae1e6e?w=600&q=80', description:'Duck with peppers, onions, and spices.', available:true },
+
+    /* FISH */
+    { name:'Fish Fry',   category:'Fish Items', price:300, deliveryTime:'35', emoji:'🐟', image:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80', description:'Crispy fried fish fillet with light spices.', available:true },
+    { name:'Fish Curry', category:'Fish Items', price:300, deliveryTime:'35', emoji:'🐟', image:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80', description:'Fish cooked in traditional curry sauce.', available:true },
+    { name:'Fish Sekuwa',category:'Fish Items', price:300, deliveryTime:'35', emoji:'🐟', image:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80', description:'Grilled fish with aromatic spices.', available:true },
+    { name:'Fish Tikka', category:'Fish Items', price:300, deliveryTime:'35', emoji:'🐟', image:'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=600&q=80', description:'Marinated and grilled fish pieces.', available:true },
+
+    /* BANDEL */
+    { name:'Bandel Boiled',  category:'Bandel Items', price:400, deliveryTime:'40', emoji:'🍖', image:'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80', description:'Tender boiled bandel (wild boar) meat.', available:true },
+    { name:'Bandel Sandeko', category:'Bandel Items', price:400, deliveryTime:'40', emoji:'🍖', image:'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80', description:'Bandel with peppers and onions.', available:true },
+    { name:'Bandel Dameko',  category:'Bandel Items', price:400, deliveryTime:'40', emoji:'🍖', image:'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80', description:'Bandel prepared with traditional slow cooking.', available:true },
+    { name:'Bandel Curry',   category:'Bandel Items', price:400, deliveryTime:'40', emoji:'🍛', image:'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&q=80', description:'Bandel cooked in aromatic curry sauce.', available:true },
+
+    /* VEG ITEMS */
+    { name:'Veg Pakauda',    category:'Veg Items', price:200, deliveryTime:'20', emoji:'🥦', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Deep-fried mixed vegetable fritters.', available:true },
+    { name:'Paneer Pakauda', category:'Veg Items', price:300, deliveryTime:'25', emoji:'🧀', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Cottage cheese fritters, deep-fried.', available:true },
+    { name:'Alu Pakauda',    category:'Veg Items', price:200, deliveryTime:'20', emoji:'🥔', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Crispy potato fritters.', available:true },
+    { name:'Veg Sothe',      category:'Veg Items', price:250, deliveryTime:'30', emoji:'🥘', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Traditional vegetable stew with spices.', available:true },
+    { name:'Veg Boiled',     category:'Veg Items', price:200, deliveryTime:'25', emoji:'🥗', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Boiled vegetables with light seasoning.', available:true },
+    { name:'Onion Pakauda',  category:'Veg Items', price:200, deliveryTime:'20', emoji:'🧅', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Crispy onion fritters.', available:true },
+    { name:'Veg Tempura',    category:'Veg Items', price:200, deliveryTime:'20', emoji:'🥦', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Lightly battered and fried vegetables.', available:true },
+    { name:'Finger Chips',   category:'Veg Items', price:200, deliveryTime:'15', emoji:'🍟', image:'https://images.unsplash.com/photo-1576107232684-1279f390859f?w=600&q=80', description:'Golden crispy potato strips.', available:true },
+    { name:'Bhatmas Sandeko',category:'Veg Items', price:150, deliveryTime:'15', emoji:'🌿', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Roasted soybean with spices.', available:true },
+    { name:'Peanut Sandeko', category:'Veg Items', price:200, deliveryTime:'15', emoji:'🥜', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Roasted peanuts tossed with spices.', available:true },
+    { name:'Noodles Sandeko',category:'Veg Items', price:100, deliveryTime:'15', emoji:'🍝', image:'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=600&q=80', description:'Crispy fried noodles with spiced salad.', available:true },
+    { name:'Kaju Fry',       category:'Veg Items', price:350, deliveryTime:'20', emoji:'🥜', image:'https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&q=80', description:'Crispy fried cashew nuts with light seasoning.', available:true },
+
+    /* KHAJA SETS */
+    { name:'Buff Khaja Set',         category:'Khaja Sets', price:350, deliveryTime:'35', emoji:'🍛', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Traditional buff meat khaja set platter.', available:true },
+    { name:'Chicken Khaja Set',      category:'Khaja Sets', price:350, deliveryTime:'35', emoji:'🍛', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Chicken khaja meal platter.', available:true },
+    { name:'Local Chicken Khaja Set',category:'Khaja Sets', price:450, deliveryTime:'40', emoji:'🍛', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Premium local chicken khaja set platter.', available:true },
+    { name:'Mutton Khaja Set',       category:'Khaja Sets', price:400, deliveryTime:'40', emoji:'🍛', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Mutton khaja set platter.', available:true },
+    { name:'Bandel / Duck Khaja Set',category:'Khaja Sets', price:450, deliveryTime:'40', emoji:'🍛', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Bandel or duck khaja set platter.', available:true },
+    { name:'Fish Khaja Set',         category:'Khaja Sets', price:350, deliveryTime:'35', emoji:'🐟', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Fresh fish khaja set platter.', available:true },
+
+    /* NEPALI KHANA */
+    { name:'Dhindo and Local Chicken',category:'Nepali Khana', price:450, deliveryTime:'40', emoji:'🥘', image:'https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&q=80', description:'Traditional cornmeal dhindo with local chicken curry.', available:true },
+    { name:'Sada Khana (Veg Thali)', category:'Nepali Khana', price:250, deliveryTime:'30', emoji:'🍱', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Traditional Nepali rice, dal, and vegetable thali.', available:true },
+    { name:'Chicken Khana',          category:'Nepali Khana', price:350, deliveryTime:'35', emoji:'🍛', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Rice, dal, and chicken curry — Nepali style.', available:true },
+    { name:'Mutton Khana',           category:'Nepali Khana', price:450, deliveryTime:'40', emoji:'🍛', image:'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80', description:'Rice, dal, and mutton curry — Nepali style.', available:true },
+
+    /* BEVERAGES — Lassi & Cold Drinks */
+    { name:'Plain Lassi',                    category:'Beverages', price:100, deliveryTime:'10', emoji:'🥛', image:'https://images.unsplash.com/photo-1571006682858-3cb3044c329d?w=600&q=80', description:'Traditional yogurt-based lassi drink.', available:true },
+    { name:'Banana Lassi',                   category:'Beverages', price:160, deliveryTime:'15', emoji:'🍌', image:'https://images.unsplash.com/photo-1571006682858-3cb3044c329d?w=600&q=80', description:'Creamy banana lassi with yogurt.', available:true },
+    { name:'Kaju Lassi',                     category:'Beverages', price:250, deliveryTime:'15', emoji:'🥛', image:'https://images.unsplash.com/photo-1571006682858-3cb3044c329d?w=600&q=80', description:'Premium cashew-enriched lassi.', available:true },
+    { name:'Soft Drinks (Coke/Fanta/Sprite)',category:'Beverages', price:80,  deliveryTime:'10', emoji:'🥤', image:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=80', description:'Chilled soft drinks — Coke, Fanta, or Sprite.', available:true },
+    { name:'Fresh Juice (Mix)',              category:'Beverages', price:130, deliveryTime:'15', emoji:'🧃', image:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=80', description:'Freshly blended mixed fruit juice.', available:true },
+    { name:'Fresh Juice (Pineapple)',        category:'Beverages', price:100, deliveryTime:'15', emoji:'🍍', image:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=80', description:'Fresh pineapple juice.', available:true },
+    { name:'Red Bull',                       category:'Beverages', price:150, deliveryTime:'10', emoji:'⚡', image:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=80', description:'Red Bull energy drink.', available:true },
+    { name:'Red Bull (Imported)',            category:'Beverages', price:350, deliveryTime:'10', emoji:'⚡', image:'https://images.unsplash.com/photo-1622483767028-3f66f32aef97?w=600&q=80', description:'Imported Red Bull energy drink.', available:true },
+
+    /* HARD DRINKS (60 ml serving) */
+    { name:'Old Durbar Black (60ml)',  category:'Hard Drinks', price:350, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Old Durbar Black Label whisky — 60ml serve.', available:true },
+    { name:'Old Durbar Red (60ml)',    category:'Hard Drinks', price:270, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Old Durbar Red Label whisky — 60ml serve.', available:true },
+    { name:'8848 Vodka (60ml)',        category:'Hard Drinks', price:220, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Premium 8848 Vodka — 60ml serve.', available:true },
+    { name:'Red Signature (60ml)',     category:'Hard Drinks', price:250, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Red Signature whisky — 60ml serve.', available:true },
+    { name:'Golden Oak (60ml)',        category:'Hard Drinks', price:125, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Golden Oak whisky — 60ml serve.', available:true },
+    { name:'Khukuri Rum (60ml)',       category:'Hard Drinks', price:220, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Iconic Khukuri Rum — 60ml serve.', available:true },
+    { name:'Ruslan Vodka (60ml)',      category:'Hard Drinks', price:200, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Ruslan Vodka — 60ml serve.', available:true },
+    { name:'Yeti Vodka (60ml)',        category:'Hard Drinks', price:235, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Yeti Vodka — 60ml serve.', available:true },
+    { name:'Gorkhas N Guns (60ml)',    category:'Hard Drinks', price:300, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Gorkhas N Guns whisky — 60ml serve.', available:true },
+    { name:'Highlander (60ml)',        category:'Hard Drinks', price:125, deliveryTime:'15', emoji:'🥃', image:'https://images.unsplash.com/photo-1569529465841-dfecdab7503b?w=600&q=80', description:'Highlander whisky — 60ml serve.', available:true },
+
+    /* BEER */
+    { name:'Carlsberg Beer',    category:'Beer & Wine', price:650,  deliveryTime:'15', emoji:'🍺', image:'https://images.unsplash.com/photo-1608270861620-7db80663fe7b?w=600&q=80', description:'Carlsberg premium imported beer.', available:true },
+    { name:'Tuborg Beer',       category:'Beer & Wine', price:550,  deliveryTime:'15', emoji:'🍺', image:'https://images.unsplash.com/photo-1608270861620-7db80663fe7b?w=600&q=80', description:'Tuborg beer.', available:true },
+    { name:'Gorkha Premium',    category:'Beer & Wine', price:500,  deliveryTime:'15', emoji:'🍺', image:'https://images.unsplash.com/photo-1608270861620-7db80663fe7b?w=600&q=80', description:'Gorkha Premium beer.', available:true },
+    { name:'Gorkha Strong',     category:'Beer & Wine', price:450,  deliveryTime:'15', emoji:'🍺', image:'https://images.unsplash.com/photo-1608270861620-7db80663fe7b?w=600&q=80', description:'Gorkha Strong beer.', available:true },
+    { name:'J.P. Chenet Wine',  category:'Beer & Wine', price:2200, deliveryTime:'15', emoji:'🍷', image:'https://images.unsplash.com/photo-1510812431401-41d2cab2707d?w=600&q=80', description:'J.P. Chenet French wine.', available:true },
+    { name:'Big Master Wine',   category:'Beer & Wine', price:1100, deliveryTime:'15', emoji:'🍷', image:'https://images.unsplash.com/photo-1510812431401-41d2cab2707d?w=600&q=80', description:'Big Master premium wine.', available:true },
+    { name:'Akira Wine',        category:'Beer & Wine', price:1000, deliveryTime:'15', emoji:'🍷', image:'https://images.unsplash.com/photo-1510812431401-41d2cab2707d?w=600&q=80', description:'Akira premium wine.', available:true },
+    { name:'Hukka',             category:'Beer & Wine', price:350,  deliveryTime:'15', emoji:'🍺', image:'https://images.unsplash.com/photo-1608270861620-7db80663fe7b?w=600&q=80', description:'Hukka beer.', available:true },
+    // CIGARETTES
+    { name:'Surya Red',        category:'Cigarettes', price:500, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'Surya Red cigarettes — 1 pack.', available:true },
+    { name:'Surya Lights',     category:'Cigarettes', price:520, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'Surya Lights cigarettes — 1 pack.', available:true },
+    { name:'Surya Arctic',     category:'Cigarettes', price:550, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'Surya Arctic cigarettes — 1 pack.', available:true },
+    { name:'ESSE Blue',        category:'Cigarettes', price:360, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'ESSE Blue cigarettes — 1 pack.', available:true },
+    { name:'ESSE Menthol',     category:'Cigarettes', price:370, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'ESSE Menthol cigarettes — 1 pack.', available:true },
+    { name:'ESSE Black',       category:'Cigarettes', price:380, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'ESSE Black cigarettes — 1 pack.', available:true },
+    { name:'Shikhar Ice',      category:'Cigarettes', price:270, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'Shikhar Ice cigarettes — 1 pack.', available:true },
+    { name:'Shikhar Rush',     category:'Cigarettes', price:400, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'Shikhar Rush cigarettes — 1 pack.', available:true },
+    { name:'Captain',          category:'Cigarettes', price:300, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'Captain cigarettes — 1 pack.', available:true },
+    { name:'Marlboro',         category:'Cigarettes', price:400, deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'Marlboro cigarettes — 1 pack.', available:true },
+    { name:'Single Cigarette', category:'Cigarettes', price:25,  deliveryTime:'5', emoji:'🚬', image:'https://images.unsplash.com/photo-1527769929977-c341c03ccfb6?w=600&q=80', description:'Single cigarette.', available:true },
+];
+
+function seedDefaultMenu() {
+    if (localStorage.getItem('taaza_menu_ver') !== MENU_VERSION) {
+        var seeded = DEFAULT_DELIVERY_MENU.map(function(item) {
+            var newItem = {};
+            for (var key in item) { newItem[key] = item[key]; }
+            newItem.id = 'F-' + Math.random().toString(36).slice(2, 8);
+            return newItem;
+        });
+        localStorage.setItem(DELIVERY_KEY, JSON.stringify(seeded));
+        localStorage.setItem('taaza_menu_ver', MENU_VERSION);
+    }
+}
+
+/* ===== LOAD & RENDER FOODS ===== */
+function loadFoods() {
+    seedDefaultMenu();
+
+    /* Delivery-specific items */
+    var deliveryItems = JSON.parse(localStorage.getItem(DELIVERY_KEY) || '[]')
+        .filter(function(f) { return f.available === true || f.available === 'yes'; });
+
+    /* Dine-in menu items — merged in so all restaurant items are also orderable */
+    var menuItems = JSON.parse(localStorage.getItem('taaza_menu_items') || '[]')
+        .filter(function(f) { return f.available === 'yes' || f.available === true; })
+        .map(function(f) {
+            return {
+                id:           'menu_' + f.id,
+                name:         f.name,
+                category:     f.category,
+                price:        f.price,
+                emoji:        f.emoji || '🍽️',
+                description:  f.desc || f.description || 'Fresh from our kitchen.',
+                deliveryTime: '30',
+                available:    true
+            };
+        });
+
+    /* Add menu items that don't already exist in delivery list (match by name) */
+    var existing = deliveryItems.map(function(f) { return f.name.toLowerCase().trim(); });
+    menuItems.forEach(function(m) {
+        if (existing.indexOf(m.name.toLowerCase().trim()) === -1) {
+            deliveryItems.push(m);
+        }
+    });
+
+    /* Exclude swimming-ticket items — managed separately in admin */
+    allFoods = deliveryItems.filter(function(f) {
+        var cat = (f.category || '').toLowerCase();
+        return cat.indexOf('ticket') === -1 && cat.indexOf('swim') === -1;
+    });
+
+    if (!allFoods.length) {
+        document.getElementById('foodGrid').innerHTML =
+            '<div class="empty-state" style="grid-column:1/-1;text-align:center;padding:60px 20px;">' +
+            '<p style="font-size:1.1rem;color:var(--text-muted);margin-bottom:16px;">No menu items are currently available.</p>' +
+            '<a href="admin.html" style="display:inline-block;background:var(--gold);color:var(--green-deep);padding:10px 24px;border-radius:8px;font-weight:600;text-decoration:none;">Open Admin Panel to Enable Items</a>' +
+            '</div>';
+        document.getElementById('filterBar').innerHTML = '';
+        return;
+    }
+    buildFilters();
+    renderFoods(allFoods);
+    updateCartUI();
+
+    if (window.location.search.includes('openCart=true')) {
+        setTimeout(openCartModal, 500);
+    }
+}
+
+function buildFilters() {
+    var bar  = document.getElementById('filterBar');
+    var cats = [];
+    allFoods.forEach(function(f) {
+        if (f.category && cats.indexOf(f.category) === -1) cats.push(f.category);
+    });
+    bar.innerHTML = '<button class="filter-btn active" onclick="filterFoods(\'all\', this)">All Delicacies</button>';
+    cats.forEach(function(cat) {
+        var btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.textContent = cat;
+        btn.onclick = function() { filterFoods(cat, this); };
+        bar.appendChild(btn);
+    });
+}
+
+var _currentCategory = 'all';
+
+function filterFoods(cat, btn) {
+    _currentCategory = cat;
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('sectionTitle').textContent = cat === 'all' ? 'Selection of the Day' : cat;
+    document.getElementById('sectionLabel').textContent = cat === 'all' ? 'Our Menu' : 'Browsing';
+    applyFilters();
+}
+
+function searchFoods(q) {
+    var clr = document.getElementById('searchClear');
+    if (clr) clr.style.display = q ? 'flex' : 'none';
+    applyFilters();
+}
+
+function clearSearch() {
+    var inp = document.getElementById('foodSearch');
+    if (inp) inp.value = '';
+    var clr = document.getElementById('searchClear');
+    if (clr) clr.style.display = 'none';
+    applyFilters();
+    if (inp) inp.focus();
+}
+
+function applyFilters() {
+    var q   = ((document.getElementById('foodSearch') || {}).value || '').toLowerCase().trim();
+    var list = _currentCategory === 'all' ? allFoods : allFoods.filter(function(f) { return f.category === _currentCategory; });
+    if (q) {
+        list = list.filter(function(f) {
+            return f.name.toLowerCase().indexOf(q) !== -1 ||
+                   (f.description || '').toLowerCase().indexOf(q) !== -1 ||
+                   (f.category    || '').toLowerCase().indexOf(q) !== -1;
+        });
+    }
+    renderFoods(list);
+}
+
+function renderFoods(list) {
+    var grid = document.getElementById('foodGrid');
+    if (!list.length) {
+        grid.innerHTML = '<div class="empty-state">No items found in this category.</div>';
+        return;
+    }
+    grid.innerHTML = list.map(function(food) {
+        return '<div class="food-card">' +
+            '<div class="food-card-img">' + (food.emoji || '🍽️') + '</div>' +
+            '<div class="food-card-body">' +
+                '<h3>' + esc(food.name) + '</h3>' +
+                '<p>' + esc(food.description || 'Prepared with fresh ingredients and traditional spices.') + '</p>' +
+                '<div class="food-meta">' +
+                    '<span class="food-price">Rs. ' + food.price + '</span>' +
+                    '<span class="food-time">&#x23F1; ' + (food.deliveryTime || '30') + ' mins</span>' +
+                '</div>' +
+                '<button class="add-to-cart-btn" onclick="addToCartById(\'' + food.id + '\')">' +
+                    '<span style="font-size:1.2rem">+</span> Add to Cart' +
+                '</button>' +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+
+function addToCartById(id) {
+    console.log('Taaza Delivery: Adding food by ID:', id);
+    if (!allFoods || allFoods.length === 0) {
+        console.warn('Taaza Delivery: allFoods is empty, reloading...');
+        loadFoods();
+    }
+    var food = allFoods.find(function(f) { return String(f.id) === String(id); });
+    if (food) {
+        addToCart(food);
+    } else {
+        console.error('Taaza Delivery: Food item not found for ID:', id);
+        alert('Sorry, this item is currently unavailable.');
+    }
+}
+
+/* ===== CART ===== */
+function addToCart(food) {
+    if (!food) return;
+    var existing = cart.find(function(c) { return String(c.id) === String(food.id); });
+    if (existing) {
+        existing.qty++;
+    } else {
+        cart.push({ 
+            id: food.id, 
+            name: food.name, 
+            price: food.price, 
+            emoji: food.emoji || '🍱', 
+            qty: 1,
+            deliveryTime: food.deliveryTime || '30'
+        });
+    }
+    updateCartUI();
+    showToast((food.emoji || '🍽️') + ' ' + food.name + ' added to bill!');
+    /* On mobile, just bounce the cart FAB instead of covering the screen */
+    if (window.innerWidth <= 768) {
+        var fab = document.getElementById('cartFab');
+        if (fab) {
+            fab.style.display = 'flex';
+            fab.classList.remove('cart-fab-bounce');
+            void fab.offsetWidth; /* force reflow */
+            fab.classList.add('cart-fab-bounce');
+        }
+    } else {
+        openCartModal();
+    }
+}
+
+function changeQty(id, delta) {
+    var item = cart.find(function(c) { return c.id === id; });
+    if (!item) return;
+    item.qty += delta;
+    if (item.qty <= 0) cart = cart.filter(function(c) { return c.id !== id; });
+    window.cart = cart;
+    updateCartUI();
+}
+
+function updateCartUI() {
+    localStorage.setItem(CART_KEY, JSON.stringify(cart));
+
+    var totalQty = cart.reduce(function(s, c) { return s + c.qty; }, 0);
+    var fab = document.getElementById('cartFab');
+    if (fab) {
+        fab.style.display = totalQty > 0 ? 'flex' : 'none';
+        document.getElementById('cartBadge').textContent = totalQty;
+    }
+    
+    // Sync with navigation badge if function exists
+    if (typeof updateCartNavBadge === 'function') {
+        updateCartNavBadge();
+    }
+
+    /* Render items */
+    var el = document.getElementById('cartItemsList');
+    if (!cart.length) {
+        el.innerHTML = '<p class="cart-empty-msg">No items yet. Add food from the menu.</p>';
+    } else {
+        el.innerHTML = cart.map(function(c) {
+            return '<div class="cart-item">' +
+                '<span class="cart-item-emoji">' + (c.emoji || '🍱') + '</span>' +
+                '<span class="cart-item-name">' + esc(c.name) + '</span>' +
+                '<div class="qty-controls">' +
+                    '<button class="qty-btn" onclick="changeQty(\'' + c.id + '\', -1)">&#x2212;</button>' +
+                    '<span class="qty-display">' + c.qty + '</span>' +
+                    '<button class="qty-btn" onclick="changeQty(\'' + c.id + '\', 1)">+</button>' +
+                '</div>' +
+                '<span class="cart-item-price">Rs. ' + (c.price * c.qty) + '</span>' +
+            '</div>';
+        }).join('');
+    }
+
+    /* Totals */
+    var sub   = cart.reduce(function(s, c) { return s + c.price * c.qty; }, 0);
+    var grand = sub;
+    document.getElementById('cartSubtotal').textContent = 'Rs. ' + sub;
+    document.getElementById('cartGrand').textContent    = 'Rs. ' + grand;
+}
+
+/* Cart modal open/close */
+function openCartModal() {
+    document.getElementById('cartModal').style.display   = 'flex';
+    document.getElementById('cartOverlay').style.display = 'block';
+}
+function closeCartModal() {
+    document.getElementById('cartModal').style.display   = 'none';
+    document.getElementById('cartOverlay').style.display = 'none';
+}
+
+/* Payment */
+var pendingOrder = null;
+
+function openPaymentModal(order) {
+    pendingOrder = order;
+    document.getElementById('paymentTotal').textContent = 'Rs. ' + order.grand;
+    document.getElementById('deliveryPaymentMethodsSection').style.display = 'block';
+    document.getElementById('deliveryOnlinePaySection').style.display = 'none';
+    document.getElementById('paymentModalWrap').style.display = 'flex';
+}
+function closePaymentModal() {
+    document.getElementById('paymentModalWrap').style.display = 'none';
+    document.getElementById('deliveryPaymentMethodsSection').style.display = 'block';
+    document.getElementById('deliveryOnlinePaySection').style.display = 'none';
+    var sc = document.getElementById('delivPaymentScreenshot');
+    if (sc) sc.value = '';
+    var app = document.getElementById('delivPaymentApp');
+    if (app) app.value = '';
+}
+
+function choosePayment(method) {
+    if (!pendingOrder) return;
+
+    if (method === 'online') {
+        document.getElementById('deliveryPaymentMethodsSection').style.display = 'none';
+        document.getElementById('deliveryOnlinePaySection').style.display = 'block';
+        document.getElementById('delivQRAmountEsewa').textContent = 'Rs. ' + pendingOrder.grand;
+        var appSelect = document.getElementById('delivPaymentApp');
+        if (appSelect) appSelect.value = 'eSewa';
+        switchDelivQRTab('esewa');
+        return;
+    }
+
+    // Cash on Delivery — show receipt immediately; admin save on "Create Order"
+    generateOrderReceipt('Cash on Delivery', 'Please keep Rs. ' + pendingOrder.grand + ' ready for the delivery agent.');
+}
+
+function switchDelivQRTab(tab) {
+    var esewaBlock    = document.getElementById('delivEsewaQRBlock');
+    if (!esewaBlock) return;
+    if (tab === 'esewa') {
+        esewaBlock.style.display   = 'block';
+    } else {
+        esewaBlock.style.display   = 'none';
+    }
+}
+
+function backToDeliveryPaymentMethods() {
+    document.getElementById('deliveryOnlinePaySection').style.display  = 'none';
+    document.getElementById('deliveryPaymentMethodsSection').style.display = 'block';
+    var sc = document.getElementById('delivPaymentScreenshot');
+    if (sc) sc.value = '';
+    var app = document.getElementById('delivPaymentApp');
+    if (app) app.value = '';
+}
+
+function confirmDeliveryOnlinePayment() {
+    if (!pendingOrder) return;
+
+    var appSelect = document.getElementById('delivPaymentApp');
+    var payApp = appSelect ? appSelect.value : '';
+    if (!payApp) {
+        alert('Please select which payment app you used (eSewa or FonePay).');
+        return;
+    }
+
+    var screenshotInput = document.getElementById('delivPaymentScreenshot');
+    if (!screenshotInput || !screenshotInput.files || !screenshotInput.files[0]) {
+        alert('Please upload a payment screenshot to confirm your order.');
+        return;
+    }
+
+    var file = screenshotInput.files[0];
+
+    if (file.size > 5 * 1024 * 1024) {
+        alert('Screenshot is too large (max 5 MB). Please upload a smaller image.');
+        return;
+    }
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+        pendingOrder.paymentScreenshot  = e.target.result;
+        pendingOrder.screenshotFileName = file.name;
+
+        var label = 'Online Payment (' + payApp + ')';
+        generateOrderReceipt(label, 'Your payment via ' + payApp + ' has been received. Thank you!');
+
+        // Save to admin only after payment screenshot is confirmed
+        saveOrder(pendingOrder, label);
+        pendingOrder.saved = true;
+    };
+    reader.readAsDataURL(file);
+}
+
+function generateOrderReceipt(paymentLabel, paymentNote) {
+    pendingOrder.paymentMethod = paymentLabel;
+    if (pendingOrder.saved === undefined) pendingOrder.saved = false;
+
+    var itemsHtml = pendingOrder.items.map(function(c) {
+        return '<tr>' +
+            '<td>' + (c.emoji || '') + ' ' + esc(c.name) + '</td>' +
+            '<td class="r">' + c.qty + '</td>' +
+            '<td class="r">Rs. ' + c.price + '</td>' +
+            '<td class="r">Rs. ' + (c.price * c.qty) + '</td>' +
+        '</tr>';
+    }).join('');
+
+    var receiptHtml = '' +
+        '<div class="receipt-header">' +
+            '<img src="images/logo-dark.png" alt="Taaza Resort" onerror="this.style.display=\'none\'">' +
+            '<h2>Taaza Resort</h2>' +
+            '<div class="sub">Online Food Order &mdash; Delivery Receipt</div>' +
+            '<div class="sub">Bharatpur-5, Narayanpur, Chitwan, Nepal</div>' +
+        '</div>' +
+        '<div class="receipt-info">' +
+            '<p><span class="label">Order #:</span> <strong>' + pendingOrder.orderNum + '</strong></p>' +
+            '<p><span class="label">Date:</span> ' + formatDate(pendingOrder.dateStr) + ' &nbsp;<span class="label">Time:</span> ' + pendingOrder.timeStr + '</p>' +
+            '<hr style="border:none;border-top:1px dashed #ddd;margin:8px 0">' +
+            '<p><span class="label">Name:</span> ' + esc(pendingOrder.name) + '</p>' +
+            '<p><span class="label">Phone:</span> ' + esc(pendingOrder.phone) + '</p>' +
+            '<p><span class="label">Address:</span> ' + esc(pendingOrder.address) + '</p>' +
+            '<p><span class="label">Payment:</span> <strong>' + paymentLabel + '</strong></p>' +
+        '</div>' +
+        '<table class="receipt-table">' +
+            '<thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
+            '<tbody>' + itemsHtml + '</tbody>' +
+        '</table>' +
+        '<div class="receipt-totals">' +
+            '<div class="rtotal-row"><span>Subtotal</span><span>Rs. ' + pendingOrder.sub + '</span></div>' +
+            '<div class="rtotal-row grand"><span>GRAND TOTAL</span><span>Rs. ' + pendingOrder.grand + '</span></div>' +
+        '</div>' +
+        '<div class="receipt-footer">' +
+            '<p>&#x23F1; Estimated Delivery: <strong>' + pendingOrder.maxDelivery + '&ndash;' + (pendingOrder.maxDelivery + 10) + ' minutes</strong></p>' +
+            '<p style="margin-top:8px">' + paymentNote + '</p>' +
+            '<p>&#x2764;&#xFE0F; Thank you for ordering from Taaza Resort!</p>' +
+            '<p>Queries? Call us: +977 9742864405</p>' +
+            '<p style="margin-top:10px;font-size:0.75rem;color:#bbb">This is a computer-generated receipt.</p>' +
+        '</div>';
+
+    document.getElementById('receiptContent').innerHTML = receiptHtml;
+    closePaymentModal();
+    closeCartModal();
+    document.getElementById('billModalWrap').style.display = 'flex';
+}
+
+function ensureOrderCreated() {
+    if (!pendingOrder) return false;
+    if (pendingOrder.saved) return true;
+    saveOrder(pendingOrder, pendingOrder.paymentMethod || 'Cash on Delivery');
+    pendingOrder.saved = true;
+    return true;
+}
+
+function createOrder() {
+    if (!pendingOrder) {
+        alert('No order is ready to create.');
+        return;
+    }
+    if (pendingOrder.saved) {
+        alert('Order has already been created.');
+        return;
+    }
+    ensureOrderCreated();
+    showToast('Order created successfully!');
+    closeBillModal();
+}
+
+function saveOrder(order, paymentMethod) {
+    try {
+        var orders = JSON.parse(localStorage.getItem('taaza_orders') || '[]');
+        var newOrder = Object.assign({}, order, {
+            id: order.orderNum,
+            paymentMethod: paymentMethod,
+            status: 'Pending',
+            createdAt: new Date().toISOString()
+        });
+        orders.push(newOrder);
+        localStorage.setItem('taaza_orders', JSON.stringify(orders));
+        if (typeof incrementAdminNotification === 'function') {
+            incrementAdminNotification('orders');
+        }
+        if (window._taazaDB) {
+            var fsOrder = Object.assign({}, newOrder);
+            delete fsOrder.paymentScreenshot;
+            window._taazaDB.collection('taaza_orders').doc(fsOrder.id).set(fsOrder)
+                .catch(function(e) { console.error('[Taaza] Order sync failed:', e); });
+        }
+    } catch(e) { console.error('Failed to save order:', e); }
+}
+
+/* Place Order */
+function placeOrder() {
+    if (!cart.length) { alert('Please add some items to your order first!'); return; }
+    var name    = document.getElementById('custName').value.trim();
+    var phone   = document.getElementById('custPhone').value.trim();
+    var address = document.getElementById('custAddress').value.trim();
+    if (!name)    { document.getElementById('custName').focus();    alert('Please enter your name.'); return; }
+    if (!phone)   { document.getElementById('custPhone').focus();   alert('Please enter your phone number.'); return; }
+    if (!address) { document.getElementById('custAddress').focus(); alert('Please enter your delivery address.'); return; }
+
+    var sub   = cart.reduce(function(s, c) { return s + c.price * c.qty; }, 0);
+    var grand = sub;
+
+    var orderNum = 'TZR-' + Date.now().toString().slice(-6);
+    var now      = new Date();
+    var dateStr  = now.toISOString().split('T')[0];
+    var timeStr  = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+
+    var maxDelivery = 30;
+    cart.forEach(function(c) {
+        var food = allFoods.find(function(f) { return f.id === c.id; });
+        var t = food ? parseInt(food.deliveryTime || '30') : 30;
+        if (t > maxDelivery) maxDelivery = t;
+    });
+
+    openPaymentModal({
+        name: name,
+        phone: phone,
+        address: address,
+        sub: sub,
+        grand: grand,
+        orderNum: orderNum,
+        dateStr: dateStr,
+        timeStr: timeStr,
+        maxDelivery: maxDelivery,
+        items: cart.map(function(c) { return Object.assign({}, c); }),
+    });
+}
+
+/* Print Bill */
+function printBill() {
+    if (typeof ensureOrderCreated === 'function') {
+        ensureOrderCreated();
+    }
+    var content = document.getElementById('receiptContent').innerHTML;
+    var win = window.open('', '_blank', 'width=540,height=760');
+    if (!win) { alert('Please allow pop-ups to print the bill.'); return; }
+    win.document.write('<!DOCTYPE html><html><head>' +
+        '<meta charset="UTF-8">' +
+        '<title>Bill &mdash; Taaza Resort</title>' +
+        '<style>' +
+            'body{font-family:"Courier New",Courier,monospace;font-size:13px;padding:28px;max-width:420px;margin:auto;color:#1a1a1a}' +
+            '.receipt-header{text-align:center;padding-bottom:14px;margin-bottom:14px;border-bottom:2px dashed #555}' +
+            '.receipt-header img{width:58px;height:58px;object-fit:contain;border-radius:50%;display:block;margin:0 auto 10px}' +
+            '.receipt-header h2{font-size:1.15rem;margin:4px 0 2px}' +
+            '.sub{color:#888;font-size:0.78rem;display:block;margin-top:2px}' +
+            '.receipt-info{margin-bottom:14px;padding-bottom:12px;border-bottom:1px dashed #aaa}' +
+            '.receipt-info p{margin:3px 0;font-size:0.85rem}' +
+            '.label{color:#888}' +
+            'hr{border:none;border-top:1px dashed #ddd;margin:8px 0}' +
+            '.receipt-table{width:100%;border-collapse:collapse;margin-bottom:14px}' +
+            '.receipt-table th{border-bottom:1.5px solid #333;padding:6px 4px;text-align:left;font-size:0.8rem;text-transform:uppercase;color:#555}' +
+            '.receipt-table td{padding:6px 4px;border-bottom:1px dashed #ddd;font-size:0.84rem;vertical-align:top}' +
+            '.r{text-align:right}' +
+            '.receipt-totals{border-top:2px dashed #555;padding-top:10px;margin-bottom:16px}' +
+            '.rtotal-row{display:flex;justify-content:space-between;padding:3px 0;font-size:0.9rem}' +
+            '.rtotal-row.grand{font-weight:bold;font-size:1rem;border-top:1.5px solid #333;margin-top:8px;padding-top:8px;color:#334155}' +
+            '.receipt-footer{text-align:center;border-top:2px dashed #aaa;padding-top:14px;color:#666;font-size:0.8rem;line-height:1.9}' +
+        '</style>' +
+    '</head><body>' + content + '</body></html>');
+    win.document.close();
+    win.focus();
+    setTimeout(function() { win.print(); }, 500);
+}
+
+/* Close Bill & Clear Cart */
+function closeBillModal() {
+    document.getElementById('billModalWrap').style.display = 'none';
+    cart = [];
+    localStorage.removeItem(CART_KEY);
+    updateCartUI();
+    document.getElementById('custName').value    = '';
+    document.getElementById('custPhone').value   = '';
+    document.getElementById('custAddress').value = '';
+}
+
+/* Toast */
+function showToast(msg) {
+    var t = document.getElementById('cartToast');
+    if (!t) return;
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+/* XSS escape */
+function esc(s) {
+    return String(s).replace(/[&<>"']/g, function(c) {
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+}
+
+function formatDate(dateStr) {
+    var d = new Date(dateStr + 'T00:00:00');
+    return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+}
+
+/* Hide category filter bar on scroll down, show on scroll up */
+(function() {
+    var lastY = 0;
+    var ticking = false;
+    var THRESHOLD = 200; /* px before hiding kicks in */
+    var HYSTERESIS = 40; /* must scroll this far up before re-showing */
+    var collapsed = false;
+    window.addEventListener('scroll', function() {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function() {
+            var y  = window.pageYOffset || document.documentElement.scrollTop;
+            var fb = document.getElementById('filterBar');
+            if (fb) {
+                if (!collapsed && y > lastY && y > THRESHOLD) {
+                    collapsed = true;
+                    fb.classList.add('filters-collapsed');
+                } else if (collapsed && (lastY - y) > HYSTERESIS) {
+                    collapsed = false;
+                    fb.classList.remove('filters-collapsed');
+                }
+            }
+            lastY = y;
+            ticking = false;
+        });
+    }, { passive: true });
+})();
+
+/* Init */
+document.addEventListener('DOMContentLoaded', loadFoods);
+</script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script src="js/firebase-config.js?v=2"></script>
+<script src="js/firebase-sync.js?v=2"></script>
+
+<nav class="mobile-btm-nav">
+  <a href="index.html"><span class="mbn-icon">🏠</span>Home</a>
+  <a href="rooms.html"><span class="mbn-icon">🛏️</span>Rooms</a>
+  <a href="booking.html"><span class="mbn-icon">📅</span>Book</a>
+  <a href="delivery.html" class="active"><span class="mbn-icon">🛵</span>Order</a>
+  <a href="contact.html"><span class="mbn-icon">📞</span>Contact</a>
+</nav>
+</body>
+</html>

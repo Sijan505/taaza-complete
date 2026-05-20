@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taaza Resort — Luxury Resort & Restaurant | Bharatpur, Nepal</title>
+    <link rel="icon" href="images/logo-dark.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+    <div class="container">
+        <a href="index.html" class="logo">
+            <img src="images/logo-dark.png" alt="Taaza Resort" class="nav-logo" onerror="this.style.display='none'">
+            <span>
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur</span>
+            </span>
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html" class="active">Home</a></li>
+            <li><a href="rooms.html">Rooms</a></li>
+            <li><a href="amenities.html">Amenities</a></li>
+            <li class="nav-book"><a href="booking.html">Book Now</a></li>
+            <li><a href="delivery.html">Online Delivery</a></li>
+            <li><a href="menu.html">Menu</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li class="nav-admin-link"><a href="admin.html">&#x1F512; Admin</a></li>
+        </ul>
+
+        <div class="nav-dots-menu">
+            <a href="delivery.html" class="cart-nav-btn" id="cartNavBtn">
+                &#x1F6D2; <span class="cart-nav-count" id="cartNavCount">0</span>
+            </a>
+            <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <!-- 3-dots button -->
+            <button class="dots-btn" onclick="toggleDotsMenu()" title="More options">&#8942;</button>
+            <div class="dots-dropdown" id="dotsDropdown">
+                <a href="index.html">&#x1F3E0; Home</a>
+                <a href="rooms.html">&#x1F6CF;&#xFE0F; Rooms &amp; Suites</a>
+                <a href="amenities.html">&#x2728; Amenities</a>
+                <a href="delivery.html">&#x1F6F5; Online Delivery</a>
+                <a href="menu.html">&#x1F374; Digital Menu</a>
+                <a href="contact.html">&#x1F4DE; Contact Us</a>
+                <div class="dropdown-divider"></div>
+                <a href="admin.html" class="admin-link">&#x1F512; Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== HERO ===== -->
+<section class="hero" id="hero">
+    <div class="hero-bg-layer" id="heroBg"></div>
+    <div class="hero-content" id="heroContent">
+        <div class="hero-badge">&#x2605; Luxury Resort &amp; Restaurant &nbsp;&middot;&nbsp; Bharatpur-5, Narayanpur</div>
+        <h1>Welcome to<br><em>Taaza Resort</em></h1>
+        <p>Experience unparalleled luxury amid the lush beauty of Chitwan. World-class dining, serene accommodations, and warm Nepali hospitality await you.</p>
+        <div class="hero-cta">
+            <a href="booking.html" class="btn-gold">Book Your Stay</a>
+            <a href="delivery.html" class="btn-outline">Order Food Online</a>
+        </div>
+    </div>
+    <div class="hero-scroll">Scroll</div>
+</section>
+
+<!-- ===== ABOUT ===== -->
+<section class="about" id="about">
+    <div class="container">
+        <div class="about-text">
+            <span class="section-label">About Us</span>
+            <h2>A Sanctuary of<br>Luxury in Nepal</h2>
+            <span class="gold-divider"></span>
+            <p>Taaza Resort is Bharatpur's premier luxury destination, where traditional Nepali warmth meets modern elegance. Nestled in the heart of Chitwan, our resort offers a seamless blend of comfort, authentic cuisine, and breathtaking natural surroundings.</p>
+            <p>From our world-class restaurant featuring authentic Nepali and international cuisine, to our beautifully appointed rooms — every detail is crafted to create memories that last a lifetime.</p>
+            <p class="signature">— The Taaza Family</p>
+        </div>
+        <div class="about-grid">
+            <div class="about-card">
+                <span class="icon">&#x1F333;</span>
+                <h3>Natural Beauty</h3>
+                <p>Surrounded by lush greenery and the pristine landscapes of Chitwan</p>
+            </div>
+            <div class="about-card">
+                <span class="icon">&#x1F451;</span>
+                <h3>Luxury Rooms</h3>
+                <p>Spacious suites with premium furnishings and scenic valley views</p>
+            </div>
+            <div class="about-card">
+                <span class="icon">&#x1F373;</span>
+                <h3>Authentic Dining</h3>
+                <p>Traditional Nepali cuisine and international flavours by expert chefs</p>
+            </div>
+            <div class="about-card">
+                <span class="icon">&#x1F942;</span>
+                <h3>Events & Celebrations</h3>
+                <p>Elegant venues for weddings, conferences, and special occasions</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FEATURED ROOMS ===== -->
+<section class="featured-rooms">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Accommodations</span>
+            <h2>Featured Rooms &amp; Suites</h2>
+            <span class="gold-divider center"></span>
+            <p>Each room is a sanctuary of comfort, thoughtfully designed to exceed every expectation</p>
+        </div>
+        <div class="rooms-grid" style="grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); max-width: 560px; margin: 0 auto;">
+            <div class="room-card">
+                <div class="room-image" style="background: url('images/room-deluxe.jpg') center/cover no-repeat;"></div>
+                <div class="room-card-body">
+                    <h3>AC Room</h3>
+                    <p>Spacious room with premium furnishings, private balcony and valley views</p>
+                    <span class="price">Rs. 1,500 <span>/ night</span></span>
+                    <a href="rooms.html" class="btn">View Details</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== HALL BOOKING ===== -->
+<section class="hall-section" style="background: var(--cream); padding: 96px 0;">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Event Venue</span>
+            <h2>Banquet Hall Booking</h2>
+            <span class="gold-divider center"></span>
+            <p>Host your dream wedding, mehendi, or celebration in our elegant banquet hall</p>
+        </div>
+        <div class="hall-card" style="max-width: 960px; margin: 48px auto 0; background: var(--white); border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-md); border: 1px solid var(--border);">
+            <div class="hall-card-image" style="position: relative; max-height: 420px; overflow: hidden;">
+                <img src="images/hall-wedding.jpg" alt="Grand Celebration Hall" style="width: 100%; height: 420px; object-fit: cover; object-position: center; display: block;">
+                <div style="position: absolute; top: 16px; left: 16px; background: var(--gold); color: #fff; padding: 6px 16px; border-radius: 50px; font-size: 0.78rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;">Premium Venue</div>
+            </div>
+            <div class="hall-card-content" style="padding: 48px 40px; display: flex; flex-direction: column; justify-content: center;">
+                <h3 style="font-family: var(--font-serif); font-size: 1.8rem; color: var(--dark); margin-bottom: 12px;">Grand Celebration Hall</h3>
+                <p style="color: var(--mid); font-size: 0.95rem; line-height: 1.7; margin-bottom: 24px;">Perfect for weddings, mehendi ceremonies, receptions, and family gatherings. Our beautifully decorated hall offers a grand setting with ample space, elegant lighting, and full event support.</p>
+                <div style="display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px;">
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--dark);">
+                        <span style="color: var(--gold); font-size: 1rem;">&#10003;</span> Capacity up to 200 guests
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--dark);">
+                        <span style="color: var(--gold); font-size: 1rem;">&#10003;</span> Elegant decor &amp; stage setup
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--dark);">
+                        <span style="color: var(--gold); font-size: 1rem;">&#10003;</span> Sound system &amp; lighting included
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--dark);">
+                        <span style="color: var(--gold); font-size: 1rem;">&#10003;</span> Catering &amp; kitchen facility available
+                    </div>
+                </div>
+                <div style="display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px;">
+                    <span style="font-family: var(--font-serif); font-size: 2rem; font-weight: 700; color: var(--gold);">Rs. 5,000</span>
+                    <span style="font-size: 0.9rem; color: var(--mid);">/ day</span>
+                </div>
+                <p style="font-size: 0.85rem; color: var(--green); font-weight: 600; margin-bottom: 6px;">&#10003; Hall booking only — Rs. 5,000 per day</p>
+                <p style="font-size: 0.85rem; color: var(--mid); margin-bottom: 28px;">For catering services, please <a href="contact.html" style="color: var(--gold); font-weight: 600; text-decoration: none;">contact us</a> for more details and custom quotes.</p>
+                <a href="booking.html" class="btn-primary" style="text-align: center; text-decoration: none; display: inline-block;">Book the Hall</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== SWIMMING POOLS ===== -->
+<section class="pools-section" id="pools" style="background: var(--cream); padding: 96px 0;">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Relaxation</span>
+            <h2>Our Swimming Pools</h2>
+            <span class="gold-divider center"></span>
+            <p>Dive into tranquility with our temperature-controlled aquatic facilities</p>
+        </div>
+        <div class="pools-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 32px; margin-top: 48px;">
+            <!-- Adult Pool -->
+            <div class="pool-card" style="background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md); transition: var(--transition); border: 1px solid var(--border);">
+                <div class="pool-image" style="height: 260px; background: url('images/pool-adult.jpg') center/cover no-repeat; position: relative;">
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); padding: 10px; color: white; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Adult Pool &bull; 5ft Depth</div>
+                </div>
+                <div class="pool-body" style="padding: 32px; text-align: center;">
+                    <h3 style="margin-bottom: 12px;">Infinity Oasis</h3>
+                    <p style="margin-bottom: 16px; font-size: 0.95rem; color: var(--mid);">A serene escape designed for relaxation and exercise, featuring temperature control and panoramic valley views.</p>
+                    <div style="margin-bottom: 20px;">
+                        <span style="font-size: 1.5rem; font-weight: 700; color: var(--gold); font-family: var(--font-serif);">Rs. 200</span>
+                        <span style="font-size: 0.85rem; color: var(--mid); margin-left: 6px;">/ per adult</span>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                        <span style="background: var(--ivory); padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: var(--green); border: 1px solid var(--border);">Bar Service</span>
+                        <span style="background: var(--ivory); padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: var(--green); border: 1px solid var(--border);">Heated</span>
+                        <span style="background: var(--ivory); padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: var(--green); border: 1px solid var(--border);">24/7 Access</span>
+                    </div>
+                </div>
+            </div>
+            <!-- Kids Pool -->
+            <div class="pool-card" style="background: var(--white); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow-md); transition: var(--transition); border: 1px solid var(--border);">
+                <div class="pool-image" style="height: 260px; background: url('images/pool-kids.jpg') center/cover no-repeat; position: relative;">
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.6); padding: 10px; color: white; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">Kids Pool &bull; 1.5ft Depth</div>
+                </div>
+                <div class="pool-body" style="padding: 32px; text-align: center;">
+                    <h3 style="margin-bottom: 12px;">Splash Zone</h3>
+                    <p style="margin-bottom: 16px; font-size: 0.95rem; color: var(--mid);">Safe and fun aquatic playground for our youngest guests, with gentle water features and constant supervision.</p>
+                    <div style="margin-bottom: 20px;">
+                        <span style="font-size: 1.5rem; font-weight: 700; color: var(--gold); font-family: var(--font-serif);">Rs. 100</span>
+                        <span style="font-size: 0.85rem; color: var(--mid); margin-left: 6px;">/ per child</span>
+                    </div>
+                    <div style="display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;">
+                        <span style="background: var(--ivory); padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: var(--green); border: 1px solid var(--border);">Supervised</span>
+                        <span style="background: var(--ivory); padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: var(--green); border: 1px solid var(--border);">Fun Features</span>
+                        <span style="background: var(--ivory); padding: 4px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; color: var(--green); border: 1px solid var(--border);">Safety First</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== TESTIMONIALS ===== -->
+<section class="testimonials">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Guest Reviews</span>
+            <h2>What Our Guests Say</h2>
+            <span class="gold-divider center"></span>
+        </div>
+        <div class="testimonials-grid">
+            <div class="testimonial">
+                <span class="stars">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span>
+                <p>"Taaza Resort exceeded all our expectations. The food is absolutely exceptional and the staff made us feel like royalty throughout our stay."</p>
+                <span class="author">— Suvesh Tamang</span>
+            </div>
+            <div class="testimonial">
+                <span class="stars">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span>
+                <p>"परिवारसँगको छुट्टीका लागि उत्तम स्थान। नेपाली भोजन धेरै स्वादिलो र साँच्चिकै हो। कोठाहरू प्रशस्त र दृश्यहरू साँच्चै नै मनमोहक छन्।"</p>
+                <span class="author">— Romika Shrestha</span>
+            </div>
+            <div class="testimonial">
+                <span class="stars">&#x2605;&#x2605;&#x2605;&#x2605;&#x2605;</span>
+                <p>"Exceptional hospitality in the truest sense. From the warm welcome to the farewell, every moment at Taaza was memorable. Will definitely return!"</p>
+                <span class="author">— Shweta Dhungana</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== WEATHER ===== -->
+<section class="weather-section section-pad" id="weather">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Live Weather</span>
+            <h2>Plan Your Perfect Stay</h2>
+            <p class="section-subtitle">Real-time conditions at Taaza Resort, Bharatpur, Chitwan</p>
+        </div>
+        <div id="weatherMain">
+            <div class="weather-loading">
+                <div class="weather-skeleton-pulse"></div>
+                <p>Fetching live weather for Bharatpur, Chitwan&hellip;</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== NEWSLETTER ===== -->
+<section class="newsletter">
+    <div class="container">
+        <div class="newsletter-text">
+            <span class="section-label">Stay Connected</span>
+            <h2>Exclusive Offers &amp; Updates</h2>
+            <p>Subscribe to receive seasonal packages and special member-only deals</p>
+        </div>
+        <form class="newsletter-form" onsubmit="handleNewsletter(event)">
+            <input type="email" placeholder="Enter your email address" required>
+            <button type="submit">Subscribe</button>
+        </form>
+    </div>
+</section>
+
+<!-- ===== LOCATION MAP ===== -->
+<section class="location-map-section" style="padding: 100px 0; background: var(--sand);">
+    <div class="container">
+        <div class="section-header">
+            <span class="section-label">Visit Us</span>
+            <h2>Our Location</h2>
+            <span class="gold-divider center"></span>
+            <p>Perfectly situated in the heart of Bharatpur, offering easy access to the region's natural wonders and urban conveniences.</p>
+        </div>
+        <div class="map-wrapper" style="border-radius:24px; overflow:hidden; border:1px solid var(--border); box-shadow: var(--shadow-lg); margin-top: 48px;">
+            <iframe
+                src="https://maps.google.com/maps?q=MC43%2BH28,+Unnamed+Road,+Bharatpur+44207,+Nepal&t=&z=17&ie=UTF8&iwloc=&output=embed"
+                width="100%"
+                height="500"
+                style="border:0; display:block;"
+                allowfullscreen=""
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade">
+            </iframe>
+            <div style="text-align:center; padding: 16px; background: var(--white);">
+                <a href="https://www.google.com/maps/search/?api=1&query=MC43%2BH28+Bharatpur+44207+Nepal" target="_blank" rel="noopener noreferrer" style="display:inline-flex; align-items:center; gap:8px; background:var(--green); color:#fff; text-decoration:none; padding:10px 22px; border-radius:8px; font-size:0.9rem; font-weight:600;">&#x1F4CD; Get Directions</a>
+            </div>
+        </div>
+        <div class="location-details-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 32px; margin-top: 48px;">
+            <div class="loc-detail-card" style="background: var(--white); padding: 32px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 16px;">&#x2708;&#xFE0F;</div>
+                <h4 style="margin-bottom: 8px;">Airport Proximity</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Just a 10-minute drive from Bharatpur Airport. Complimentary transfers available for direct bookings.</p>
+            </div>
+            <div class="loc-detail-card" style="background: var(--white); padding: 32px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 16px;">&#x1F333;</div>
+                <h4 style="margin-bottom: 8px;">Chitwan Gateway</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">The perfect starting point for your jungle safari and cultural explorations in the Chitwan district.</p>
+            </div>
+            <div class="loc-detail-card" style="background: var(--white); padding: 32px; border-radius: 16px; border: 1px solid var(--border); text-align: center;">
+                <div style="font-size: 2rem; margin-bottom: 16px;">&#x1F697;</div>
+                <h4 style="margin-bottom: 8px;">Easy Access</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted);">Conveniently located off the main highway with ample secure parking for our guests.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur, Chitwan</span>
+                <p>A premier luxury destination where traditional Nepali warmth meets modern elegance. Experience authentic cuisine, serene accommodations, and unforgettable hospitality.</p>
+                <div class="footer-tagline">
+                    <span>&#x2728;</span>
+                    <span>Your home away from home</span>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="rooms.html">Rooms &amp; Suites</a></li>
+                    <li><a href="amenities.html">Amenities</a></li>
+                    <li><a href="booking.html">Book a Stay</a></li>
+                    <li><a href="delivery.html">Online Delivery</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x1F4CD;</span>
+                    <p>Bharatpur-5, Narayanpur<br>Chitwan, Nepal</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x1F4DE;</span>
+                    <p>+977 9742864405</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x2709;&#xFE0F;</span>
+                    <p>tamanganish421@gmail.com</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links" style="flex-wrap:wrap;gap:8px;margin-bottom:20px">
+                    <a href="https://www.facebook.com/TaazaResort" target="_blank" rel="noopener noreferrer" title="Facebook">f</a>
+                    <a href="https://www.instagram.com/anish.tamang" target="_blank" rel="noopener noreferrer" title="Instagram">&#x1F4F7;</a>
+                    <a href="https://wa.me/9779742864405" target="_blank" rel="noopener noreferrer" title="WhatsApp">&#x1F4F2;</a>
+                </div>
+                <div style="margin-top:16px">
+                    <p style="font-size:0.78rem;color:rgba(255,255,255,0.4);font-family:'Inter',sans-serif;margin-bottom:8px;">OPEN DAILY</p>
+                    <p style="font-size:0.85rem;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;margin:0">Restaurant: 6 AM &ndash; 11 PM</p>
+                    <p style="font-size:0.85rem;color:rgba(255,255,255,0.65);font-family:'Inter',sans-serif;margin:0">Reception: 24 / 7</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Taaza Resort. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="admin.html">Admin</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div class="cart-toast" id="cartToast"></div>
+<script src="js/script.js"></script>
+<script src="js/weather.js"></script>
+<script>document.addEventListener('DOMContentLoaded', initWeatherSection);</script>
+
+<nav class="mobile-btm-nav">
+  <a href="index.html" class="active"><span class="mbn-icon">🏠</span>Home</a>
+  <a href="rooms.html"><span class="mbn-icon">🛏️</span>Rooms</a>
+  <a href="booking.html"><span class="mbn-icon">📅</span>Book</a>
+  <a href="delivery.html"><span class="mbn-icon">🛵</span>Order</a>
+  <a href="contact.html"><span class="mbn-icon">📞</span>Contact</a>
+</nav>
+</body>
+</html>

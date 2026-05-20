@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amenities &amp; Facilities — Taaza Resort | Bharatpur, Nepal</title>
+    <link rel="icon" href="images/logo-dark.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+    <div class="container">
+        <a href="index.html" class="logo">
+            <img src="images/logo-dark.png" alt="Taaza Resort" class="nav-logo" onerror="this.style.display='none'">
+            <span>
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur</span>
+            </span>
+        </a>
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="rooms.html">Rooms</a></li>
+            <li><a href="amenities.html" class="active">Amenities</a></li>
+            <li class="nav-book"><a href="booking.html">Book Now</a></li>
+            <li><a href="delivery.html">Online Delivery</a></li>
+            <li><a href="menu.html" class="nav-menu">🍽️ Menu</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li class="nav-admin-link"><a href="admin.html">&#x1F512; Admin</a></li>
+        </ul>
+        <div class="nav-dots-menu">
+            <a href="delivery.html" class="cart-nav-btn" id="cartNavBtn">
+                &#x1F6D2; <span class="cart-nav-count" id="cartNavCount">0</span>
+            </a>
+            <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <button class="dots-btn" onclick="toggleDotsMenu()" title="More options">&#8942;</button>
+            <div class="dots-dropdown" id="dotsDropdown">
+                <a href="index.html">&#x1F3E0; Home</a>
+                <a href="rooms.html">&#x1F6CF;&#xFE0F; Rooms &amp; Suites</a>
+                <a href="amenities.html" class="active">&#x2728; Amenities</a>
+                <a href="delivery.html">&#x1F6F5; Online Delivery</a>
+                <a href="menu.html">&#x1F374; Digital Menu</a>
+                <a href="contact.html">&#x1F4DE; Contact Us</a>
+                <div class="dropdown-divider"></div>
+                <a href="admin.html" class="admin-link">&#x1F512; Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== AMENITIES HERO ===== -->
+<section class="amenities-hero">
+    <div class="container" data-aos="fade-up">
+        <span class="section-label" style="color:var(--gold-light); margin-bottom:15px;">Elite Services</span>
+        <h1>Amenities &amp; Facilities</h1>
+        <p>A sanctuary of luxury designed to exceed every expectation. From world-class dining to rejuvenating wellness, experience the pinnacle of hospitality at Taaza Resort.</p>
+    </div>
+</section>
+
+<!-- ===== MAIN AMENITIES GRID ===== -->
+<section class="amenities-content">
+    <div class="container">
+        <div class="amenities-grid">
+            
+            <!-- Dining -->
+            <div class="amenity-card" data-aos="fade-up">
+                <div class="amenity-card-img">
+                    <img src="images/amenity-dining.jpg" alt="Dining">
+                    <div class="amenity-card-overlay">
+                        <div class="amenity-card-icon">&#x1F37D;&#xFE0F;</div>
+                    </div>
+                </div>
+                <div class="amenity-card-content">
+                    <h3>Taza Dining</h3>
+                    <p>Savor authentic Nepali flavors and international culinary masterpieces prepared by our executive chefs in an elegant atmosphere.</p>
+                    <ul class="amenity-card-list">
+                        <li>Breakfast: 6:30 AM - 11:00 AM</li>
+                        <li>24/7 Room Service</li>
+                        <li>Local & International Cuisine</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Pool -->
+            <div class="amenity-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="amenity-card-img">
+                    <img src="images/amenity-pool.jpg" alt="Pool">
+                    <div class="amenity-card-overlay">
+                        <div class="amenity-card-icon">&#x1F3CA;</div>
+                    </div>
+                </div>
+                <div class="amenity-card-content">
+                    <h3>Infinity Swimming Pool</h3>
+                    <p>Dive into bliss in our temperature-controlled infinity pool overlooking the lush greenery of the Bharatpur valley.</p>
+                    <ul class="amenity-card-list">
+                        <li>Temperature Controlled</li>
+                        <li>Separate Kids Splash Zone</li>
+                        <li>Poolside Refreshment Bar</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Adventure -->
+            <div class="amenity-card" data-aos="fade-up" data-aos-delay="100">
+                <div class="amenity-card-img">
+                    <img src="images/amenity-safari.jpg" alt="Adventure">
+                    <div class="amenity-card-overlay">
+                        <div class="amenity-card-icon">&#x1F3D4;&#xFE0F;</div>
+                    </div>
+                </div>
+                <div class="amenity-card-content">
+                    <h3>Outdoor Adventures</h3>
+                    <p>Experience the thrill of Chitwan with guided jungle treks, elephant safaris, and riverside excursions led by local experts.</p>
+                    <ul class="amenity-card-list">
+                        <li>Jungle Trekking Tours</li>
+                        <li>Wildlife Photography Trips</li>
+                        <li>Riverside Camping</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Events -->
+            <div class="amenity-card" data-aos="fade-up" data-aos-delay="200">
+                <div class="amenity-card-img">
+                    <img src="images/amenity-events.jpg" alt="Events">
+                    <div class="amenity-card-overlay">
+                        <div class="amenity-card-icon">&#x1F389;</div>
+                    </div>
+                </div>
+                <div class="amenity-card-content">
+                    <h3>Events & Banquets</h3>
+                    <p>Host grand weddings or professional corporate events in our sophisticated banquet halls and lush garden venues.</p>
+                    <ul class="amenity-card-list">
+                        <li>500+ Guest Capacity</li>
+                        <li>Full Event Coordination</li>
+                        <li>Modern Audio-Visual Tech</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ===== ADDITIONAL SERVICES ===== -->
+<section class="additional-services-new">
+    <div class="container">
+        <div class="section-header" style="text-align:center; margin-bottom:60px;">
+            <span class="section-label">Beyond Comfort</span>
+            <h2>Premium Guest Services</h2>
+            <div style="width:60px; height:3px; background:var(--gold); margin:20px auto;"></div>
+        </div>
+
+        <div class="services-grid-premium">
+            <div class="service-card-premium" data-aos="fade-up">
+                <span class="icon">&#x1F455;</span>
+                <h4>Laundry & Valet</h4>
+                <p>Complimentary pressing and express dry cleaning services for all guests.</p>
+            </div>
+            <div class="service-card-premium" data-aos="fade-up" data-aos-delay="50">
+                <span class="icon">&#x1F697;</span>
+                <h4>Chauffeur Services</h4>
+                <p>Luxury airport transfers and private vehicle rentals with local drivers.</p>
+            </div>
+            <div class="service-card-premium" data-aos="fade-up" data-aos-delay="100">
+                <span class="icon">&#x1F3AB;</span>
+                <h4>Concierge Desk</h4>
+                <p>Bespoke travel arrangements and VIP ticket bookings for local attractions.</p>
+            </div>
+            <div class="service-card-premium" data-aos="fade-up" data-aos-delay="150">
+                <span class="icon">&#x1F436;</span>
+                <h4>Pet Concierge</h4>
+                <p>Specialized care, walking services, and premium bedding for your pets.</p>
+            </div>
+            <div class="service-card-premium" data-aos="fade-up" data-aos-delay="200">
+                <span class="icon">&#x2695;&#xFE0F;</span>
+                <h4>Medical Center</h4>
+                <p>Dedicated on-call medical team and 24/7 first-aid support for peace of mind.</p>
+            </div>
+            <div class="service-card-premium" data-aos="fade-up" data-aos-delay="250">
+                <span class="icon">&#x1F4F8;</span>
+                <h4>Photo Studio</h4>
+                <p>On-site professional photography to capture your most precious moments.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur, Nepal</span>
+                <p>A premier luxury destination where traditional Nepali warmth meets modern elegance.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="rooms.html">Rooms &amp; Suites</a></li>
+                    <li><a href="amenities.html">Amenities</a></li>
+                    <li><a href="menu.html">Digital Menu</a></li>
+                    <li><a href="delivery.html">Online Delivery</a></li>
+                    <li><a href="contact.html">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x1F4CD;</span>
+                    <p>Bharatpur-5, Narayanpur<br>Chitwan, Nepal</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x1F4DE;</span>
+                    <p>+977 9742864405</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x2709;&#xFE0F;</span>
+                    <p>tamanganish421@gmail.com</p>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h4>Follow Us</h4>
+                <div class="social-links">
+                    <a href="https://www.facebook.com/TaazaResort" target="_blank" rel="noopener noreferrer" title="Facebook">f</a>
+                    <a href="https://www.instagram.com/anish.tamang" target="_blank" rel="noopener noreferrer" title="Instagram">&#x1F4F7;</a>
+                    <a href="https://wa.me/9779742864405" target="_blank" rel="noopener noreferrer" title="WhatsApp">&#x1F4F2;</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Taaza Resort. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<div class="cart-toast" id="cartToast"></div>
+<script src="js/script.js"></script>
+</body>
+</html>

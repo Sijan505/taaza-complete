@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Menu — Taaza Resort | Bharatpur, Nepal</title>
+    <link rel="icon" href="images/logo-dark.png" type="image/png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ===== NAVBAR ===== -->
+<nav class="navbar">
+    <div class="container">
+        <a href="index.html" class="logo">
+            <img src="images/logo-dark.png" alt="Taaza Resort" class="nav-logo" onerror="this.style.display='none'">
+            <span>
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur</span>
+            </span>
+        </a>
+
+        <ul class="nav-links" id="navLinks">
+            <li><a href="index.html">Home</a></li>
+            <li><a href="rooms.html">Rooms</a></li>
+            <li><a href="amenities.html">Amenities</a></li>
+            <li class="nav-book"><a href="booking.html">Book Now</a></li>
+            <li><a href="delivery.html">Online Delivery</a></li>
+            <li><a href="menu.html" class="active nav-menu">🍽️ Menu</a></li>
+            <li><a href="contact.html">Contact</a></li>
+            <li class="nav-admin-link"><a href="admin.html">&#x1F512; Admin</a></li>
+        </ul>
+
+        <div class="nav-dots-menu">
+            <a href="delivery.html" class="cart-nav-btn" id="cartNavBtn">
+                &#x1F6D2; <span class="cart-nav-count" id="cartNavCount">0</span>
+            </a>
+            <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <button class="dots-btn" onclick="toggleDotsMenu()" title="More options">&#8942;</button>
+            <div class="dots-dropdown" id="dotsDropdown">
+                <a href="index.html">&#x1F3E0; Home</a>
+                <a href="rooms.html">&#x1F6CF;&#xFE0F; Rooms &amp; Suites</a>
+                <a href="amenities.html">&#x2728; Amenities</a>
+                <a href="delivery.html">&#x1F6F5; Online Delivery</a>
+                <a href="menu.html" style="color:var(--gold);font-weight:600">&#x1F374; Digital Menu</a>
+                <a href="contact.html">&#x1F4DE; Contact Us</a>
+                <div class="dropdown-divider"></div>
+                <a href="admin.html" class="admin-link">&#x1F512; Admin Panel</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- ===== PAGE HEADER ===== -->
+<header class="page-header">
+    <div class="container">
+        <span class="section-label">Culinary Excellence</span>
+        <h1>Our Menu</h1>
+        <p>A curated selection of authentic Nepali flavors and international favorites, prepared with the finest local ingredients.</p>
+    </div>
+</header>
+
+<!-- ===== MENU SECTION ===== -->
+<section id="menu" class="menu-section">
+    <div class="container">
+
+        <!-- BREAKFAST -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Breakfast Selection</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Milk Tea</div>
+                        <div class="menu-item-desc">Aromatic tea brewed with fresh milk and spices</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 35</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Black Tea</div>
+                        <div class="menu-item-desc">Strong and refreshing classic black tea</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 20</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Lemon Tea</div>
+                        <div class="menu-item-desc">Zesty tea with fresh lemon and honey</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 25</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Milk Coffee</div>
+                        <div class="menu-item-desc">Rich brewed coffee with creamy milk</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 100</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Black Coffee</div>
+                        <div class="menu-item-desc">Pure, bold brewed coffee</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 60</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Toast Bread & Omlete</div>
+                        <div class="menu-item-desc">Buttered toast served with a fluffy omelette</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 150</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Plain Omlete</div>
+                        <div class="menu-item-desc">Classic two-egg plain omelette</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 100</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Masala Omlete</div>
+                        <div class="menu-item-desc">Spiced omelette with onions, tomatoes and green chillies</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 150</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MO:MO ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Mo:Mo Delicacies</h2></div>
+            <div class="momo-header">
+                <span>Items</span>
+                <span>Steam</span>
+                <span>Fry</span>
+                <span>Chilly</span>
+            </div>
+            <div class="momo-row">
+                <span>Veg Momo</span>
+                <span class="momo-price">150</span>
+                <span class="momo-price">170</span>
+                <span class="momo-price">200</span>
+            </div>
+            <div class="momo-row">
+                <span>Chicken Momo</span>
+                <span class="momo-price">150</span>
+                <span class="momo-price">170</span>
+                <span class="momo-price">200</span>
+            </div>
+            <div class="momo-row">
+                <span>Buff Momo</span>
+                <span class="momo-price">120</span>
+                <span class="momo-price">150</span>
+                <span class="momo-price">180</span>
+            </div>
+            <div class="menu-grid" style="margin-top: 20px;">
+                <div class="menu-item">
+                    <div class="menu-item-info">
+                        <div class="menu-item-name">Kothe Momo / Jhol Momo</div>
+                        <div class="menu-item-desc">Pan-fried or served with spicy traditional broth</div>
+                    </div>
+                    <div class="menu-item-price">Rs. 180</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHOWMEIN ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Noodles (Chowmein)</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Veg Chowmein</div></div>
+                    <div class="menu-item-price">Rs. 100</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Chowmein</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Buff Chowmein</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Egg Chowmein</div></div>
+                    <div class="menu-item-price">Rs. 150</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mix Chowmein</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BUFF & CHICKEN ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Meat Delights</h2></div>
+            <div class="menu-grid">
+                <!-- Buff -->
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Sukuti</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Buff Chilly</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Buff Sandeko</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Buff Choila</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <!-- Chicken -->
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Fry</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Chilly</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Lolipop</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Curry</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Pangra Fry</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Pangra Sandeko</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Boiled</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Local Chicken Curry</div></div>
+                    <div class="menu-item-price">Rs. 450</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- PAPAD ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Papad Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Dry Papad</div></div>
+                    <div class="menu-item-price">Rs. 50</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Fry Papad</div></div>
+                    <div class="menu-item-price">Rs. 50</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Masala Papad</div></div>
+                    <div class="menu-item-price">Rs. 100</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Prawan Fry</div></div>
+                    <div class="menu-item-price">Rs. 150</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Pop Corn</div></div>
+                    <div class="menu-item-price">Rs. 50</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SALAD ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Salads</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Green Salad</div></div>
+                    <div class="menu-item-price">Rs. 150</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Nepali Salad</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Fruit Salad</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SPECIAL ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Special Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Ghonghi</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Hot Dog</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Corn Dog</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Pizza</div></div>
+                    <div class="menu-item-price">Rs. 450</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Sizzler</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Burger</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ROLLS ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Rolls Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Veg Spring Roll</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Roll</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Buff Roll</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mix Roll</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SEKUWA ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Sekuwa Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Wings Poleko</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Sekuwa</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Sekuwa</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Buff Sekuwa</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mushroom Sekuwa</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOUP ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Soup Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Veg Soup</div></div>
+                    <div class="menu-item-price">Rs. 150</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Soup</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Soup</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mushroom Soup</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Hot & Sour Soup</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mix Soup</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- THUKPA ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Thukpa Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Veg Thukpa</div></div>
+                    <div class="menu-item-price">Rs. 150</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Thukpa</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Buff Thukpa</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Thukpa</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MUTTON ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Mutton Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Fry</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Tass</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Boiled</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Sandeko</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DUCK ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Duck Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Duck Choila</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Duck Curry</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Duck Sandeko</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- FISH ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Fish Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Fish Fry</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Fish Curry</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Fish Sekuwa</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Fish Tikka</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BANDEL ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Bandel Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Bandel Boiled</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Bandel Sandeko</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Bandel Dameko</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Bandel Curry</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- VEG ITEMS -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Veg Items</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Veg Pakauda</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Paneer Pakauda</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Alu Pakauda</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Veg Sothe</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Veg Boiled</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Onion Pakauda</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Veg Tempura</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Finger Chips</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Bhatmas Sandeko</div></div>
+                    <div class="menu-item-price">Rs. 150</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Peanut Sandeko</div></div>
+                    <div class="menu-item-price">Rs. 200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Noodles Sandeko</div></div>
+                    <div class="menu-item-price">Rs. 100</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Kaju Fry</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- KHAJA SET -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Khaja Sets (Snack Platters)</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Buff Khaja Set</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Khaja Set</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Local Chicken Khaja Set</div></div>
+                    <div class="menu-item-price">Rs. 450</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Khaja Set</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Bandel / Duck Khaja Set</div></div>
+                    <div class="menu-item-price">Rs. 450</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Fish Khaja Set</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- NEPALI KHANA -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Authentic Nepali Khana</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Dhindo and Local Chicken</div></div>
+                    <div class="menu-item-price">Rs. 450</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Sada Khana (Veg Thali)</div></div>
+                    <div class="menu-item-price">Rs. 250</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Chicken Khana</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Mutton Khana</div></div>
+                    <div class="menu-item-price">Rs. 450</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BEVERAGES & LASSI -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Lassi & Cold Drinks</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Plain Lassi</div></div>
+                    <div class="menu-item-price">Rs. 100</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Banana / Kaju Lassi</div></div>
+                    <div class="menu-item-price">Rs. 160 / 250</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Soft Drinks (Coke/Fanta/Sprite)</div></div>
+                    <div class="menu-item-price">Rs. 80</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Fresh Juice (Mix/Pineapple)</div></div>
+                    <div class="menu-item-price">Rs. 130 / 100</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Red Bull (Regular / Imp)</div></div>
+                    <div class="menu-item-price">Rs. 150 / 350</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- HARD DRINKS TABLE -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Bar & Hard Drinks</h2></div>
+            <div class="drinks-table-container">
+                <table class="drinks-table">
+                    <thead>
+                        <tr>
+                            <th>Items</th>
+                            <th>60 ml</th>
+                            <th>Qtr.</th>
+                            <th>Half</th>
+                            <th>Full</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Old Durbar (Black)</td><td>350</td><td>1000</td><td>2050</td><td>4900</td></tr>
+                        <tr><td>Old Durbar (Red)</td><td>270</td><td>800</td><td>1600</td><td>3200</td></tr>
+                        <tr><td>8848 Vodka</td><td>220</td><td>650</td><td>1300</td><td>2600</td></tr>
+                        <tr><td>Red Signature</td><td>250</td><td>750</td><td>1500</td><td>3000</td></tr>
+                        <tr><td>Golden Oak</td><td>125</td><td>375</td><td>750</td><td>1500</td></tr>
+                        <tr><td>Khukuri Rum</td><td>220</td><td>650</td><td>1300</td><td>2600</td></tr>
+                        <tr><td>Ruslan Vodka</td><td>200</td><td>600</td><td>1200</td><td>2400</td></tr>
+                        <tr><td>Yeti Vodka</td><td>235</td><td>700</td><td>1400</td><td>2800</td></tr>
+                        <tr><td>Gorkhas N Guns</td><td>300</td><td>900</td><td>1800</td><td>3600</td></tr>
+                        <tr><td>Highlander</td><td>125</td><td>375</td><td>750</td><td>1500</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- BEER & WINE -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Beer & Wine Selection</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Carlsberg / Tuborg Beer</div></div>
+                    <div class="menu-item-price">Rs. 650 / 550</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Gorkha Premium / Strong</div></div>
+                    <div class="menu-item-price">Rs. 500 / 450</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">J.P. Chenet Wine</div></div>
+                    <div class="menu-item-price">Rs. 2200</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Big Master / Akira Wine</div></div>
+                    <div class="menu-item-price">Rs. 1100 / 1000</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Hukka</div></div>
+                    <div class="menu-item-price">Rs. 350</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CIGARETTES -->
+        <div class="menu-category">
+            <div class="menu-category-title"><h2>Cigarettes</h2></div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Surya Red</div></div>
+                    <div class="menu-item-price">Rs. 500</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Surya Lights</div></div>
+                    <div class="menu-item-price">Rs. 520</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Surya Arctic</div></div>
+                    <div class="menu-item-price">Rs. 550</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">ESSE Blue</div></div>
+                    <div class="menu-item-price">Rs. 360</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">ESSE Menthol</div></div>
+                    <div class="menu-item-price">Rs. 370</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">ESSE Black</div></div>
+                    <div class="menu-item-price">Rs. 380</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Shikhar Ice</div></div>
+                    <div class="menu-item-price">Rs. 270</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Shikhar Rush</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Captain</div></div>
+                    <div class="menu-item-price">Rs. 300</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Marlboro</div></div>
+                    <div class="menu-item-price">Rs. 400</div>
+                </div>
+                <div class="menu-item">
+                    <div class="menu-item-info"><div class="menu-item-name">Single Cigarette</div></div>
+                    <div class="menu-item-price">Rs. 25</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+    <div class="container">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="logo-text">Taaza Resort</span>
+                <span class="logo-sub">Bharatpur-5, Narayanpur, Nepal</span>
+                <p>A premier luxury destination where traditional Nepali warmth meets modern elegance. Experience authentic cuisine, serene accommodations, and unforgettable hospitality.</p>
+            </div>
+            <div class="footer-section">
+                <h4>Quick Links</h4>
+                <ul>
+                    <li><a href="rooms.html">Rooms &amp; Suites</a></li>
+                    <li><a href="amenities.html">Amenities</a></li>
+                    <li><a href="menu.html">Digital Menu</a></li>
+                    <li><a href="delivery.html">Online Delivery</a></li>
+                    <li><a href="contact.html">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h4>Contact</h4>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x1F4CD;</span>
+                    <p>Bharatpur-5, Narayanpur, Chitwan</p>
+                </div>
+                <div class="footer-contact-item">
+                    <span class="ico">&#x1F4DE;</span>
+                    <p>+977 9742864405</p>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Taaza Resort. All rights reserved.</p>
+            <div class="footer-bottom-links">
+                <a href="privacy.html">Privacy Policy</a>
+                <a href="terms.html">Terms of Service</a>
+                <a href="admin.html">Admin</a>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="js/script.js"></script>
+</body>
+</html>
