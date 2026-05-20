@@ -3331,10 +3331,14 @@ function renderTableOrderPanel() {
         '<div style="margin-bottom:12px;position:relative">' +
             '<label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">ADD ITEM</label>' +
             '<input id="tblSearch" type="text" placeholder="&#x1F50D; Type item name to search..." oninput="filterTableItems()" autocomplete="off" ' +
-                'onkeydown="if(event.key===\'Escape\'){var d=document.getElementById(\'tblDropdown\');if(d)d.style.display=\'none\';this.value=\'\';}" ' +
-                'onblur="setTimeout(function(){var d=document.getElementById(\'tblDropdown\');if(d)d.style.display=\'none\';},180)" ' +
-                'style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;box-sizing:border-box">' +
-            '<div id="tblDropdown" style="display:none;position:absolute;left:0;right:0;background:#fff;border:1.5px solid var(--accent);border-radius:8px;box-shadow:0 4px 18px rgba(0,0,0,0.13);z-index:9999;max-height:220px;overflow-y:auto;margin-top:3px"></div>' +
+                'onkeydown="if(event.key===\'Escape\'){window._tblPID=false;var d=document.getElementById(\'tblDropdown\');if(d)d.style.display=\'none\';this.value=\'\';}" ' +
+                'onfocus="setTimeout(function(){var el=document.getElementById(\'tblSearch\');if(el)el.scrollIntoView({behavior:\'smooth\',block:\'nearest\'});},350)" ' +
+                'onblur="setTimeout(function(){if(!window._tblPID){var d=document.getElementById(\'tblDropdown\');if(d)d.style.display=\'none\';}window._tblPID=false;},350)" ' +
+                'style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:1rem;box-sizing:border-box;touch-action:manipulation;-webkit-appearance:none">' +
+            '<div id="tblDropdown" ' +
+                'ontouchstart="window._tblPID=true" ' +
+                'onmousedown="window._tblPID=true" ' +
+                'style="display:none;position:absolute;left:0;right:0;background:#fff;border:1.5px solid var(--accent);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,0.15);z-index:9999;max-height:240px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:4px"></div>' +
         '</div>' +
 
         '<div style="min-height:120px;max-height:240px;overflow-y:auto;margin-bottom:12px">' + itemsHtml + '</div>' +
@@ -3375,19 +3379,21 @@ function filterTableItems() {
     drop.innerHTML = matches.map(function(m) {
         var safeName  = esc(m.name);
         var safeEmoji = esc(m.emoji || '🍽️');
-        return '<div onmousedown="event.preventDefault()" ' +
+        return '<div ' +
             'onclick="selectTblItem(' + JSON.stringify(m.name) + ',' + Number(m.price) + ',' + JSON.stringify(m.emoji || '🍽️') + ')" ' +
-            'style="padding:9px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;' +
-            'border-bottom:1px solid #f0f0f0;font-size:0.87rem;font-family:Inter,sans-serif;transition:background 0.1s" ' +
-            'onmouseover="this.style.background=\'#f6fff8\'" onmouseout="this.style.background=\'\'">' +
-            '<span>' + safeEmoji + ' ' + safeName + '</span>' +
-            '<span style="color:var(--mid);font-size:0.8rem">Rs. ' + Number(m.price) + '</span>' +
+            'style="padding:13px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:48px;' +
+            'border-bottom:1px solid #f0f0f0;font-size:0.92rem;font-family:Inter,sans-serif;' +
+            '-webkit-tap-highlight-color:rgba(30,58,42,0.08);touch-action:manipulation;user-select:none;-webkit-user-select:none" ' +
+            'onmouseenter="this.style.background=\'#f6fff8\'" onmouseleave="this.style.background=\'\'">' +
+            '<span style="font-size:1rem">' + safeEmoji + ' ' + safeName + '</span>' +
+            '<span style="color:var(--mid);font-size:0.82rem;white-space:nowrap;margin-left:8px">Rs. ' + Number(m.price) + '</span>' +
             '</div>';
     }).join('');
     drop.style.display = 'block';
 }
 
 function selectTblItem(name, price, emoji) {
+    window._tblPID = false;
     var drop     = document.getElementById('tblDropdown');
     var searchEl = document.getElementById('tblSearch');
     if (drop)     drop.style.display = 'none';
