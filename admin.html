@@ -3380,19 +3380,30 @@ function filterTableItems() {
     drop.innerHTML = matches.map(function(m) {
         var safeName  = esc(m.name);
         var safeEmoji = esc(m.emoji || '🍽️');
-        var args = JSON.stringify(m.name) + ',' + Number(m.price) + ',' + JSON.stringify(m.emoji || '🍽️');
+        var safePrice = Number(m.price);
+        /* Use data-* attributes so food names with quotes never break the onclick */
         return '<div ' +
-            'ontouchend="event.preventDefault();event.stopPropagation();selectTblItem(' + args + ')" ' +
-            'onclick="selectTblItem(' + args + ')" ' +
+            'data-name="' + safeName + '" ' +
+            'data-price="' + safePrice + '" ' +
+            'data-emoji="' + safeEmoji + '" ' +
+            'ontouchend="event.preventDefault();event.stopPropagation();selectTblItemFromEl(this)" ' +
+            'onclick="selectTblItemFromEl(this)" ' +
             'style="padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:52px;' +
             'border-bottom:1px solid #f0f0f0;font-size:0.95rem;font-family:Inter,sans-serif;' +
             '-webkit-tap-highlight-color:rgba(30,58,42,0.1);touch-action:manipulation;user-select:none;-webkit-user-select:none" ' +
             'onmouseenter="this.style.background=\'#f6fff8\'" onmouseleave="this.style.background=\'\'">' +
-            '<span style="font-size:1rem">' + safeEmoji + ' ' + safeName + '</span>' +
-            '<span style="color:var(--mid);font-size:0.82rem;white-space:nowrap;margin-left:8px">Rs. ' + Number(m.price) + '</span>' +
+            '<span style="font-size:1rem;pointer-events:none">' + safeEmoji + ' ' + safeName + '</span>' +
+            '<span style="color:var(--mid);font-size:0.82rem;white-space:nowrap;margin-left:8px;pointer-events:none">Rs. ' + safePrice + '</span>' +
             '</div>';
     }).join('');
     drop.style.display = 'block';
+}
+
+function selectTblItemFromEl(el) {
+    var name  = el.dataset.name;
+    var price = Number(el.dataset.price);
+    var emoji = el.dataset.emoji || '🍽️';
+    selectTblItem(name, price, emoji);
 }
 
 function selectTblItem(name, price, emoji) {
