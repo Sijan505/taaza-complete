@@ -77,25 +77,27 @@
 
     <!-- Mobile Nav Dropdown (hidden on desktop) -->
     <div class="admin-mobile-nav">
-        <select id="adminNavSelect" onchange="adminNavChange(this.value)">
-            <option value="dashboard">📊 Dashboard</option>
-            <option value="reservations">📋 Reservations</option>
-            <option value="orders">🛵 Food Orders</option>
-            <option value="qrOrders">📱 QR Table Orders</option>
-            <option value="menuItems">🍽️ Menu Items</option>
-            <option value="deliveryFoods">📦 Delivery Foods</option>
-            <option value="tableBills">🪑 Table Bills</option>
-            <option value="swimTickets">🏊 Swimming Tickets</option>
-            <option value="dailySales">📈 Daily Sales</option>
-            <option value="guests">👥 Guest Management</option>
-            <option value="staff">💼 Staff Management</option>
-            <option value="loyalty">⭐ Loyalty &amp; Rewards</option>
-            <option value="coupons">🎟️ Coupons &amp; Offers</option>
-            <option value="reviews">💬 Reviews &amp; Ratings</option>
-            <option value="auditLog">🔍 Audit Log</option>
-            <option value="settings">⚙️ Email &amp; SMS Settings</option>
-            <option value="__logout__">🚪 Logout</option>
-        </select>
+        <div style="display:flex;gap:8px;align-items:center">
+            <select id="adminNavSelect" onchange="adminNavChange(this.value)" style="width:auto;flex:1;min-width:0">
+                <option value="dashboard">📊 Dashboard</option>
+                <option value="reservations">📋 Reservations</option>
+                <option value="orders">🛵 Food Orders</option>
+                <option value="qrOrders">📱 QR Table Orders</option>
+                <option value="menuItems">🍽️ Menu Items</option>
+                <option value="deliveryFoods">📦 Delivery Foods</option>
+                <option value="tableBills">🪑 Table Bills</option>
+                <option value="swimTickets">🏊 Swimming Tickets</option>
+                <option value="dailySales">📈 Daily Sales</option>
+                <option value="guests">👥 Guest Management</option>
+                <option value="staff">💼 Staff Management</option>
+                <option value="loyalty">⭐ Loyalty &amp; Rewards</option>
+                <option value="coupons">🎟️ Coupons &amp; Offers</option>
+                <option value="reviews">💬 Reviews &amp; Ratings</option>
+                <option value="auditLog">🔍 Audit Log</option>
+                <option value="settings">⚙️ Email &amp; SMS Settings</option>
+            </select>
+            <button onclick="doLogout()" style="flex-shrink:0;background:#ef4444;color:#fff;border:none;padding:10px 14px;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;touch-action:manipulation">&#x1F6AA; Logout</button>
+        </div>
     </div>
 
     <!-- Admin Layout -->
@@ -2431,7 +2433,9 @@ function adminNavChange(name) {
         /* Restore previous tab in select before confirm dialog blocks the thread */
         var prev = sel ? (sel.dataset.lastTab || 'dashboard') : 'dashboard';
         if (sel) sel.value = prev;
-        doLogout();
+        /* setTimeout defers confirm() out of the onchange handler — iOS/Android block
+           confirm() when called synchronously inside a select's change event */
+        setTimeout(doLogout, 50);
         return;
     }
     var _sel = document.getElementById('adminNavSelect');
@@ -5563,7 +5567,15 @@ function startQrOrdersPolling() {
         var tableBillsTab = document.getElementById('tab-tableBills');
         if (tableBillsTab && tableBillsTab.classList.contains('active')) {
             renderTablesGrid();
-            if (activeTable) renderTableOrderPanel();
+            if (activeTable) {
+                /* Skip re-render while user is typing in the menu search to avoid
+                   destroying their in-progress input every 4 seconds */
+                var _tblS = document.getElementById('tblSearch');
+                var _tblD = document.getElementById('tblDropdown');
+                var _userSearching = (_tblS && document.activeElement === _tblS) ||
+                                     (_tblD && _tblD.style.display !== 'none');
+                if (!_userSearching) renderTableOrderPanel();
+            }
         }
         /* Auto-refresh Food Orders tab */
         var ordersTab = document.getElementById('tab-orders');
