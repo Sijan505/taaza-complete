@@ -166,7 +166,7 @@ function updateGuestOptions() {
     var guestSel = document.getElementById('guests');
     if (!roomSel || !guestSel) return;
     var rt = roomSel.value;
-    var maxGuests = rt === 'Standard Room' ? 2 : rt === 'Deluxe Room' ? 3 : 99;
+    var maxGuests = 99;
     var all = [
         { value: '1', label: '1 Guest' },
         { value: '2', label: '2 Guests' },
@@ -195,27 +195,11 @@ function updateRoomsByGuests() {
     var num = guestVal === '5+' ? 5 : (parseInt(guestVal, 10) || 0);
     var currentVal = roomSel.value;
     roomSel.innerHTML = '<option value="">Select room type</option>';
-    var options;
-    if (num >= 3) {
-        options = [
-            { v: 'Deluxe Room',            t: 'Deluxe Room (Rs. 2,000/night)' },
-            { v: 'Standard & Deluxe Room', t: 'Both Standard & Deluxe (Rs. 3,500/night)' },
-            { v: 'Banquet Hall',           t: 'Banquet Hall — Wedding / Mehendi (Rs. 5,000/day)' }
-        ];
-    } else if (num > 0) {
-        options = [
-            { v: 'Standard Room',  t: 'Standard Room (Rs. 1,500/night)' },
-            { v: 'Deluxe Room',    t: 'Deluxe Room (Rs. 2,000/night)' },
-            { v: 'Banquet Hall',   t: 'Banquet Hall — Wedding / Mehendi (Rs. 5,000/day)' }
-        ];
-    } else {
-        options = [
-            { v: 'Standard Room',          t: 'Standard Room (Rs. 1,500/night)' },
-            { v: 'Deluxe Room',            t: 'Deluxe Room (Rs. 2,000/night)' },
-            { v: 'Standard & Deluxe Room', t: 'Both Standard & Deluxe (Rs. 3,500/night)' },
-            { v: 'Banquet Hall',           t: 'Banquet Hall — Wedding / Mehendi (Rs. 5,000/day)' }
-        ];
-    }
+    var stdRate = num > 0 ? Math.ceil(num / 2) * 1500 : 1500;
+    var options = [
+        { v: 'Standard Room', t: 'Standard Room — Rs. ' + stdRate.toLocaleString() + '/night' },
+        { v: 'Banquet Hall',  t: 'Banquet Hall — Wedding / Mehendi (Rs. 5,000/day)' }
+    ];
     options.forEach(function(o) {
         var opt = document.createElement('option');
         opt.value = o.v;
@@ -224,6 +208,40 @@ function updateRoomsByGuests() {
         roomSel.appendChild(opt);
     });
     if (!options.some(function(o) { return o.v === currentVal; })) roomSel.value = '';
+    /* Show pricing note */
+    var note = document.getElementById('bformPriceNote');
+    var noteText = document.getElementById('bformPriceNoteText');
+    if (note && noteText && num > 0) {
+        noteText.textContent = num <= 2
+            ? 'Standard Room rate: Rs. 1,500/night for up to 2 guests.'
+            : 'Rate adjusted for ' + num + ' guests: Rs. ' + stdRate.toLocaleString() + '/night (Rs. 1,500 per 2 guests).';
+        note.style.display = 'block';
+    } else if (note) {
+        note.style.display = 'none';
+    }
+    updateLivePrice();
+}
+
+function updateLivePrice() {
+    var checkIn  = (document.getElementById('check-in')  || {}).value;
+    var checkOut = (document.getElementById('check-out') || {}).value;
+    var guestVal = (document.getElementById('guests')    || {}).value;
+    var roomType = (document.getElementById('room-type') || {}).value;
+    var preview  = document.getElementById('livePricePreview');
+    if (!preview) return;
+    if (!checkIn || !checkOut || !guestVal || !roomType) { preview.style.display = 'none'; return; }
+    var nights = calculateNights(checkIn, checkOut);
+    if (nights <= 0) { preview.style.display = 'none'; return; }
+    var guestNum = guestVal === '5+' ? 5 : (parseInt(guestVal, 10) || 1);
+    var roomRate = roomType === 'Banquet Hall' ? 5000 : Math.ceil(guestNum / 2) * 1500;
+    var unit     = roomType === 'Banquet Hall' ? 'day' : 'night';
+    var total    = nights * roomRate;
+    var deposit  = Math.round(total * 0.35);
+    document.getElementById('bppNights').textContent  = nights + ' ' + (nights === 1 ? unit : unit + 's');
+    document.getElementById('bppRate').textContent    = 'Rs. ' + roomRate.toLocaleString() + '/' + unit;
+    document.getElementById('bppTotal').textContent   = 'Rs. ' + total.toLocaleString();
+    document.getElementById('bppDeposit').textContent = deposit.toLocaleString();
+    preview.style.display = 'block';
 }
 
 function handleBookingSearch(event) {
@@ -247,22 +265,8 @@ function handleBookingSearch(event) {
         return;
     }
 
-    var guestNum = guests === '5+' ? 5 : parseInt(guests) || 1;
-    if (roomType === 'Standard Room' && guestNum > 2) {
-        alert('Standard Room accommodates a maximum of 2 guests. Please select a different room type for larger groups.');
-        return;
-    }
-    if (roomType === 'Deluxe Room' && guestNum > 3) {
-        alert('Deluxe Room accommodates a maximum of 3 guests. Please select a different room type for larger groups.');
-        return;
-    }
-
-    var roomRate = 0;
-    if (roomType === 'Standard & Deluxe Room') {
-        roomRate = 3500;
-    } else {
-        roomRate = roomType.includes('Deluxe') ? 2000 : 1500;
-    }
+    var guestNum = guests === '5+' ? 5 : (parseInt(guests, 10) || 1);
+    var roomRate = roomType === 'Banquet Hall' ? 5000 : Math.ceil(guestNum / 2) * 1500;
 
     var subtotal = nights * roomRate;
     var packagePrice = selectedPackage ? selectedPackage.price : 0;
@@ -271,11 +275,9 @@ function handleBookingSearch(event) {
     var baseTotal = subtotal + packageTotal;
     _pendingBaseTotal = baseTotal;
 
-    /* Apply coupon discount */
-    var couponDisc  = _appliedCoupon ? _appliedCoupon.discount : 0;
     /* Apply loyalty redemption */
     var loyaltyDisc = _redeemPoints || 0;
-    var total    = Math.max(0, baseTotal - couponDisc - loyaltyDisc);
+    var total    = Math.max(0, baseTotal - loyaltyDisc);
     var deposit  = Math.round(total * 0.35);
 
     pendingBooking = {
@@ -290,8 +292,6 @@ function handleBookingSearch(event) {
         roomRate: roomRate,
         package: selectedPackage,
         subtotal: subtotal,
-        couponCode:   _appliedCoupon ? _appliedCoupon.coupon.code : '',
-        couponDisc:   couponDisc,
         loyaltyDisc:  loyaltyDisc,
         total: total,
         deposit: deposit,
@@ -326,13 +326,14 @@ function showBookingResult(booking) {
         html += '<div class="booking-summary-row" style="color:var(--gold)"><span>Selected Package:</span><strong>' + esc(booking.package.name) + '</strong></div>';
     }
 
-    html += '<div class="booking-summary-row"><span>Room Subtotal:</span><strong>Rs. ' + booking.subtotal + '</strong></div>';
+    var rateUnit = booking.roomType === 'Banquet Hall' ? '/day' : '/night';
+    html += '<div class="booking-summary-row"><span>Room Rate:</span><strong>Rs. ' + (booking.roomRate || 0).toLocaleString() + rateUnit + '</strong></div>';
+    html += '<div class="booking-summary-row"><span>Room Subtotal:</span><strong>Rs. ' + booking.subtotal.toLocaleString() + '</strong></div>';
     
     if (booking.package) {
         html += '<div class="booking-summary-row"><span>Package Cost:</span><strong>Rs. ' + booking.package.price + '</strong></div>';
     }
 
-    if (booking.couponDisc)  html += '<div class="booking-summary-row" style="color:#166534"><span>🎟️ Coupon (' + esc(booking.couponCode) + '):</span><strong>− Rs. ' + booking.couponDisc + '</strong></div>';
     if (booking.loyaltyDisc) html += '<div class="booking-summary-row" style="color:#166534"><span>⭐ Loyalty Discount:</span><strong>− Rs. ' + booking.loyaltyDisc + '</strong></div>';
     html += '<div class="booking-summary-row total"><span>Total Amount:</span><strong>Rs. ' + booking.total + '</strong></div>';
 
@@ -344,62 +345,95 @@ function showBookingResult(booking) {
     // Hide notification status box until booking is saved
     var notifBox = document.getElementById('bookingNotifStatus');
     if (notifBox) notifBox.style.display = 'none';
-    // Hide payment info if it was open
-    var advInfo = document.getElementById('advancePaymentInfo');
-    if (advInfo) advInfo.style.display = 'none';
 
     closeBookingPaymentModal();
+    closeAdvBookingModal();
     window.scrollTo({ top: result.offsetTop - 20, behavior: 'smooth' });
 }
 
 function openAdvanceBooking() {
     if (!pendingBooking) return;
 
-    var advInfo = document.getElementById('advancePaymentInfo');
-    if (advInfo) {
-        var amtEl = document.getElementById('advanceDepositAmount');
-        if (amtEl) amtEl.textContent = 'Rs. ' + pendingBooking.deposit;
-        advInfo.style.display = 'block';
-        window.scrollTo({ top: advInfo.offsetTop - 80, behavior: 'smooth' });
+    var recap = document.getElementById('advBmRecap');
+    if (recap) {
+        recap.innerHTML =
+            '<div class="adv-bm-recap-row"><span>Guest</span><strong>' + esc(pendingBooking.fullName) + '</strong></div>' +
+            '<div class="adv-bm-recap-row"><span>Phone</span><strong>' + esc(pendingBooking.phone) + '</strong></div>' +
+            '<div class="adv-bm-recap-row"><span>Room</span><strong>' + esc(pendingBooking.roomType) + '</strong></div>' +
+            '<div class="adv-bm-recap-row"><span>Check-in</span><strong>' + esc(pendingBooking.checkIn) + '</strong></div>' +
+            '<div class="adv-bm-recap-row"><span>Check-out</span><strong>' + esc(pendingBooking.checkOut) + '</strong></div>' +
+            '<div class="adv-bm-recap-row"><span>Nights &middot; Guests</span><strong>' + pendingBooking.nights + ' night(s) &middot; ' + esc(pendingBooking.guests) + '</strong></div>' +
+            (pendingBooking.loyaltyDisc ? '<div class="adv-bm-recap-row" style="color:#166534"><span>&#x2B50; Loyalty Discount</span><strong>&minus; Rs. ' + pendingBooking.loyaltyDisc + '</strong></div>' : '') +
+            '<div class="adv-bm-recap-row adv-bm-recap-total"><span>Total Amount</span><strong>Rs. ' + pendingBooking.total + '</strong></div>';
+    }
+
+    var depEl = document.getElementById('advBmDepositAmt');
+    if (depEl) depEl.textContent = 'Rs. ' + pendingBooking.deposit;
+
+    switchAdvTab('esewa');
+    var fi = document.getElementById('advBmFileInput');
+    if (fi) fi.value = '';
+    var fc = document.getElementById('advBmFileChosen');
+    if (fc) { fc.style.display = 'none'; fc.textContent = ''; }
+
+    var modal = document.getElementById('advBookingModal');
+    if (modal) { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+}
+
+function closeAdvBookingModal() {
+    var m = document.getElementById('advBookingModal');
+    if (m) m.style.display = 'none';
+    document.body.style.overflow = '';
+}
+
+function switchAdvTab(tab) {
+    var eq = document.getElementById('advQrEsewa');
+    var fq = document.getElementById('advQrFonepay');
+    var eb = document.getElementById('advTabEsewaBtn');
+    var fb = document.getElementById('advTabFonepayBtn');
+    if (eq) eq.style.display = tab === 'esewa'   ? 'block' : 'none';
+    if (fq) fq.style.display = tab === 'fonepay' ? 'block' : 'none';
+    if (eb) eb.classList.toggle('active', tab === 'esewa');
+    if (fb) fb.classList.toggle('active', tab === 'fonepay');
+}
+
+function onAdvFileChosen(input) {
+    var el = document.getElementById('advBmFileChosen');
+    if (!el) return;
+    if (input.files && input.files[0]) {
+        el.textContent = '✅ ' + input.files[0].name;
+        el.style.display = 'block';
+    } else {
+        el.style.display = 'none';
     }
 }
 
-function submitAdvancePayment() {
+function submitAdvModalBooking() {
     if (!pendingBooking) return;
-
-    var screenshotInput = document.getElementById('advanceScreenshot');
-    if (!screenshotInput || !screenshotInput.files || !screenshotInput.files[0]) {
+    var fileInput = document.getElementById('advBmFileInput');
+    if (!fileInput || !fileInput.files || !fileInput.files[0]) {
         alert('Please upload your payment screenshot to confirm the advance booking.');
         return;
     }
-
-    var file = screenshotInput.files[0];
+    var file = fileInput.files[0];
     if (file.size > 5 * 1024 * 1024) {
-        alert('Screenshot is too large (max 5 MB). Please upload a smaller image.');
+        alert('Screenshot too large (max 5 MB). Please compress and re-upload.');
         return;
     }
-
-    /* Pre-generate booking ID so it's consistent in storage and notifications */
     var bookingId = 'RES-' + Date.now().toString().slice(-6);
     pendingBooking.id = bookingId;
-
-    var confirmBtn = document.querySelector('.adv-confirm-btn');
-    if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.textContent = 'Saving...'; }
-
+    var btn = document.getElementById('advBmConfirmBtn');
+    if (btn) { btn.disabled = true; btn.textContent = 'Saving…'; }
     var reader = new FileReader();
     reader.onload = function(e) {
         pendingBooking.paymentMethod      = 'Advance (Online Transfer)';
         pendingBooking.paymentScreenshot  = e.target.result;
         pendingBooking.screenshotFileName = file.name;
-
-        /* Pass pre-generated ID into saveReservation */
         saveReservation(pendingBooking, 'Advance Paid', bookingId);
-
-        if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.textContent = '✅ Confirm Advance Booking'; }
-        if (screenshotInput) screenshotInput.value = '';
+        if (btn) { btn.disabled = false; btn.textContent = '✅ Confirm Advance Booking'; }
         pendingBooking = null;
-
-        // Wait for Firestore save to complete before redirecting
+        closeAdvBookingModal();
+        document.getElementById('bookingResult').style.display = 'none';
         var doRedirect = function() { window.location.href = 'index.html'; };
         if (window._taazaFirestoreResSave) {
             window._taazaFirestoreResSave.then(doRedirect).catch(doRedirect);
@@ -435,8 +469,6 @@ function saveReservation(booking, status, presetId) {
         }
         autoSaveGuestFromBooking(newRes);
         sendBookingNotifications(newRes);
-        /* Coupon: mark used */
-        if (newRes.couponCode) _markCouponUsed(newRes.couponCode);
         /* Loyalty: redeem if used */
         if (_redeemPoints > 0 && newRes.phone) {
             var llist = _getLoyalty();
@@ -452,8 +484,6 @@ function saveReservation(booking, status, presetId) {
         }
         /* Loyalty: earn points on total paid */
         earnPointsAfterBooking(newRes, newRes.total);
-        /* Reset coupon */
-        _appliedCoupon    = null;
         _pendingBaseTotal = 0;
     } catch(e) { console.error('Failed to save reservation:', e); }
 }
@@ -940,7 +970,6 @@ function _buildWhatsAppUrl(booking, settings) {
         '💰 Total: Rs. '  + (booking.total    || 0) + '\n' +
         '✅ Status: Advance Paid\n' +
         (booking.package ? '🎁 Package: ' + booking.package.name + '\n' : '') +
-        (booking.couponCode ? '🎟️ Coupon: ' + booking.couponCode + ' (Rs. ' + (booking.couponDisc || 0) + ' off)\n' : '') +
         '\nFor queries:\n' +
         '📞 ' + (settings.resortPhone || '+977 9742864405') + '\n' +
         '📧 ' + (settings.resortEmail || 'tamanganish421@gmail.com') + '\n\n' +
@@ -975,76 +1004,6 @@ function adminResendEmail(bookingId) {
         alert('Email not configured. Go to Admin → Settings to set up EmailJS.'); return; }
     _sendEmailJS(booking, settings);
     alert('Email resent to ' + booking.email + '. Check the Notification Log for status.');
-}
-
-/* =============================================================
-   COUPON & DISCOUNT SYSTEM
-   ============================================================= */
-var COUPONS_KEY_PUB = 'taaza_coupons';
-var _appliedCoupon  = null;
-
-function _getCoupons() {
-    try { return JSON.parse(localStorage.getItem(COUPONS_KEY_PUB) || '[]'); } catch(e) { return []; }
-}
-
-function validateCoupon(code, amount) {
-    code = (code || '').trim().toUpperCase();
-    if (!code) return { ok: false, msg: '' };
-    var list  = _getCoupons();
-    var today = new Date().toISOString().slice(0,10);
-    var c     = list.find(function(x){ return x.code === code; });
-    if (!c)                               return { ok: false, msg: 'Invalid coupon code.' };
-    if (!c.active)                        return { ok: false, msg: 'This coupon is currently inactive.' };
-    if (c.validFrom && today < c.validFrom) return { ok: false, msg: 'Coupon not valid yet. Valid from ' + c.validFrom + '.' };
-    if (c.validTo && today > c.validTo)   return { ok: false, msg: 'Coupon has expired.' };
-    if (c.maxUses && c.usedCount >= c.maxUses) return { ok: false, msg: 'Coupon usage limit reached.' };
-    if (c.minAmount && amount < c.minAmount) return { ok: false, msg: 'Minimum booking amount is Rs. ' + c.minAmount.toLocaleString() + '.' };
-    var disc = c.type === 'percent' ? Math.round(amount * c.value / 100) : c.value;
-    return { ok: true, coupon: c, discount: disc, msg: c.name + ': ' + (c.type === 'percent' ? c.value + '%' : 'Rs. ' + c.value) + ' off applied!' };
-}
-
-function _markCouponUsed(code) {
-    try {
-        var list = _getCoupons();
-        var c    = list.find(function(x){ return x.code === code; });
-        if (c) { c.usedCount = (c.usedCount || 0) + 1; localStorage.setItem(COUPONS_KEY_PUB, JSON.stringify(list)); }
-    } catch(e) {}
-}
-
-function applyCouponCode() {
-    var inp    = document.getElementById('couponInput');
-    var fb     = document.getElementById('couponFeedback');
-    var discEl = document.getElementById('couponDiscountLine');
-    if (!inp || !fb) return;
-
-    var code   = inp.value.trim().toUpperCase();
-    var amount = _pendingBaseTotal || 0;
-
-    if (!code) { fb.className = 'coupon-feedback err'; fb.textContent = 'Enter a coupon code first.'; return; }
-
-    var result = validateCoupon(code, amount);
-    if (!result.ok) {
-        fb.className = 'coupon-feedback err'; fb.textContent = result.msg;
-        _appliedCoupon = null;
-        if (discEl) discEl.style.display = 'none';
-        return;
-    }
-    _appliedCoupon = result;
-    fb.className = 'coupon-feedback ok'; fb.textContent = '✅ ' + result.msg;
-    if (discEl) {
-        discEl.style.display = 'flex';
-        discEl.innerHTML = '<span>🎟️ Coupon Discount (' + esc(code) + ')</span><span>− Rs. ' + result.discount.toLocaleString() + '</span>';
-    }
-}
-
-function removeCoupon() {
-    _appliedCoupon = null;
-    var inp = document.getElementById('couponInput');
-    var fb  = document.getElementById('couponFeedback');
-    var dl  = document.getElementById('couponDiscountLine');
-    if (inp) inp.value = '';
-    if (fb)  { fb.className = 'coupon-feedback'; fb.textContent = ''; }
-    if (dl)  dl.style.display = 'none';
 }
 
 /* =============================================================

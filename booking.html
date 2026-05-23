@@ -57,12 +57,59 @@
     </div>
 </nav>
 
-<!-- ===== PAGE HEADER ===== -->
-<section class="page-header">
-    <div class="container">
-        <span class="section-label">Reservations</span>
-        <h1>Book Your Stay</h1>
-        <p>Find the perfect room and reserve your place in our sanctuary of luxury</p>
+<!-- ===== BOOKING HERO HEADER ===== -->
+<section class="booking-hero-header">
+    <!-- Decorative orbs -->
+    <div class="bhh-orb bhh-orb-1"></div>
+    <div class="bhh-orb bhh-orb-2"></div>
+    <div class="bhh-orb bhh-orb-3"></div>
+
+    <div class="container" style="position:relative;z-index:2">
+        <!-- Trust badges -->
+        <div class="bhh-trust-row">
+            <span class="bhh-trust-badge">&#x2714; Free Cancellation</span>
+            <span class="bhh-trust-badge">&#x2714; Best Price Guaranteed</span>
+            <span class="bhh-trust-badge">&#x2714; Instant Confirmation</span>
+        </div>
+
+        <span class="section-label" style="color:var(--gold);opacity:0.9;margin-bottom:10px;display:block">Reservations</span>
+        <h1 class="bhh-title">Book Your Perfect Stay</h1>
+        <p class="bhh-sub">Escape to Taaza Resort &mdash; where nature meets luxury in the heart of Chitwan</p>
+
+        <!-- Quick info bar -->
+        <div class="bhh-info-bar">
+            <div class="bhh-info-item">
+                <span class="bhh-info-icon">&#x1F551;</span>
+                <div>
+                    <div class="bhh-info-label">Check-in</div>
+                    <div class="bhh-info-val">From 2:00 PM</div>
+                </div>
+            </div>
+            <div class="bhh-info-sep"></div>
+            <div class="bhh-info-item">
+                <span class="bhh-info-icon">&#x1F559;</span>
+                <div>
+                    <div class="bhh-info-label">Check-out</div>
+                    <div class="bhh-info-val">Until 11:00 AM</div>
+                </div>
+            </div>
+            <div class="bhh-info-sep"></div>
+            <div class="bhh-info-item">
+                <span class="bhh-info-icon">&#x1F3CA;</span>
+                <div>
+                    <div class="bhh-info-label">Amenities</div>
+                    <div class="bhh-info-val">Pool &middot; Dining &middot; Garden</div>
+                </div>
+            </div>
+            <div class="bhh-info-sep"></div>
+            <div class="bhh-info-item">
+                <span class="bhh-info-icon">&#x1F4DE;</span>
+                <div>
+                    <div class="bhh-info-label">24/7 Support</div>
+                    <div class="bhh-info-val">+977 9742864405</div>
+                </div>
+            </div>
+        </div>
     </div>
 </section>
 
@@ -75,70 +122,94 @@
             <p>Fill in your details below and we will confirm availability within the hour</p>
 
             <form class="booking-form" onsubmit="handleBookingSearch(event)">
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="check-in">Check-in Date</label>
-                        <input type="date" id="check-in" required>
+
+                <!-- Step 1: Dates -->
+                <div class="bform-section">
+                    <div class="bform-section-header">
+                        <span class="bform-step-num">1</span>
+                        <span class="bform-step-title">Select Your Dates</span>
                     </div>
-                    <div class="form-group">
-                        <label for="check-out">Check-out Date</label>
-                        <input type="date" id="check-out" required>
-                    </div>
-                </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="full-name">Full Name</label>
-                        <input type="text" id="full-name" placeholder="Enter your full name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Contact Number</label>
-                        <input type="tel" id="phone" placeholder="Enter your phone number" required>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="check-in">&#x1F4C5; Check-in Date</label>
+                            <input type="date" id="check-in" required onchange="updateLivePrice()">
+                        </div>
+                        <div class="form-group">
+                            <label for="check-out">&#x1F4C5; Check-out Date</label>
+                            <input type="date" id="check-out" required onchange="updateLivePrice()">
+                        </div>
                     </div>
                 </div>
-                <div class="form-row" style="grid-template-columns:1fr">
-                    <div class="form-group">
-                        <label for="guest-email">&#x1F4E7; Email Address <span style="font-size:0.8em;font-weight:400;color:var(--mid)">(booking confirmation sent automatically)</span></label>
-                        <input type="email" id="guest-email" placeholder="Enter your email address for confirmation">
+
+                <!-- Step 2: Guest details -->
+                <div class="bform-section">
+                    <div class="bform-section-header">
+                        <span class="bform-step-num">2</span>
+                        <span class="bform-step-title">Your Details</span>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="full-name">&#x1F464; Full Name</label>
+                            <input type="text" id="full-name" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">&#x1F4DE; Contact Number</label>
+                            <input type="tel" id="phone" placeholder="Your phone number" required onblur="lookupLoyaltyByPhone()">
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label for="guest-email">&#x1F4E7; Email Address <span class="bform-hint">(confirmation sent automatically)</span></label>
+                        <input type="email" id="guest-email" placeholder="your@email.com">
                     </div>
                 </div>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="guests">Number of Guests</label>
-                        <select id="guests" required onchange="updateRoomsByGuests()">
-                            <option value="">Select guests</option>
-                            <option value="1">1 Guest</option>
-                            <option value="2">2 Guests</option>
-                            <option value="3">3 Guests</option>
-                            <option value="4">4 Guests</option>
-                            <option value="5+">5 or more Guests</option>
-                        </select>
+
+                <!-- Step 3: Room & Guests -->
+                <div class="bform-section">
+                    <div class="bform-section-header">
+                        <span class="bform-step-num">3</span>
+                        <span class="bform-step-title">Room &amp; Guests</span>
                     </div>
-                    <div class="form-group">
-                        <label for="room-type">Room Type</label>
-                        <select id="room-type" required onchange="updateGuestOptions()">
-                            <option value="">Select room type</option>
-                            <option value="AC Room">AC Room (Rs. 1,500/night)</option>
-                            <option value="Banquet Hall">Banquet Hall — Wedding / Mehendi (Rs. 5,000/day)</option>
-                        </select>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="guests">&#x1F465; Number of Guests</label>
+                            <select id="guests" required onchange="updateRoomsByGuests()">
+                                <option value="">Select guests</option>
+                                <option value="1">1 Guest</option>
+                                <option value="2">2 Guests</option>
+                                <option value="3">3 Guests</option>
+                                <option value="4">4 Guests</option>
+                                <option value="5+">5 or more Guests</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="room-type">&#x1F3E0; Room Type</label>
+                            <select id="room-type" required onchange="updateGuestOptions(); updateLivePrice()">
+                                <option value="">Select room type</option>
+                                <option value="Standard Room">Standard Room (from Rs. 1,500/night)</option>
+                                <option value="Banquet Hall">Banquet Hall &mdash; Wedding / Mehendi (Rs. 5,000/day)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="bform-price-note" id="bformPriceNote" style="display:none">
+                        &#x2139;&#xFE0F; <span id="bformPriceNoteText"></span>
                     </div>
                 </div>
-                <!-- Loyalty widget (auto-shown after phone entered) -->
+
+                <!-- Live price preview -->
+                <div class="bform-price-preview" id="livePricePreview" style="display:none">
+                    <div class="bpp-label">&#x1F4B0; Estimated Cost</div>
+                    <div class="bpp-rows">
+                        <div class="bpp-row"><span>Duration</span><strong id="bppNights">—</strong></div>
+                        <div class="bpp-row"><span>Room Rate</span><strong id="bppRate">—</strong></div>
+                        <div class="bpp-row bpp-total"><span>Total</span><strong id="bppTotal">—</strong></div>
+                    </div>
+                    <div class="bpp-advance-note">35% advance — Rs. <span id="bppDeposit">—</span> — to confirm reservation</div>
+                </div>
+
+                <!-- Loyalty widget -->
                 <div id="bookingLoyaltyWidget" class="booking-loyalty-widget" style="display:none"></div>
 
-                <!-- Coupon / Promo Code -->
-                <div class="form-row" style="grid-template-columns:1fr;margin-top:4px">
-                    <div class="form-group">
-                        <label for="couponInput">&#x1F39F;&#xFE0F; Promo Code / Coupon <span style="font-size:0.8em;font-weight:400;color:var(--mid)">(optional)</span></label>
-                        <div class="booking-coupon-row">
-                            <input type="text" id="couponInput" placeholder="e.g. DASHAIN25" autocomplete="off">
-                            <button type="button" class="coupon-apply-btn" onclick="applyCouponCode()">Apply</button>
-                        </div>
-                        <div class="coupon-feedback" id="couponFeedback"></div>
-                        <div class="coupon-discount-line" id="couponDiscountLine" style="display:none"></div>
-                    </div>
-                </div>
-
-                <button type="submit" class="btn-primary" style="margin-top:8px" onclick="handleBookingSearch(event)">
+                <button type="submit" class="btn-primary bform-submit-btn" onclick="handleBookingSearch(event)">
                     &#x1F50D; Check Availability
                 </button>
             </form>
@@ -147,14 +218,14 @@
             <div id="bookingWeatherPreview" class="booking-weather-preview" style="display:none"></div>
 
             <div class="booking-result-box" id="bookingResult" style="display:none">
-                <div class="booking-result-header">
-                    <h3>&#x2705; Availability Confirmed</h3>
-                    <p>One step away from booking your room. Contact us or choose advance booking with online payment.</p>
+                <div class="bres-confirm-banner">
+                    <div class="bres-check-circle">&#x2713;</div>
+                    <div class="bres-confirm-text">
+                        <h3>Your Dates Are Available!</h3>
+                        <p>Secure your stay with a 35% advance payment — balance due on arrival.</p>
+                    </div>
                 </div>
-                <div class="booking-contact-details">
-                    <p><strong>Reservation Desk:</strong> +977 9742864405</p>
-                    <p><strong>Email:</strong> tamanganish421@gmail.com</p>
-                </div>
+
                 <div class="booking-summary" id="bookingSummary"></div>
 
                 <!-- Notification status (shown after booking saved) -->
@@ -163,43 +234,14 @@
                     <div id="bookingNotifWhatsappLine"></div>
                 </div>
 
-                <div class="booking-actions" style="flex-wrap:wrap;gap:10px">
-                    <button class="btn-primary" onclick="openAdvanceBooking()">&#x1F4B3; Advance Book</button>
-                </div>
-
-                <div id="advancePaymentInfo" class="advance-payment-info" style="display:none">
-                    <div class="payment-info-card">
-                        <h4>&#x1F4B3; Advance Payment</h4>
-                        <p>Scan a QR code with eSewa or FonePay to pay your advance and secure your reservation.</p>
-                        <div class="adv-amount-row">
-                            Advance Amount (35%): <strong id="advanceDepositAmount">Rs. 0</strong>
-                        </div>
-                        <div class="adv-qr-grid">
-                            <div class="adv-qr-block">
-                                <p class="adv-qr-label esewa-label">eSewa</p>
-                                <img src="images/esewa-qr.png" alt="eSewa QR Code" class="adv-qr-img">
-                                <p class="adv-qr-name">Anish Tamang</p>
-                                <p class="adv-qr-num">9821179139</p>
-                            </div>
-                            <div class="adv-qr-block">
-                                <p class="adv-qr-label fonepay-label">FonePay</p>
-                                <img src="images/fonepay-qr.png" alt="FonePay QR Code" class="adv-qr-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
-                                <div class="adv-qr-placeholder">FonePay QR<br><span>Add fonepay-qr.png</span></div>
-                                <p class="adv-qr-name">Anish Tamang</p>
-                                <p class="adv-qr-num">9742864405</p>
-                            </div>
-                        </div>
-                        <div class="adv-upload-section">
-                            <label class="adv-upload-label">&#x1F4F7; Upload Payment Screenshot *</label>
-                            <input type="file" id="advanceScreenshot" accept="image/*" class="adv-upload-input">
-                            <p class="adv-upload-hint">Required — upload your payment confirmation screenshot for instant verification.</p>
-                        </div>
-                        <button class="btn-primary adv-confirm-btn" onclick="submitAdvancePayment()">&#x2705; Confirm Advance Booking</button>
-                        <p class="payment-note">Our team will call you within a few hours to confirm your reservation.</p>
+                <div class="bres-cta-block">
+                    <button class="btn-primary bres-cta-btn" onclick="openAdvanceBooking()">&#x1F4F2; Reserve Now &mdash; Pay 35% Advance</button>
+                    <div class="bres-perks">
+                        <span>&#x2713; Free cancellation 7 days prior</span>
+                        <span>&#x2713; Instant confirmation</span>
+                        <span>&#x2713; Balance on arrival</span>
                     </div>
                 </div>
-
-                <p class="booking-note">Our team will contact you after advance booking to confirm room allocation and complete the payment process.</p>
 
                 <!-- Leave a Review (shown after booking is confirmed) -->
                 <div id="bookingReviewSection" class="booking-review-section" style="display:none">
@@ -288,7 +330,7 @@
                 <p class="package-price">Rs. 15,999</p>
                 <p class="package-desc">2 nights stay</p>
                 <ul class="package-list">
-                    <li>Deluxe accommodation</li>
+                    <li>Standard accommodation</li>
                     <li>Daily breakfast included</li>
                     <li>20% spa discount</li>
                     <li>Welcome fruit basket</li>
@@ -352,10 +394,13 @@
                 <h4>Credit / Debit Card</h4>
                 <p>Visa, Mastercard, American Express</p>
             </div>
-            <div class="method">
-                <span>&#x1F4F1;</span>
-                <h4>eSewa &amp; Khalti</h4>
-                <p>Nepal's leading digital payment platforms</p>
+            <div class="method method-esewa">
+                <h4 style="font-size:1rem;margin-bottom:10px;">eSewa</h4>
+                <div class="method-qr-wrap">
+                    <img src="images/esewa-qr.png" alt="eSewa QR Code" class="method-qr-img">
+                </div>
+                <p class="method-qr-account">Anish Tamang<br><strong>9821179139</strong></p>
+                <p style="font-size:0.78rem;color:var(--mid);margin-top:6px;">Scan to pay via eSewa</p>
             </div>
             <div class="method">
                 <span>&#x1F3E6;</span>
@@ -533,5 +578,76 @@ document.addEventListener('DOMContentLoaded', function() {
   <a href="delivery.html"><span class="mbn-icon">🛵</span>Order</a>
   <a href="contact.html"><span class="mbn-icon">📞</span>Contact</a>
 </nav>
+
+<!-- ===== ADVANCE BOOKING MODAL ===== -->
+<div id="advBookingModal" class="adv-bm-overlay" style="display:none" onclick="if(event.target===this)closeAdvBookingModal()">
+    <div class="adv-bm-box">
+
+        <!-- Header -->
+        <div class="adv-bm-header">
+            <div>
+                <div class="adv-bm-badge">RESERVATION</div>
+                <h3 class="adv-bm-title">Confirm Advance Booking</h3>
+            </div>
+            <button class="adv-bm-close" onclick="closeAdvBookingModal()">&#x2715;</button>
+        </div>
+
+        <!-- Booking recap -->
+        <div class="adv-bm-recap" id="advBmRecap"></div>
+
+        <!-- Deposit highlight -->
+        <div class="adv-bm-amount-bar">
+            <div>
+                <div class="adv-bm-amount-label">Advance to Pay (35%)</div>
+                <div class="adv-bm-amount-val" id="advBmDepositAmt">Rs. 0</div>
+            </div>
+            <div class="adv-bm-amount-tag">Secures Your Room</div>
+        </div>
+
+        <!-- Payment method tabs -->
+        <div class="adv-bm-section">
+            <div class="adv-bm-section-label">&#x1F4F1; Scan &amp; Pay</div>
+            <div class="adv-bm-tabs">
+                <button id="advTabEsewaBtn" class="adv-bm-tab active" onclick="switchAdvTab('esewa')">
+                    <span class="adv-bm-tab-dot" style="background:#60bb46"></span>eSewa
+                </button>
+                <button id="advTabFonepayBtn" class="adv-bm-tab" onclick="switchAdvTab('fonepay')">
+                    <span class="adv-bm-tab-dot" style="background:#f57c00"></span>FonePay
+                </button>
+            </div>
+
+            <div id="advQrEsewa" class="adv-bm-qr-wrap">
+                <img src="images/esewa-qr.png" alt="eSewa QR Code" class="adv-bm-qr-img">
+                <p class="adv-bm-account">Anish Tamang &nbsp;&bull;&nbsp; <strong>9821179139</strong></p>
+            </div>
+            <div id="advQrFonepay" class="adv-bm-qr-wrap" style="display:none">
+                <img src="images/fonepay-qr.png" alt="FonePay QR Code" class="adv-bm-qr-img" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                <div class="adv-bm-qr-placeholder">FonePay QR<br><span>Add fonepay-qr.png</span></div>
+                <p class="adv-bm-account">Anish Tamang &nbsp;&bull;&nbsp; <strong>9742864405</strong></p>
+            </div>
+        </div>
+
+        <!-- Upload screenshot -->
+        <div class="adv-bm-section">
+            <div class="adv-bm-section-label">&#x1F4F7; Upload Payment Screenshot *</div>
+            <label class="adv-bm-dropzone" for="advBmFileInput">
+                <div class="adv-bm-dropzone-icon">&#x1F4CE;</div>
+                <div class="adv-bm-dropzone-text">Tap to attach your payment proof</div>
+                <div class="adv-bm-dropzone-hint">JPG or PNG &nbsp;&middot;&nbsp; Max 5 MB</div>
+                <div id="advBmFileChosen" class="adv-bm-file-chosen" style="display:none"></div>
+            </label>
+            <input type="file" id="advBmFileInput" accept="image/*" style="display:none" onchange="onAdvFileChosen(this)">
+        </div>
+
+        <!-- Confirm -->
+        <div class="adv-bm-footer">
+            <button class="btn-primary adv-bm-confirm-btn" id="advBmConfirmBtn" onclick="submitAdvModalBooking()">
+                &#x2705; Confirm Advance Booking
+            </button>
+            <p class="adv-bm-footer-note">Our team will verify and confirm your reservation shortly &#x1F64F;</p>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

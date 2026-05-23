@@ -91,7 +91,6 @@
                 <option value="guests">👥 Guest Management</option>
                 <option value="staff">💼 Staff Management</option>
                 <option value="loyalty">⭐ Loyalty &amp; Rewards</option>
-                <option value="coupons">🎟️ Coupons &amp; Offers</option>
                 <option value="reviews">💬 Reviews &amp; Ratings</option>
                 <option value="auditLog">🔍 Audit Log</option>
                 <option value="settings">⚙️ Email &amp; SMS Settings</option>
@@ -118,7 +117,6 @@
             <a href="#" class="sidebar-link" onclick="return showTab('guests', this)">&#x1F465; Guest Management</a>
             <a href="#" class="sidebar-link" onclick="return showTab('staff', this)">&#x1F4BC; Staff Management</a>
             <a href="#" class="sidebar-link" onclick="return showTab('loyalty', this)">&#x2B50; Loyalty &amp; Rewards</a>
-            <a href="#" class="sidebar-link" onclick="return showTab('coupons', this)">&#x1F39F;&#xFE0F; Coupons &amp; Offers</a>
             <a href="#" class="sidebar-link" onclick="return showTab('reviews', this)">&#x1F4AC; Reviews &amp; Ratings</a>
             <a href="#" class="sidebar-link" onclick="return showTab('auditLog', this)">&#x1F50D; Audit Log</a>
             <a href="#" class="sidebar-link" onclick="return showTab('settings', this)">&#x2699;&#xFE0F; Email &amp; SMS Settings</a>
@@ -1412,78 +1410,6 @@
                 </div>
             </div><!-- end tab-loyalty -->
 
-            <!-- ==================== COUPONS & OFFERS TAB ==================== -->
-            <div class="admin-tab" id="tab-coupons">
-                <h2 class="admin-section-title">&#x1F39F;&#xFE0F; Coupons &amp; Offers</h2>
-
-                <div class="admin-card" style="margin-bottom:20px">
-                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-                        <div>
-                            <div style="font-weight:700;font-size:1rem;color:var(--dark)">Promo Codes &amp; Festival Discounts</div>
-                            <div style="font-size:0.8rem;color:var(--mid);margin-top:2px">Create, enable/disable, and track usage of all promo codes</div>
-                        </div>
-                        <div style="display:flex;gap:8px">
-                            <button onclick="openAddCouponModal()" style="background:var(--accent);color:var(--dark);border:none;padding:8px 16px;border-radius:8px;font-size:0.83rem;font-weight:700;cursor:pointer;font-family:inherit">&#x2B; New Coupon</button>
-                            <button onclick="seedFestivalCoupons()" style="background:var(--sand);color:var(--dark);border:1px solid var(--border);padding:8px 14px;border-radius:8px;font-size:0.83rem;font-weight:600;cursor:pointer;font-family:inherit">&#x1F389; Add Festival Deals</button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="admin-card">
-                    <div class="admin-card-title">Active Coupons</div>
-                    <div class="coupon-grid" id="couponGrid"></div>
-                </div>
-
-                <!-- Add coupon modal -->
-                <div class="coupon-modal-overlay" id="couponModal" style="display:none" onclick="if(event.target===this)closeCouponModal()">
-                    <div class="coupon-modal-box">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
-                            <h3 id="couponModalTitle" style="font-size:1.1rem;font-weight:700;color:var(--dark)">New Coupon</h3>
-                            <button onclick="closeCouponModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--mid)">&times;</button>
-                        </div>
-                        <input type="hidden" id="couponEditId">
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
-                            <div class="form-group" style="grid-column:1/-1">
-                                <label style="font-size:0.83rem;font-weight:600;display:block;margin-bottom:5px">Promo Code *</label>
-                                <input id="couponCode" type="text" placeholder="e.g. DASHAIN25" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:'Courier New',monospace;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;outline:none">
-                            </div>
-                            <div class="form-group" style="grid-column:1/-1">
-                                <label style="font-size:0.83rem;font-weight:600;display:block;margin-bottom:5px">Coupon Name / Description *</label>
-                                <input id="couponName" type="text" placeholder="e.g. Dashain Festival Special" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size:0.83rem;font-weight:600;display:block;margin-bottom:5px">Discount Type</label>
-                                <select id="couponType" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
-                                    <option value="percent">Percentage (%)</option>
-                                    <option value="fixed">Fixed Amount (Rs.)</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size:0.83rem;font-weight:600;display:block;margin-bottom:5px">Discount Value *</label>
-                                <input id="couponValue" type="number" min="1" placeholder="e.g. 15 or 500" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size:0.83rem;font-weight:600;display:block;margin-bottom:5px">Valid From</label>
-                                <input id="couponFrom" type="date" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size:0.83rem;font-weight:600;display:block;margin-bottom:5px">Valid To</label>
-                                <input id="couponTo" type="date" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size:0.83rem;font-weight:600;display:block;margin-bottom:5px">Min. Booking Amount (Rs.)</label>
-                                <input id="couponMin" type="number" min="0" placeholder="0 = no minimum" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
-                            </div>
-                            <div class="form-group">
-                                <label style="font-size:0.83rem;font-weight:600;display:block;margin-bottom:5px">Max Uses (0 = unlimited)</label>
-                                <input id="couponMaxUses" type="number" min="0" placeholder="0" style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-size:0.9rem;font-family:inherit;outline:none">
-                            </div>
-                        </div>
-                        <button onclick="saveCoupon()" class="admin-submit-btn" style="width:100%;margin-top:20px">Save Coupon</button>
-                    </div>
-                </div>
-            </div><!-- end tab-coupons -->
-
             <!-- ==================== REVIEWS & RATINGS TAB ==================== -->
             <div class="admin-tab" id="tab-reviews">
                 <h2 class="admin-section-title">&#x1F4AC; Reviews &amp; Ratings</h2>
@@ -1522,7 +1448,6 @@
                             <option value="guest">Guests</option>
                             <option value="staff">Staff</option>
                             <option value="reservation">Reservations</option>
-                            <option value="coupon">Coupons</option>
                             <option value="review">Reviews</option>
                             <option value="loyalty">Loyalty</option>
                             <option value="settings">Settings</option>
@@ -1872,7 +1797,7 @@ function applyRoleRestrictions() {
     /* Tabs hidden from waiters/non-managers */
     var waiterHidden   = ['dailySales'];
     /* Tabs hidden from everyone except manager/owner */
-    var managerOnly    = ['guests', 'staff', 'settings', 'loyalty', 'coupons', 'reviews', 'auditLog'];
+    var managerOnly    = ['guests', 'staff', 'settings', 'loyalty', 'reviews', 'auditLog'];
     var hiddenTabs     = isManager ? [] : waiterHidden.concat(managerOnly);
 
     document.querySelectorAll('.sidebar-link').forEach(function(a) {
@@ -2394,7 +2319,7 @@ function saveData(key, arr) { localStorage.setItem(key, JSON.stringify(arr)); }
 
 /* ===== TAB SWITCHING ===== */
 function showTab(name, linkEl) {
-    var managerOnlyTabs = ['guests', 'staff', 'settings', 'loyalty', 'coupons', 'reviews', 'auditLog'];
+    var managerOnlyTabs = ['guests', 'staff', 'settings', 'loyalty', 'reviews', 'auditLog'];
     if (managerOnlyTabs.indexOf(name) !== -1 && !_isManagerOrAbove()) {
         alert('Access restricted. Only managers and the owner can view this section.');
         return false;
@@ -2420,7 +2345,6 @@ function showTab(name, linkEl) {
     if (name === 'staff')         initStaffTab();
     if (name === 'settings')      { loadNotifSettings(); renderNotifLog(); }
     if (name === 'loyalty')       renderLoyaltyTab();
-    if (name === 'coupons')       renderCoupons();
     if (name === 'reviews')       renderReviews();
     if (name === 'auditLog')      renderAuditLog();
     return false;
@@ -5202,140 +5126,6 @@ function savePointsAdjustment() {
     _val('adjPhone', ''); _val('adjPoints', ''); _val('adjNote', '');
 }
 
-/* =============================================================
-   COUPONS & DISCOUNTS SYSTEM
-   ============================================================= */
-var COUPONS_KEY = 'taaza_coupons';
-
-function getCoupons()         { try { return JSON.parse(localStorage.getItem(COUPONS_KEY) || '[]'); } catch(e) { return []; } }
-function saveCouponsData(arr) { localStorage.setItem(COUPONS_KEY, JSON.stringify(arr)); }
-
-function renderCoupons() {
-    var list = getCoupons();
-    var grid = document.getElementById('couponGrid');
-    if (!grid) return;
-    if (!list.length) {
-        grid.innerHTML = '<p class="no-items-msg" style="grid-column:1/-1">No coupons yet. Click "New Coupon" or "Add Festival Deals".</p>';
-        return;
-    }
-    var today = new Date().toISOString().slice(0,10);
-    grid.innerHTML = list.map(function(c) {
-        var expired  = c.validTo && c.validTo < today;
-        var statusCls = expired ? 'csb-expired' : c.active ? 'csb-active' : 'csb-inactive';
-        var statusTxt = expired ? 'Expired' : c.active ? 'Active' : 'Inactive';
-        var cardCls   = (!c.active || expired) ? 'coupon-card coup-inactive-card' : 'coupon-card';
-        var pctUsed   = c.maxUses ? Math.min(100, Math.round(c.usedCount / c.maxUses * 100)) : 0;
-        return '<div class="' + cardCls + '">' +
-            '<div class="coupon-card-top">' +
-                '<div class="coupon-code-text">' + esc(c.code) + '</div>' +
-                '<div class="coupon-name-text">' + esc(c.name) + '</div>' +
-                '<div class="coupon-value-pill">' + (c.type === 'percent' ? c.value + '% OFF' : 'Rs. ' + c.value + ' OFF') + '</div>' +
-            '</div>' +
-            '<div class="coupon-card-body">' +
-                '<div class="coupon-info-row">&#x1F4C5; Valid: <strong>' + (c.validFrom || '—') + ' to ' + (c.validTo || '—') + '</strong></div>' +
-                (c.minAmount ? '<div class="coupon-info-row">&#x1F4B0; Min booking: <strong>Rs. ' + c.minAmount.toLocaleString() + '</strong></div>' : '') +
-                '<div class="coupon-info-row">&#x1F522; Uses: <strong>' + c.usedCount + (c.maxUses ? ' / ' + c.maxUses : ' (unlimited)') + '</strong></div>' +
-                (c.maxUses ? '<div class="coup-uses-bar-bg"><div class="coup-uses-bar-fill" style="width:' + pctUsed + '%"></div></div>' : '') +
-            '</div>' +
-            '<div class="coupon-card-footer">' +
-                '<span class="coup-status-badge ' + statusCls + '">' + statusTxt + '</span>' +
-                '<div style="display:flex;gap:6px">' +
-                    (!expired ? '<button class="coup-act-btn coup-toggle-btn" onclick="toggleCoupon(\'' + c.id + '\')">' + (c.active ? 'Disable' : 'Enable') + '</button>' : '') +
-                    '<button class="coup-act-btn coup-delete-btn" onclick="deleteCoupon(\'' + c.id + '\')">Delete</button>' +
-                '</div>' +
-            '</div>' +
-        '</div>';
-    }).join('');
-}
-
-function openAddCouponModal() {
-    document.getElementById('couponEditId').value = '';
-    document.getElementById('couponModalTitle').textContent = 'New Coupon';
-    ['couponCode','couponName','couponFrom','couponTo','couponMin','couponMaxUses'].forEach(function(id){ _val(id, ''); });
-    _val('couponType', 'percent'); _val('couponValue', '');
-    document.getElementById('couponModal').style.display = 'flex';
-}
-function closeCouponModal() { document.getElementById('couponModal').style.display = 'none'; }
-
-function saveCoupon() {
-    var code  = (_valGet('couponCode') || '').trim().toUpperCase().replace(/\s+/g,'');
-    var name  = (_valGet('couponName') || '').trim();
-    var type  = _valGet('couponType') || 'percent';
-    var value = parseFloat(_valGet('couponValue'));
-    var from  = _valGet('couponFrom');
-    var to    = _valGet('couponTo');
-    var minA  = parseFloat(_valGet('couponMin')) || 0;
-    var maxU  = parseInt(_valGet('couponMaxUses'), 10) || 0;
-    var editId = _valGet('couponEditId');
-
-    if (!code)        { alert('Enter a promo code.'); return; }
-    if (!name)        { alert('Enter a coupon name.'); return; }
-    if (!value || value <= 0) { alert('Enter a valid discount value.'); return; }
-    if (type === 'percent' && value > 100) { alert('Percentage cannot exceed 100.'); return; }
-
-    var list = getCoupons();
-    var dup  = list.find(function(c){ return c.code === code && c.id !== editId; });
-    if (dup) { alert('A coupon with this code already exists.'); return; }
-
-    if (editId) {
-        var idx = list.findIndex(function(c){ return c.id === editId; });
-        if (idx !== -1) {
-            Object.assign(list[idx], { code:code, name:name, type:type, value:value, validFrom:from, validTo:to, minAmount:minA, maxUses:maxU });
-            auditLog('UPDATE', 'coupon', 'Updated coupon ' + code);
-        }
-    } else {
-        list.push({ id:'coup_'+Date.now(), code:code, name:name, type:type, value:value, validFrom:from, validTo:to, minAmount:minA, maxUses:maxU, usedCount:0, active:true, createdBy:currentStaffName, createdAt:new Date().toISOString() });
-        auditLog('CREATE', 'coupon', 'Created coupon ' + code + ' — ' + name);
-    }
-    saveCouponsData(list);
-    closeCouponModal();
-    renderCoupons();
-    showBanner('Coupon saved.');
-}
-
-function toggleCoupon(id) {
-    var list = getCoupons();
-    var c    = list.find(function(x){ return x.id === id; });
-    if (!c) return;
-    c.active = !c.active;
-    saveCouponsData(list);
-    auditLog('UPDATE', 'coupon', (c.active ? 'Enabled' : 'Disabled') + ' coupon ' + c.code);
-    renderCoupons();
-}
-
-function deleteCoupon(id) {
-    var list = getCoupons();
-    var c    = list.find(function(x){ return x.id === id; });
-    if (!c || !confirm('Delete coupon "' + c.code + '"?')) return;
-    saveCouponsData(list.filter(function(x){ return x.id !== id; }));
-    auditLog('DELETE', 'coupon', 'Deleted coupon ' + c.code);
-    renderCoupons();
-    showBanner('Coupon deleted.');
-}
-
-function seedFestivalCoupons() {
-    var list   = getCoupons();
-    var year   = new Date().getFullYear();
-    var seeds  = [
-        { code:'DASHAIN25',   name:'Dashain Festival',       type:'percent', value:25, validFrom:year+'-10-01', validTo:year+'-10-20', minAmount:3000,  maxUses:100 },
-        { code:'TIHAR20',     name:'Tihar Festival',         type:'percent', value:20, validFrom:year+'-11-01', validTo:year+'-11-15', minAmount:2000,  maxUses:100 },
-        { code:'NEWYEAR30',   name:'New Year Special',       type:'percent', value:30, validFrom:year+'-12-25', validTo:(year+1)+'-01-10', minAmount:5000, maxUses:50 },
-        { code:'HOLI15',      name:'Holi Celebration',       type:'percent', value:15, validFrom:year+'-03-01', validTo:year+'-03-20', minAmount:1500,  maxUses:200 },
-        { code:'WELCOME500',  name:'First Visit Discount',   type:'fixed',   value:500, validFrom:'',           validTo:'',           minAmount:2000,  maxUses:0   },
-        { code:'LOYALTY10',   name:'Returning Guest Offer',  type:'percent', value:10, validFrom:'',           validTo:'',           minAmount:1000,  maxUses:0   },
-    ];
-    var added = 0;
-    seeds.forEach(function(s) {
-        if (!list.find(function(c){ return c.code === s.code; })) {
-            list.push(Object.assign({ id:'coup_'+Date.now()+Math.random(), usedCount:0, active:true, createdBy:'System', createdAt:new Date().toISOString() }, s));
-            added++;
-        }
-    });
-    saveCouponsData(list);
-    renderCoupons();
-    showBanner(added + ' festival coupon(s) added.');
-    auditLog('CREATE', 'coupon', 'Seeded ' + added + ' festival coupons');
-}
 
 /* =============================================================
    REVIEWS & RATINGS SYSTEM
