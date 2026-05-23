@@ -14,24 +14,5 @@
       "source": "/images/(.*)",
       "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     }
-  ],
-  "redirects": [
-    {
-      "source": "/admin",
-      "destination": "/admin.html",
-      "permanent": false
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "has": [
-        {
-          "type": "host",
-          "value": "admin.taazaresort.com"
-        }
-      ],
-      "dest": "/admin.html"
-    }
   ]
 }
