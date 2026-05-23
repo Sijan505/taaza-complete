@@ -8,3 +8,6 @@ desktop.ini
 
 # Node (if ever added)
 node_modules/
+
+# Local Netlify folder
+.netlify

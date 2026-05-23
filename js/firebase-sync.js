@@ -148,7 +148,7 @@
       'taaza_menu_items', 'taaza_delivery_foods',
       'taaza_swim_tickets', 'taaza_daily_sales',
       'taaza_guests', 'taaza_staff', 'taaza_attendance',
-      'taaza_loyalty', 'taaza_coupons', 'taaza_reviews'
+      'taaza_loyalty', 'taaza_reviews'
     ];
 
     // Keys stored in Firestore collections (individual docs per item)
@@ -173,7 +173,6 @@
         if (typeof renderAttendanceToday === 'function') renderAttendanceToday();
       },
       'taaza_loyalty':        function () { if (typeof renderLoyaltyTab === 'function') renderLoyaltyTab(); },
-      'taaza_coupons':        function () { if (typeof renderCoupons === 'function') renderCoupons(); },
       'taaza_reviews':        function () { if (typeof renderReviews === 'function') renderReviews(); },
       'taaza_orders':         function () { if (typeof renderOrders === 'function') renderOrders(); },
       'taaza_reservations':   function () { if (typeof renderReservations === 'function') renderReservations(); },
