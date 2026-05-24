@@ -79,7 +79,8 @@
             <select id="adminNavSelect" onchange="adminNavChange(this.value)" style="width:auto;flex:1;min-width:0">
                 <option value="dashboard">📊 Dashboard</option>
                 <option value="reservations">📋 Reservations</option>
-                <option value="qrOrders">📱 QR &amp; Room Orders</option>
+                <option value="qrOrders">📱 QR Table Orders</option>
+                <option value="roomOrders">🛏️ Room Orders</option>
                 <option value="menuItems">🍽️ Menu Items</option>
                 <option value="tableBills">🪑 Table Bills</option>
                 <option value="swimTickets">🏊 Swimming Tickets</option>
@@ -103,7 +104,8 @@
             <h3>Navigation</h3>
             <a href="#" class="sidebar-link active" onclick="return showTab('dashboard', this)">&#x1F4CA; Dashboard</a>
             <a href="#" class="sidebar-link" onclick="return showTab('reservations', this)">&#x1F4CB; Reservations <span id="adminNotifReservations" class="notification-badge" style="display:none">0</span></a>
-            <a href="#" class="sidebar-link" onclick="return showTab('qrOrders', this)">&#x1F4F1; QR &amp; Room Orders <span id="adminNotifQrOrders" class="notification-badge" style="display:none">0</span></a>
+            <a href="#" class="sidebar-link" onclick="return showTab('qrOrders', this)">&#x1F4F1; QR Table Orders <span id="adminNotifQrOrders" class="notification-badge" style="display:none">0</span></a>
+            <a href="#" class="sidebar-link" onclick="return showTab('roomOrders', this)">&#x1F6CF;&#xFE0F; Room Orders <span id="adminNotifRoomOrders" class="notification-badge" style="display:none">0</span></a>
             <a href="#" class="sidebar-link" onclick="return showTab('menuItems', this)">&#x1F37D;&#xFE0F; Menu Items</a>
             <a href="#" class="sidebar-link" onclick="return showTab('tableBills', this)">&#x1FA91; Table Bills</a>
             <a href="#" class="sidebar-link" onclick="return showTab('swimTickets', this)">&#x1F3CA; Swimming Tickets</a>
@@ -373,7 +375,7 @@
             <!-- ORDERS TAB -->
             <!-- QR TABLE ORDERS TAB -->
             <div class="admin-tab" id="tab-qrOrders">
-                <h2 class="admin-section-title">&#x1F4F1; QR &amp; Room Orders</h2>
+                <h2 class="admin-section-title">&#x1F4F1; QR Table Orders</h2>
 
                 <!-- Menu QR Code Card -->
                 <div class="admin-card" style="margin-bottom:20px">
@@ -534,6 +536,96 @@
             </div>
 
             <!-- DELIVERY FOODS TAB -->
+
+            <!-- ROOM ORDERS TAB -->
+            <div class="admin-tab" id="tab-roomOrders">
+                <h2 class="admin-section-title">&#x1F6CF;&#xFE0F; Room Orders</h2>
+
+                <!-- Stats -->
+                <div class="admin-stats" style="margin-bottom:20px">
+                    <div class="stat-card" style="margin:0">
+                        <span class="stat-num" id="roomStatToday">0</span>
+                        <div class="stat-label">Food Orders Today</div>
+                    </div>
+                    <div class="stat-card" style="margin:0;border-top:3px solid #f59e0b">
+                        <span class="stat-num" id="roomStatPending" style="color:#d97706">0</span>
+                        <div class="stat-label">&#x23F3; Pending Food</div>
+                    </div>
+                    <div class="stat-card" style="margin:0;border-top:3px solid #4B9CD3">
+                        <span class="stat-num" id="roomStatSwimToday">0</span>
+                        <div class="stat-label">&#x1F3CA; Swim Tickets Today</div>
+                    </div>
+                </div>
+
+                <!-- Room Food Orders -->
+                <div class="admin-card" style="margin-bottom:24px">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
+                        <h3 style="margin:0">&#x1F374; Room Food Orders</h3>
+                        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+                            <input type="number" id="roomFoodFilterNum" min="1" placeholder="Filter by room #"
+                                style="width:140px;padding:7px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none"
+                                oninput="renderRoomOrders()">
+                            <button onclick="renderRoomOrders()" style="background:var(--green);color:#fff;border:none;padding:7px 14px;border-radius:8px;cursor:pointer;font-size:0.85rem;font-weight:600;font-family:Inter,sans-serif">&#x21BA; Refresh</button>
+                        </div>
+                    </div>
+                    <div id="roomFoodOrdersList"><p style="color:var(--mid);text-align:center;padding:24px 0">Loading&hellip;</p></div>
+                </div>
+
+                <!-- Swimming Tickets for Room Guests -->
+                <div class="admin-two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+
+                    <!-- Issue Ticket -->
+                    <div class="admin-card" style="margin-bottom:0">
+                        <h3 style="margin-bottom:16px">&#x1F3CA; Swimming Ticket &mdash; Room Guest</h3>
+                        <div style="margin-bottom:12px">
+                            <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">ROOM NUMBER *</label>
+                            <input id="roomSwimNum" type="number" min="1" placeholder="e.g. 101"
+                                style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box">
+                        </div>
+                        <div style="margin-bottom:12px">
+                            <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">GUEST NAME (optional)</label>
+                            <input id="roomSwimGuestName" type="text" placeholder="e.g. Ram Thapa"
+                                style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box">
+                        </div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                            <div>
+                                <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">ADULTS (Rs. 200 each)</label>
+                                <input id="roomSwimAdults" type="number" min="0" max="50" value="0" oninput="calcRoomSwimPrice()"
+                                    style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box">
+                            </div>
+                            <div>
+                                <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">KIDS (Rs. 100 each)</label>
+                                <input id="roomSwimKids" type="number" min="0" max="50" value="0" oninput="calcRoomSwimPrice()"
+                                    style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box">
+                            </div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin-bottom:16px">
+                            <span style="font-size:0.85rem;color:#166534;font-weight:600">Total Amount</span>
+                            <span id="roomSwimTotalPreview" style="font-size:1.1rem;font-weight:700;color:#15803d">Rs. 0</span>
+                        </div>
+                        <button onclick="printRoomSwimTicket()" style="width:100%;background:var(--gold);color:var(--green-deep);border:none;padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Swim Ticket</button>
+                    </div>
+
+                    <!-- History -->
+                    <div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+                            <div class="stat-card" style="margin:0">
+                                <span class="stat-num" id="roomSwimTodayQty">0</span>
+                                <div class="stat-label">Tickets Today</div>
+                            </div>
+                            <div class="stat-card" style="margin:0">
+                                <span class="stat-num" id="roomSwimTodayTotal" style="font-size:1.1rem">Rs. 0</span>
+                                <div class="stat-label">Today&apos;s Revenue</div>
+                            </div>
+                        </div>
+                        <div class="admin-card" style="margin-bottom:0">
+                            <h3 style="margin:0 0 12px">Room Guest Swim Tickets (Today)</h3>
+                            <div id="roomSwimHistory"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- TABLE BILLS TAB -->
             <div class="admin-tab" id="tab-tableBills">
                 <h2 class="admin-section-title">&#x1FA91; Table Bills</h2>
@@ -2246,6 +2338,7 @@ function showTab(name, linkEl) {
     if (name === 'menuItems')     renderMenuItems();
     if (name === 'reservations')  { renderReservations(); clearAdminNotification('reservations'); updateStats(); }
     if (name === 'qrOrders')     { renderQrOrders(); clearAdminNotification('qrOrders'); _renderMenuQrInline(); }
+    if (name === 'roomOrders')   { renderRoomOrders(); clearAdminNotification('roomOrders'); }
     if (name === 'dashboard')     updateStats();
     if (name === 'tableBills')    renderTablesGrid();
     if (name === 'swimTickets')   renderSwimTickets();
@@ -5221,7 +5314,9 @@ function saveQrOrders(arr) {
 }
 
 function renderQrOrders() {
-    var orders = getQrOrders();
+    var allOrders = getQrOrders();
+    // Only show table orders here; room orders go to the Room Orders tab
+    var orders = allOrders.filter(function(o){ return !o.type || o.type === 'table'; });
     var today  = new Date().toISOString().split('T')[0];
 
     // Stats
@@ -5251,7 +5346,7 @@ function renderQrOrders() {
     if (!listEl) return;
 
     if (!sorted.length) {
-        listEl.innerHTML = '<p class="no-items-msg" style="text-align:center;padding:32px 0;color:var(--mid)">No QR table or room orders yet.</p>';
+        listEl.innerHTML = '<p class="no-items-msg" style="text-align:center;padding:32px 0;color:var(--mid)">No QR table orders yet.</p>';
         return;
     }
 
@@ -5336,15 +5431,239 @@ function updateQrOrderStatus(id, newStatus) {
 
 function deleteQrOrder(id) {
     if (!confirm('Delete this QR order?')) return;
-    saveQrOrders(getQrOrders().filter(function(o){ return o.id !== id; }));
-    renderQrOrders();
+    var all = getQrOrders();
+    var deleted = all.find(function(o){ return o.id === id; });
+    saveQrOrders(all.filter(function(o){ return o.id !== id; }));
+    if (deleted && (deleted.type === 'room' || (deleted.roomNum && !deleted.tableNum))) {
+        renderRoomOrders();
+    } else {
+        renderQrOrders();
+    }
     showBanner('Order deleted.');
 }
 
 function clearServedQrOrders() {
     saveQrOrders(getQrOrders().filter(function(o){ return o.status !== 'served'; }));
     renderQrOrders();
+    var roomTab = document.getElementById('tab-roomOrders');
+    if (roomTab && roomTab.classList.contains('active')) renderRoomOrders();
     showBanner('Served orders cleared.');
+}
+
+/* ===== ROOM ORDERS TAB ===== */
+
+function calcRoomSwimPrice() {
+    var adults = parseInt(document.getElementById('roomSwimAdults').value) || 0;
+    var kids   = parseInt(document.getElementById('roomSwimKids').value)   || 0;
+    var total  = adults * 200 + kids * 100;
+    var el = document.getElementById('roomSwimTotalPreview');
+    if (el) el.textContent = 'Rs. ' + total;
+}
+
+function renderRoomSwimHistory() {
+    var tickets  = getData(SWIM_KEY);
+    var today    = todayStr();
+    // Only room-guest tickets (have roomNum field)
+    var todayList = tickets.filter(function(t){ return t.date === today && t.roomNum; });
+    var totalQty  = todayList.reduce(function(s,t){ return s + (t.qty || 0); }, 0);
+    var totalRev  = todayList.reduce(function(s,t){ return s + (t.total || 0); }, 0);
+
+    var qtyEl = document.getElementById('roomSwimTodayQty');
+    var revEl = document.getElementById('roomSwimTodayTotal');
+    var histEl = document.getElementById('roomSwimHistory');
+    if (qtyEl) qtyEl.textContent = totalQty;
+    if (revEl) revEl.textContent = 'Rs. ' + totalRev;
+
+    if (!histEl) return;
+    if (!todayList.length) {
+        histEl.innerHTML = '<p style="color:var(--mid);font-size:0.85rem;padding:12px 0">No room swim tickets today.</p>';
+        return;
+    }
+    histEl.innerHTML = todayList.slice().reverse().map(function(t) {
+        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed var(--border)">' +
+            '<div>' +
+                '<div style="font-weight:600;font-size:0.9rem">&#x1F6CF;&#xFE0F; Room ' + t.roomNum + (t.guestName ? ' &mdash; ' + esc(t.guestName) : '') + '</div>' +
+                '<div style="font-size:0.78rem;color:var(--mid)">' + t.billNum + ' &nbsp;|&nbsp; ' + t.time + ' &nbsp;|&nbsp; ' + t.qty + ' ticket(s)</div>' +
+            '</div>' +
+            '<div style="font-weight:700;color:var(--green)">Rs. ' + t.total + '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function renderRoomOrders() {
+    var allOrders = getQrOrders();
+    var today     = new Date().toISOString().split('T')[0];
+    var filterNum = (document.getElementById('roomFoodFilterNum') || {}).value;
+    filterNum     = filterNum ? parseInt(filterNum, 10) : null;
+
+    // Only room orders
+    var orders = allOrders.filter(function(o){ return o.type === 'room' || (o.roomNum && !o.tableNum); });
+    if (filterNum && !isNaN(filterNum)) {
+        orders = orders.filter(function(o){ return o.roomNum === filterNum; });
+    }
+
+    // Stats
+    var todayOrders = orders.filter(function(o){ return o.orderedAt && o.orderedAt.startsWith(today); });
+    var pending     = orders.filter(function(o){ return o.status === 'pending'; });
+
+    var el;
+    el = document.getElementById('roomStatToday');   if (el) el.textContent = todayOrders.length;
+    el = document.getElementById('roomStatPending'); if (el) el.textContent = pending.length;
+
+    // Update room swim history stats too
+    renderRoomSwimHistory();
+    var swimToday = getData(SWIM_KEY).filter(function(t){ return t.date === todayStr() && t.roomNum; });
+    el = document.getElementById('roomStatSwimToday'); if (el) el.textContent = swimToday.length;
+
+    // Update notification badge
+    var badge = document.getElementById('adminNotifRoomOrders');
+    if (badge) {
+        badge.textContent = pending.length;
+        badge.style.display = pending.length > 0 ? 'inline-flex' : 'none';
+    }
+
+    var listEl = document.getElementById('roomFoodOrdersList');
+    if (!listEl) return;
+
+    // Sort: pending first, preparing, served — newest first within each group
+    var sorted = [].concat(
+        pending.slice().sort(function(a,b){ return new Date(b.orderedAt) - new Date(a.orderedAt); }),
+        orders.filter(function(o){ return o.status === 'preparing'; }).slice().sort(function(a,b){ return new Date(b.orderedAt) - new Date(a.orderedAt); }),
+        orders.filter(function(o){ return o.status === 'served'; }).slice().sort(function(a,b){ return new Date(b.orderedAt) - new Date(a.orderedAt); })
+    );
+
+    if (!sorted.length) {
+        listEl.innerHTML = '<p style="text-align:center;padding:32px 0;color:var(--mid)">No room food orders yet.</p>';
+        return;
+    }
+
+    listEl.innerHTML = sorted.map(function(o) {
+        var statusBadge, actionBtns;
+        if (o.status === 'pending') {
+            statusBadge = '<span style="background:#fef3c7;color:#d97706;border:1px solid #fde68a;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700">&#x23F3; PENDING</span>';
+            actionBtns  = '<button onclick="updateQrOrderStatus(\'' + o.id + '\',\'preparing\')" style="background:#3b82f6;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:600">&#x1F9D1;&#x200D;&#x1F373; Mark Preparing</button>';
+        } else if (o.status === 'preparing') {
+            statusBadge = '<span style="background:#eff6ff;color:#2563eb;border:1px solid #bfdbfe;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700">&#x1F9D1;&#x200D;&#x1F373; PREPARING</span>';
+            actionBtns  = '<button onclick="updateQrOrderStatus(\'' + o.id + '\',\'served\')" style="background:#10b981;color:#fff;border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:600">&#x2705; Mark Served</button>';
+        } else {
+            statusBadge = '<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700">&#x2705; SERVED</span>';
+            actionBtns  = '';
+        }
+
+        var timeStr = '';
+        try {
+            var d = new Date(o.orderedAt);
+            timeStr = d.toLocaleTimeString('en-US', { hour:'2-digit', minute:'2-digit', hour12:true }) + ' &bull; ' + d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+        } catch(e) { timeStr = o.orderedAt || ''; }
+
+        var itemsHtml = (o.items || []).map(function(it){
+            return '<span style="display:inline-flex;align-items:center;gap:4px;background:#f3f4f6;padding:2px 8px;border-radius:20px;font-size:0.78rem;margin:2px">' +
+                (it.emoji || '🍽️') + ' ' + it.name + ' &times;' + it.qty +
+            '</span>';
+        }).join('');
+
+        var noteHtml = o.note ? '<div style="font-size:0.8rem;color:var(--mid);margin-top:8px;font-style:italic">&#x1F4DD; ' + o.note + '</div>' : '';
+
+        return '<div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;background:' +
+            (o.status === 'pending' ? '#fffbf0' : o.status === 'preparing' ? '#f0f4ff' : '#f0fdf4') + '">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px">' +
+                '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
+                    '<span style="font-family:\'Playfair Display\',serif;font-size:1.05rem;font-weight:700;color:var(--green)">&#x1F6CF;&#xFE0F; Room ' + o.roomNum + '</span>' +
+                    statusBadge +
+                '</div>' +
+                '<div style="font-size:0.78rem;color:var(--mid)">' + timeStr + '</div>' +
+            '</div>' +
+            '<div style="margin-bottom:8px">' + itemsHtml + '</div>' +
+            noteHtml +
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px;flex-wrap:wrap;gap:8px">' +
+                '<div>' +
+                    '<span style="font-weight:700;color:var(--green)">Rs. ' + o.total + '</span>' +
+                    '<div style="font-size:0.72rem;color:var(--mid);margin-top:2px">Order ID: ' + o.id + '</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+                    actionBtns +
+                    '<button onclick="deleteQrOrder(\'' + o.id + '\')" style="background:none;border:1.5px solid #e5e7eb;color:#6b7280;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:600">&#x1F5D1; Delete</button>' +
+                '</div>' +
+            '</div>' +
+            '<div style="font-size:0.75rem;color:#2563eb;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">&#x1F6CF;&#xFE0F; Room service order &mdash; deliver to Room ' + o.roomNum + '.</div>' +
+        '</div>';
+    }).join('');
+}
+
+function printRoomSwimTicket() {
+    if (!_acquirePrintLock()) return;
+    var roomNum   = parseInt(document.getElementById('roomSwimNum').value) || 0;
+    var guestName = document.getElementById('roomSwimGuestName').value.trim() || '';
+    var adults    = parseInt(document.getElementById('roomSwimAdults').value) || 0;
+    var kids      = parseInt(document.getElementById('roomSwimKids').value)   || 0;
+
+    if (!roomNum || roomNum < 1) { alert('Please enter a valid room number.'); _releasePrintLock(); return; }
+    if (adults === 0 && kids === 0) { alert('Please enter at least 1 ticket.'); _releasePrintLock(); return; }
+
+    var total    = adults * 200 + kids * 100;
+    var totalQty = adults + kids;
+    var now      = new Date();
+    var dateStr  = now.toISOString().split('T')[0];
+    var timeStr  = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    var billNum  = 'RST-' + Date.now().toString().slice(-6);
+
+    var tickets = getData(SWIM_KEY);
+    tickets.push({ billNum:billNum, guestName:guestName, roomNum:roomNum, qty:totalQty, adults:adults, kids:kids, total:total, date:todayStr(), time:timeStr });
+    saveData(SWIM_KEY, tickets);
+
+    var saleItems = [];
+    if (adults > 0) saleItems.push({ name:'Adult Swimming Ticket (Room ' + roomNum + ')', emoji:'&#x1F3CA;', qty:adults, price:200 });
+    if (kids   > 0) saleItems.push({ name:'Kids Swimming Ticket (Room ' + roomNum + ')',  emoji:'&#x1F3CA;', qty:kids,   price:100 });
+    var sales = getData(SALES_KEY);
+    sales.push({ type:'swim', date:todayStr(), time:timeStr, billNum:billNum, guestName:guestName || 'Room ' + roomNum,
+        items:saleItems, sub:total, grand:total });
+    saveData(SALES_KEY, sales);
+
+    var rows = '';
+    if (adults > 0) rows += '<tr><td>&#x1F3CA; Adult Swimming Ticket</td><td class="r">' + adults + '</td><td class="r">Rs. 200</td><td class="r">Rs. ' + (adults * 200) + '</td></tr>';
+    if (kids   > 0) rows += '<tr><td>&#x1F3CA; Kids Swimming Ticket</td><td class="r">'  + kids   + '</td><td class="r">Rs. 100</td><td class="r">Rs. ' + (kids   * 100) + '</td></tr>';
+
+    var bodyHtml =
+        '<div class="receipt-header">' +
+            '<img src="images/logo-dark.png" onerror="this.style.display=\'none\'">' +
+            '<h2>Taaza Resort</h2>' +
+            '<div class="sub">Swimming Pool Entry Ticket</div>' +
+            '<div class="sub">Bharatpur-5, Narayanpur, Chitwan</div>' +
+            '<div class="sub">PAN No: 608568546</div>' +
+        '</div>' +
+        '<div class="receipt-info">' +
+            '<p><span class="label">Ticket No:</span> <strong>' + billNum + '</strong></p>' +
+            '<p><span class="label">Date:</span> ' + formatDate(dateStr) + ' &nbsp;<span class="label">Time:</span> ' + timeStr + '</p>' +
+            '<hr>' +
+            '<p><span class="label">Room No:</span> <strong>' + roomNum + '</strong></p>' +
+            (guestName ? '<p><span class="label">Guest:</span> ' + esc(guestName) + '</p>' : '') +
+            '<p><span class="label">Tickets:</span> <strong>' + totalQty + '</strong>' +
+                (adults > 0 ? ' (' + adults + ' Adult' + (adults > 1 ? 's' : '') + ')' : '') +
+                (kids   > 0 ? ' (' + kids   + ' Kid'   + (kids   > 1 ? 's' : '') + ')' : '') +
+            '</p>' +
+        '</div>' +
+        '<table class="receipt-table">' +
+            '<thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+        '<div class="receipt-totals">' +
+            '<div class="rtotal-row grand"><span>TOTAL AMOUNT</span><span>Rs. ' + total + '</span></div>' +
+        '</div>' +
+        '<div class="receipt-footer">' +
+            '<p style="font-weight:bold;font-size:0.9rem;color:#333">Valid for same day only</p>' +
+            '<p>&#x1F3CA; Enjoy your swim at Taaza Resort!</p>' +
+            '<p>+977 9742864405 &nbsp;|&nbsp; tamanganish421@gmail.com</p>' +
+            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated ticket.</p>' +
+        '</div>';
+
+    _printReceipt('Room Swim Ticket ' + billNum, bodyHtml, _releasePrintLock);
+
+    document.getElementById('roomSwimNum').value       = '';
+    document.getElementById('roomSwimGuestName').value = '';
+    document.getElementById('roomSwimAdults').value    = 0;
+    document.getElementById('roomSwimKids').value      = 0;
+    document.getElementById('roomSwimTotalPreview').textContent = 'Rs. 0';
+    renderRoomOrders();
 }
 
 function startQrOrdersPolling() {
@@ -5384,14 +5703,27 @@ function startQrOrdersPolling() {
         if (swimTab && swimTab.classList.contains('active')) {
             renderSwimTickets();
         }
-        /* Always update notification badge */
-        var pending = getQrOrders().filter(function(o){ return o.status === 'pending'; }).length;
+        /* Auto-refresh Room Orders tab */
+        var roomTab = document.getElementById('tab-roomOrders');
+        if (roomTab && roomTab.classList.contains('active')) {
+            renderRoomOrders();
+        }
+        /* Always update QR table orders notification badge */
+        var allPending   = getQrOrders().filter(function(o){ return o.status === 'pending'; });
+        var tablePending = allPending.filter(function(o){ return !o.type || o.type === 'table'; }).length;
+        var roomPending  = allPending.filter(function(o){ return o.type === 'room' || (o.roomNum && !o.tableNum); }).length;
         var badge = document.getElementById('adminNotifQrOrders');
         if (badge) {
-            badge.textContent = pending;
-            badge.style.display = pending > 0 ? 'inline-flex' : 'none';
+            badge.textContent = tablePending;
+            badge.style.display = tablePending > 0 ? 'inline-flex' : 'none';
+        }
+        var roomBadge = document.getElementById('adminNotifRoomOrders');
+        if (roomBadge) {
+            roomBadge.textContent = roomPending;
+            roomBadge.style.display = roomPending > 0 ? 'inline-flex' : 'none';
         }
         /* Update live pulse on tab open */
+        var pending = tablePending;
         var pulse = document.getElementById('qrLivePulse');
         if (pulse && tabEl && tabEl.classList.contains('active')) {
             pulse.style.display = pending > 0 ? 'inline-block' : 'none';
