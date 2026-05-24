@@ -704,10 +704,12 @@
                 <h2 class="admin-section-title">&#x1F3CA; Swimming Tickets</h2>
                 <div class="admin-two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
 
-                    <!-- Issue Ticket -->
+                    <!-- Issue Ticket + Pool Food -->
                     <div class="admin-card" style="margin-bottom:0">
                         <h3 style="margin-bottom:16px">Issue New Ticket</h3>
-                        <div style="margin-bottom:14px">
+
+                        <!-- Guest + tickets -->
+                        <div style="margin-bottom:12px">
                             <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">GUEST NAME (optional)</label>
                             <input id="swimGuestName" type="text" placeholder="e.g. Ram Thapa"
                                 style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box">
@@ -724,11 +726,38 @@
                                     style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box">
                             </div>
                         </div>
-                        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;margin-bottom:16px">
-                            <span style="font-size:0.85rem;color:#166534;font-weight:600">Total Amount</span>
-                            <span id="swimTotalPreview" style="font-size:1.1rem;font-weight:700;color:#15803d">Rs. 0</span>
+
+                        <!-- Pool Food Order section -->
+                        <div style="border-top:2px dashed var(--border);padding-top:14px;margin-bottom:14px">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+                                <label style="font-size:0.8rem;font-weight:700;color:var(--green);display:block">&#x1F374; POOL FOOD ORDER <span style="font-weight:400;color:var(--mid)">(optional)</span></label>
+                                <button onclick="clearSwimFoodCart()" style="background:none;border:1px solid var(--border);color:var(--mid);padding:3px 10px;border-radius:6px;cursor:pointer;font-size:0.75rem">Clear food</button>
+                            </div>
+                            <input id="swimFoodSearch" type="text" placeholder="&#x1F50D; Search menu items..."
+                                oninput="filterSwimFoodItems()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                onkeydown="if(event.key==='Escape'){var d=document.getElementById('swimFoodDropdown');if(d)d.style.display='none';this.value='';}"
+                                style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:16px;box-sizing:border-box;outline:none;-webkit-appearance:none">
+                            <div id="swimFoodDropdown" style="display:none;background:#fff;border:1.5px solid var(--accent);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.14);overflow:hidden;max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:4px"></div>
+                            <div id="swimFoodCart" style="min-height:36px;max-height:180px;overflow-y:auto;margin-top:10px">
+                                <p style="color:var(--mid);font-size:0.82rem;padding:4px 0">No food items added.</p>
+                            </div>
+                            <div style="margin-top:8px">
+                                <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:4px">SPECIAL NOTE (optional)</label>
+                                <input id="swimFoodNote" type="text" placeholder="e.g. No spicy..."
+                                    style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.85rem;box-sizing:border-box;outline:none">
+                            </div>
                         </div>
-                        <button class="admin-print-btn" onclick="printSwimTicket()" style="width:100%;background:var(--gold);color:var(--green-deep);border:none;padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Swimming Ticket</button>
+
+                        <!-- Grand total preview -->
+                        <div style="background:#f0fdf4;border:1px solid #86efac;border-radius:8px;padding:12px 16px;margin-bottom:16px">
+                            <div id="swimBreakdown"></div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed #86efac;padding-top:8px;margin-top:8px">
+                                <span style="font-size:0.88rem;color:#166534;font-weight:700">GRAND TOTAL</span>
+                                <span id="swimTotalPreview" style="font-size:1.15rem;font-weight:800;color:#15803d">Rs. 0</span>
+                            </div>
+                        </div>
+
+                        <button class="admin-print-btn" onclick="printSwimTicket()" style="width:100%;background:var(--gold);color:var(--green-deep);border:none;padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Ticket &amp; Bill</button>
                     </div>
 
                     <!-- Today summary + history -->
@@ -3787,9 +3816,101 @@ function todayStr() {
 }
 
 function calcSwimPrice() {
-    var adults = parseInt(document.getElementById('swimAdultQty').value) || 0;
-    var kids   = parseInt(document.getElementById('swimKidsQty').value)  || 0;
-    document.getElementById('swimTotalPreview').textContent = 'Rs. ' + (adults * 200 + kids * 100);
+    var adults  = parseInt(document.getElementById('swimAdultQty').value) || 0;
+    var kids    = parseInt(document.getElementById('swimKidsQty').value)  || 0;
+    var swimSub = adults * 200 + kids * 100;
+    var foodSub = (_swimFoodCart || []).reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+    var grand   = swimSub + foodSub;
+
+    var bdEl = document.getElementById('swimBreakdown');
+    if (bdEl) {
+        var bd = '';
+        if (adults  > 0) bd += '<div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#166534;margin-bottom:2px"><span>&#x1F3CA; Adult &times; ' + adults + '</span><span>Rs. ' + (adults*200) + '</span></div>';
+        if (kids    > 0) bd += '<div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#166534;margin-bottom:2px"><span>&#x1F3CA; Kids &times; ' + kids + '</span><span>Rs. ' + (kids*100) + '</span></div>';
+        if (foodSub > 0) bd += '<div style="display:flex;justify-content:space-between;font-size:0.82rem;color:#166534;margin-bottom:2px"><span>&#x1F374; Food items</span><span>Rs. ' + foodSub + '</span></div>';
+        bdEl.innerHTML = bd;
+    }
+    document.getElementById('swimTotalPreview').textContent = 'Rs. ' + grand;
+}
+
+/* ===== SWIM FOOD CART ===== */
+var _swimFoodCart = [];
+
+function filterSwimFoodItems() {
+    var query = (document.getElementById('swimFoodSearch').value || '').trim().toLowerCase();
+    var dd = document.getElementById('swimFoodDropdown');
+    if (!dd) return;
+    if (!query) { dd.style.display = 'none'; return; }
+    var items = getData(MENU_KEY);
+    var matches = items.filter(function(it) {
+        return (it.name || '').toLowerCase().indexOf(query) !== -1 && it.available !== false;
+    }).slice(0, 8);
+    if (!matches.length) { dd.style.display = 'none'; return; }
+    dd.innerHTML = matches.map(function(it) {
+        var safeEmoji = esc(it.emoji || '🍽️');
+        var safeName  = esc(it.name);
+        var safePrice = Number(it.price) || 0;
+        return '<div ' +
+            'data-name="' + safeName + '" ' +
+            'data-price="' + safePrice + '" ' +
+            'data-emoji="' + safeEmoji + '" ' +
+            'ontouchend="event.preventDefault();event.stopPropagation();selectSwimFoodItemFromEl(this)" ' +
+            'onclick="selectSwimFoodItemFromEl(this)" ' +
+            'style="padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:52px;' +
+            'border-bottom:1px solid #f0f0f0;transition:background 0.15s" ' +
+            'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'#fff\'">' +
+            '<span>' + safeEmoji + ' ' + safeName + '</span>' +
+            '<span style="font-weight:700;color:var(--green)">Rs. ' + safePrice + '</span>' +
+        '</div>';
+    }).join('');
+    dd.style.display = 'block';
+}
+
+function selectSwimFoodItemFromEl(el) {
+    var name  = el.dataset.name;
+    var price = parseInt(el.dataset.price) || 0;
+    var emoji = el.dataset.emoji || '🍽️';
+    var dd = document.getElementById('swimFoodDropdown');
+    var srch = document.getElementById('swimFoodSearch');
+    if (dd) dd.style.display = 'none';
+    if (srch) srch.value = '';
+    var existing = _swimFoodCart.find(function(i) { return i.name === name; });
+    if (existing) { existing.qty += 1; } else { _swimFoodCart.push({ name:name, price:price, emoji:emoji, qty:1 }); }
+    renderSwimFoodCart();
+}
+
+function swimFoodCartQty(idx, delta) {
+    _swimFoodCart[idx].qty += delta;
+    if (_swimFoodCart[idx].qty <= 0) _swimFoodCart.splice(idx, 1);
+    renderSwimFoodCart();
+}
+
+function renderSwimFoodCart() {
+    var cartEl = document.getElementById('swimFoodCart');
+    if (!cartEl) return;
+    if (!_swimFoodCart.length) {
+        cartEl.innerHTML = '<p style="color:var(--mid);font-size:0.82rem;padding:4px 0">No food items added.</p>';
+        calcSwimPrice();
+        return;
+    }
+    cartEl.innerHTML = _swimFoodCart.map(function(item, idx) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px dashed var(--border)">' +
+            '<span style="font-size:1rem">' + (item.emoji || '🍽️') + '</span>' +
+            '<span style="flex:1;font-size:0.83rem;font-weight:600">' + esc(item.name) + '</span>' +
+            '<div style="display:flex;align-items:center;gap:5px">' +
+                '<button onclick="swimFoodCartQty(' + idx + ',-1)" style="width:24px;height:24px;border:1px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;font-size:0.9rem;line-height:1">&#8722;</button>' +
+                '<span style="min-width:18px;text-align:center;font-weight:700;font-size:0.85rem">' + item.qty + '</span>' +
+                '<button onclick="swimFoodCartQty(' + idx + ',1)"  style="width:24px;height:24px;border:1px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;font-size:0.9rem;line-height:1">+</button>' +
+            '</div>' +
+            '<span style="min-width:58px;text-align:right;font-weight:600;font-size:0.83rem">Rs. ' + (item.price * item.qty) + '</span>' +
+        '</div>';
+    }).join('');
+    calcSwimPrice();
+}
+
+function clearSwimFoodCart() {
+    _swimFoodCart = [];
+    renderSwimFoodCart();
 }
 
 function renderSwimTickets() {
@@ -3823,29 +3944,56 @@ function printSwimTicket() {
     var guestName = document.getElementById('swimGuestName').value.trim() || 'Guest';
     var adults    = parseInt(document.getElementById('swimAdultQty').value) || 0;
     var kids      = parseInt(document.getElementById('swimKidsQty').value)  || 0;
-    if (adults === 0 && kids === 0) { alert('Please enter at least 1 ticket.'); _releasePrintLock(); return; }
-    var total     = adults * 200 + kids * 100;
-    var totalQty  = adults + kids;
-    var now       = new Date();
-    var dateStr   = now.toISOString().split('T')[0];
-    var timeStr   = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-    var billNum   = 'ST-' + Date.now().toString().slice(-6);
+    if (adults === 0 && kids === 0 && !_swimFoodCart.length) {
+        alert('Please enter at least 1 ticket or add food items.');
+        _releasePrintLock(); return;
+    }
+    var swimSub  = adults * 200 + kids * 100;
+    var foodSub  = _swimFoodCart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+    var total    = swimSub + foodSub;
+    var totalQty = adults + kids;
+    var now      = new Date();
+    var dateStr  = now.toISOString().split('T')[0];
+    var timeStr  = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    var billNum  = 'ST-' + Date.now().toString().slice(-6);
+    var foodNote = ((document.getElementById('swimFoodNote') || {}).value || '').trim();
 
     var tickets = getData(SWIM_KEY);
-    tickets.push({ billNum:billNum, guestName:guestName, qty:totalQty, adults:adults, kids:kids, total:total, date:todayStr(), time:timeStr });
+    tickets.push({
+        billNum:billNum, guestName:guestName, qty:totalQty, adults:adults, kids:kids,
+        swimSub:swimSub, foodSub:foodSub, total:total,
+        foodItems: _swimFoodCart.map(function(i){ return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }; }),
+        note:foodNote, date:todayStr(), time:timeStr
+    });
     saveData(SWIM_KEY, tickets);
 
     var saleItems = [];
     if (adults > 0) saleItems.push({ name:'Adult Swimming Ticket', emoji:'&#x1F3CA;', qty:adults, price:200 });
     if (kids   > 0) saleItems.push({ name:'Kids Swimming Ticket',  emoji:'&#x1F3CA;', qty:kids,   price:100 });
+    _swimFoodCart.forEach(function(i){ saleItems.push({ name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }); });
     var sales = getData(SALES_KEY);
     sales.push({ type:'swim', date:todayStr(), time:timeStr, billNum:billNum, guestName:guestName,
         items:saleItems, sub:total, grand:total });
     saveData(SALES_KEY, sales);
 
+    if (_swimFoodCart.length) deductStockFromOrder(_swimFoodCart);
+
     var rows = '';
     if (adults > 0) rows += '<tr><td>&#x1F3CA; Adult Swimming Ticket</td><td class="r">' + adults + '</td><td class="r">Rs. 200</td><td class="r">Rs. ' + (adults * 200) + '</td></tr>';
     if (kids   > 0) rows += '<tr><td>&#x1F3CA; Kids Swimming Ticket</td><td class="r">'  + kids   + '</td><td class="r">Rs. 100</td><td class="r">Rs. ' + (kids   * 100) + '</td></tr>';
+    if (_swimFoodCart.length) {
+        rows += '<tr><td colspan="4" style="padding-top:8px;font-weight:700;font-size:0.78rem;color:#555;border-top:1px dashed #ccc">FOOD ITEMS</td></tr>';
+        _swimFoodCart.forEach(function(i) {
+            rows += '<tr><td>' + (i.emoji || '🍽️') + ' ' + esc(i.name) + '</td><td class="r">' + i.qty + '</td><td class="r">Rs. ' + i.price + '</td><td class="r">Rs. ' + (i.price * i.qty) + '</td></tr>';
+        });
+    }
+
+    var totalsSection = '';
+    if (swimSub > 0 && foodSub > 0) {
+        totalsSection += '<div class="rtotal-row"><span>Swimming Total</span><span>Rs. ' + swimSub + '</span></div>';
+        totalsSection += '<div class="rtotal-row"><span>Food Total</span><span>Rs. ' + foodSub + '</span></div>';
+    }
+    totalsSection += '<div class="rtotal-row grand"><span>GRAND TOTAL</span><span>Rs. ' + total + '</span></div>';
 
     var bodyHtml =
         '<div class="receipt-header">' +
@@ -3860,18 +4008,19 @@ function printSwimTicket() {
             '<p><span class="label">Date:</span> ' + formatDate(dateStr) + ' &nbsp;<span class="label">Time:</span> ' + timeStr + '</p>' +
             '<hr>' +
             '<p><span class="label">Guest:</span> ' + esc(guestName) + '</p>' +
-            '<p><span class="label">Tickets:</span> <strong>' + totalQty + '</strong>' + (adults > 0 ? ' (' + adults + ' Adult' + (adults > 1 ? 's' : '') + ')' : '') + (kids > 0 ? ' (' + kids + ' Kid' + (kids > 1 ? 's' : '') + ')' : '') + '</p>' +
+            (totalQty > 0 ? '<p><span class="label">Tickets:</span> <strong>' + totalQty + '</strong>' +
+                (adults > 0 ? ' (' + adults + ' Adult' + (adults > 1 ? 's' : '') + ')' : '') +
+                (kids   > 0 ? ' (' + kids   + ' Kid'   + (kids   > 1 ? 's' : '') + ')' : '') + '</p>' : '') +
+            (foodNote ? '<p><span class="label">Note:</span> ' + esc(foodNote) + '</p>' : '') +
         '</div>' +
         '<table class="receipt-table">' +
             '<thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
             '<tbody>' + rows + '</tbody>' +
         '</table>' +
-        '<div class="receipt-totals">' +
-            '<div class="rtotal-row grand"><span>TOTAL AMOUNT</span><span>Rs. ' + total + '</span></div>' +
-        '</div>' +
+        '<div class="receipt-totals">' + totalsSection + '</div>' +
         '<div class="receipt-footer">' +
-            '<p style="font-weight:bold;font-size:0.9rem;color:#333">Valid for same day only</p>' +
-            '<p>&#x1F3CA; Enjoy your swim at Taaza Resort!</p>' +
+            (totalQty > 0 ? '<p style="font-weight:bold;font-size:0.9rem;color:#333">Valid for same day only</p>' : '') +
+            '<p>&#x1F3CA; Enjoy your time at Taaza Resort!</p>' +
             '<p>+977 9742864405 &nbsp;|&nbsp; tamanganish421@gmail.com</p>' +
             '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated ticket.</p>' +
         '</div>';
@@ -3881,7 +4030,9 @@ function printSwimTicket() {
     document.getElementById('swimGuestName').value = '';
     document.getElementById('swimAdultQty').value = 0;
     document.getElementById('swimKidsQty').value  = 0;
-    document.getElementById('swimTotalPreview').textContent = 'Rs. 0';
+    var fnEl = document.getElementById('swimFoodNote'); if (fnEl) fnEl.value = '';
+    _swimFoodCart = [];
+    renderSwimFoodCart();
     renderSwimTickets();
 }
 
