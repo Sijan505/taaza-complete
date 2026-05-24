@@ -779,6 +779,11 @@
                     </div>
                 </div>
 
+                <div class="admin-card" style="margin-bottom:20px">
+                    <h3 style="margin-bottom:14px">&#x1F4B0; Revenue by Category</h3>
+                    <div id="salesCatBreakdown"><p style="color:var(--mid);font-size:0.85rem;padding:8px 0">No sales yet.</p></div>
+                </div>
+
                 <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;margin-bottom:20px">
                     <div class="admin-card" style="margin-bottom:0">
                         <h3 style="margin-bottom:14px">Items Sold</h3>
@@ -3806,6 +3811,28 @@ function renderDailySales() {
     var brEl = document.getElementById('salesBookingRev');
     if (brEl) brEl.textContent = 'Rs. ' + resPayTotal.toLocaleString();
 
+    /* Category breakdown */
+    var catTable    = daySales.filter(function(s){ return s.type === 'table'; }).reduce(function(a,b){ return a+b.grand; }, 0);
+    var catQrTable  = daySales.filter(function(s){ return s.type === 'qr-table'; }).reduce(function(a,b){ return a+b.grand; }, 0);
+    var catQrRoom   = daySales.filter(function(s){ return s.type === 'qr-room'; }).reduce(function(a,b){ return a+b.grand; }, 0);
+    var catSwim     = daySales.filter(function(s){ return s.type === 'swim'; }).reduce(function(a,b){ return a+b.grand; }, 0);
+    var catOther    = daySales.filter(function(s){ return s.type === 'food'; }).reduce(function(a,b){ return a+b.grand; }, 0);
+    var catEl = document.getElementById('salesCatBreakdown');
+    if (catEl) {
+        var rows = [
+            { label:'&#x1FA91; Table Bills',         val: catTable   },
+            { label:'&#x1F4F1; QR Table Orders',      val: catQrTable },
+            { label:'&#x1F6CF;&#xFE0F; Room Orders',  val: catQrRoom  },
+            { label:'&#x1F3CA; Swimming Tickets',      val: catSwim    },
+            { label:'&#x1F4B3; Booking Payments',      val: resPayTotal},
+            { label:'&#x1F372; Other',                 val: catOther   }
+        ].filter(function(r){ return r.val > 0; });
+        catEl.innerHTML = rows.length ? rows.map(function(r){
+            return '<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed var(--border);font-size:0.88rem">' +
+                '<span>' + r.label + '</span><span style="font-weight:700;color:var(--green)">Rs. ' + r.val.toLocaleString() + '</span></div>';
+        }).join('') : '<p style="color:var(--mid);font-size:0.85rem;padding:8px 0">No sales yet.</p>';
+    }
+
     /* Items sold table */
     var itemMap = {};
     daySales.forEach(function(bill) {
@@ -3845,18 +3872,22 @@ function renderDailySales() {
         billsEl.innerHTML = !daySales.length
             ? '<p style="color:var(--mid);font-size:0.85rem">No food / table / swim bills for this date.</p>'
             : daySales.slice().reverse().map(function(b) {
-                var typeLabel = b.type === 'swim' ? '&#x1F3CA; Swim Ticket'
-                    : b.type === 'food'          ? '&#x1F372; Food Order'
+                var typeLabel = b.type === 'swim'     ? '&#x1F3CA; Swim Ticket'
+                    : b.type === 'food'              ? '&#x1F372; Food Order'
+                    : b.type === 'qr-table'          ? '&#x1F4F1; QR Table T-' + (b.tableNum || '?')
+                    : b.type === 'qr-room'           ? '&#x1F6CF;&#xFE0F; Room ' + (b.roomNum || '?')
                     : '&#x1FA91; Table T-' + (b.tableNum || '?');
                 var itemList  = (b.items || []).map(function(i){ return (i.emoji||'') + ' ' + i.name + ' \xD7' + i.qty; }).join(', ');
                 var reference = b.orderNum || b.billNum || '—';
+                var locInfo   = b.type === 'qr-room' && b.roomNum ? ' &nbsp;|&nbsp; Room ' + b.roomNum
+                    : b.type === 'qr-table' && b.tableNum ? ' &nbsp;|&nbsp; Table T-' + b.tableNum : '';
                 var guestInfo = b.name ? ' &nbsp;|&nbsp; ' + esc(b.name) : (b.guestName ? ' &nbsp;|&nbsp; ' + esc(b.guestName) : '');
                 return '<div style="padding:12px 0;border-bottom:1px dashed var(--border)">' +
                     '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">' +
                         '<span style="font-weight:600">' + typeLabel + '</span>' +
                         '<span style="font-weight:700;color:var(--green)">Rs. ' + b.grand + '</span>' +
                     '</div>' +
-                    '<div style="font-size:0.78rem;color:var(--mid)">' + esc(reference) + ' &nbsp;|&nbsp; ' + b.time + guestInfo + '</div>' +
+                    '<div style="font-size:0.78rem;color:var(--mid)">' + esc(reference) + ' &nbsp;|&nbsp; ' + b.time + locInfo + guestInfo + '</div>' +
                     '<div style="font-size:0.8rem;margin-top:4px;color:#555">' + itemList + '</div>' +
                 '</div>';
             }).join('');
@@ -5465,10 +5496,42 @@ function updateQrOrderStatus(id, newStatus) {
     if (!o) return;
     o.status = newStatus;
     saveQrOrders(orders);
-    renderQrOrders();
+
+    var isRoom = o.type === 'room' || (o.roomNum && !o.tableNum);
+    if (isRoom) { renderRoomOrders(); } else { renderQrOrders(); }
+
     showBanner('Order ' + id + ' marked as ' + newStatus + '!');
-    var loc = (o.type === 'room' || o.roomNum) ? 'Room ' + o.roomNum : 'Table ' + o.tableNum;
+    var loc = isRoom ? 'Room ' + o.roomNum : 'Table ' + o.tableNum;
     auditLog('UPDATE', 'QR Order', 'Order ' + id + ' (' + loc + ') status changed to ' + newStatus);
+
+    /* Record to daily sales once when served */
+    if (newStatus === 'served') {
+        var sales = getData(SALES_KEY);
+        var already = sales.some(function(s){ return s.billNum === o.id; });
+        if (!already) {
+            var now     = new Date();
+            var timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+            var sub     = typeof o.subtotal !== 'undefined' ? o.subtotal : (o.total || 0);
+            var vat     = o.vat || 0;
+            sales.push({
+                type:      isRoom ? 'qr-room' : 'qr-table',
+                date:      todayStr(),
+                time:      timeStr,
+                billNum:   o.id,
+                tableNum:  o.tableNum || null,
+                roomNum:   o.roomNum  || null,
+                guestName: o.guestName || '',
+                note:      o.note || '',
+                items:     (o.items || []).map(function(i){
+                    return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price };
+                }),
+                sub:   sub,
+                vat:   vat,
+                grand: o.total || sub
+            });
+            saveData(SALES_KEY, sales);
+        }
+    }
 }
 
 function deleteQrOrder(id) {
