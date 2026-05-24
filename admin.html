@@ -316,6 +316,10 @@
                                 <label>Nights / Days</label>
                                 <input type="text" id="wi-nights" readonly placeholder="Auto" style="background:var(--ivory);cursor:default">
                             </div>
+                            <div class="walkin-field">
+                                <label>Room Number <span style="font-weight:400;color:var(--mid)">(assigned room)</span></label>
+                                <input type="number" id="wi-roomnum" min="1" placeholder="e.g. 101">
+                            </div>
                         </div>
 
                         <div class="walkin-section-label" style="margin-top:20px">Payment</div>
@@ -584,9 +588,7 @@
                         <p style="color:var(--mid);font-size:0.85rem;padding:12px 0">No items yet. Search above to add.</p>
                     </div>
                     <div id="roomOrderTotals" style="display:none;border-top:2px dashed var(--border);padding-top:12px;margin-bottom:12px">
-                        <div style="display:flex;justify-content:space-between;font-size:0.88rem;color:var(--mid)"><span>Subtotal</span><span id="roomOrderSub">Rs. 0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-size:0.88rem;color:var(--mid);margin-top:4px"><span>VAT (13%)</span><span id="roomOrderVat">Rs. 0</span></div>
-                        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1rem;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><span>Grand Total</span><span style="color:var(--green)" id="roomOrderTotal">Rs. 0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1rem"><span>Total</span><span style="color:var(--green)" id="roomOrderTotal">Rs. 0</span></div>
                     </div>
                     <div style="margin-bottom:12px">
                         <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">SPECIAL NOTE (optional)</label>
@@ -2503,6 +2505,7 @@ function saveWalkInReservation(event) {
         deposit:       deposit,
         total:         total,
         notes:         notes,
+        roomNumber:    parseInt(document.getElementById('wi-roomnum').value || '0') || null,
         source:        'walkin',
         checkedInBy:   currentStaffName || 'Admin'
     };
@@ -2564,7 +2567,7 @@ function renderReservations() {
         return new Date(b.createdAt || b.checkIn || 0) - new Date(a.createdAt || a.checkIn || 0);
     });
     el.innerHTML = '<table class="items-table">' +
-        '<thead><tr><th>ID</th><th>Guest</th><th>Stay Info</th><th>Rooms</th><th>Financials</th><th>Balance Due</th><th>Status</th><th>Payment Screenshot</th><th>Notify</th><th>Bill</th></tr></thead>' +
+        '<thead><tr><th>ID</th><th>Guest</th><th>Stay Info</th><th>Room Type</th><th>Room No.</th><th>Financials</th><th>Balance Due</th><th>Status</th><th>Payment Screenshot</th><th>Notify</th><th>Bill</th></tr></thead>' +
         '<tbody>' +
         list.map(function(r) {
             var sourceTag = r.source === 'walkin'
@@ -2602,6 +2605,15 @@ function renderReservations() {
                 '<td>' + sourceTag + '<strong>' + esc(r.fullName) + '</strong><br><small>' + esc(r.phone) + '</small>' + (r.notes ? '<br><small style="color:#6b7280;font-style:italic">' + esc(r.notes.slice(0,40)) + (r.notes.length>40?'…':'') + '</small>' : '') + '</td>' +
                 '<td>' + esc(r.checkIn) + ' to ' + esc(r.checkOut) + '<br><small>' + r.nights + ' night(s)</small></td>' +
                 '<td>' + esc(r.roomType) + (r.package ? '<br><small style="color:var(--gold)">Pkg: ' + esc(r.package.name) + '</small>' : '') + '</td>' +
+                '<td style="white-space:nowrap">' +
+                    '<div style="display:flex;gap:4px;align-items:center">' +
+                        '<input type="number" min="1" placeholder="e.g. 101" value="' + (r.roomNumber || '') + '" ' +
+                            'id="rnum-' + esc(r.id) + '" ' +
+                            'style="width:76px;padding:5px 8px;border:1.5px solid var(--border);border-radius:6px;font-family:inherit;font-size:0.82rem;outline:none">' +
+                        '<button onclick="setReservationRoomNumber(\'' + esc(r.id) + '\')" ' +
+                            'style="background:var(--green);color:#fff;border:none;padding:5px 9px;border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:700;white-space:nowrap">Set</button>' +
+                    '</div>' +
+                '</td>' +
                 '<td>Advance: Rs.' + (r.deposit || 0) + '<br><strong>Total: Rs.' + r.total + '</strong></td>' +
                 '<td>' + balCell + '</td>' +
                 '<td>' +
@@ -2619,8 +2631,9 @@ function renderReservations() {
                     (r.phone ? '<button onclick="adminResendWhatsApp(\'' + esc(r.id) + '\')" class="notif-action-btn wa">&#x1F4AC; WA</button>' : '') +
                     (r.email ? '<button onclick="adminResendEmail(\'' + esc(r.id) + '\')" class="notif-action-btn email" style="margin-top:4px">&#x1F4E7; Email</button>' : '<span style="color:var(--mid);font-size:0.75rem">No email</span>') +
                 '</td>' +
-                '<td style="white-space:nowrap">' +
-                    '<button onclick="printReservationBill(\'' + esc(r.id) + '\')" style="background:var(--green);color:#fff;border:none;padding:7px 13px;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:5px">&#x1F5A8; Print Bill</button>' +
+                '<td style="white-space:nowrap;min-width:130px">' +
+                    '<button onclick="printReservationBill(\'' + esc(r.id) + '\')" style="background:var(--green);color:#fff;border:none;padding:7px 11px;border-radius:7px;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:inherit;display:block;width:100%;margin-bottom:5px">&#x1F5A8; Room Bill</button>' +
+                    (r.roomNumber ? '<button onclick="printCombinedRoomBill(\'' + esc(r.id) + '\')" style="background:var(--gold);color:var(--green-deep);border:none;padding:7px 11px;border-radius:7px;cursor:pointer;font-size:0.78rem;font-weight:700;font-family:inherit;display:block;width:100%">&#x1F4CB; Combined Bill</button>' : '<span style="color:var(--mid);font-size:0.75rem">Set room no. for combined bill</span>') +
                 '</td>' +
             '</tr>';
         }).join('') +
@@ -3751,6 +3764,115 @@ function printReservationBill(reservationId) {
         '</div>';
 
     _printReceipt('Reservation Invoice ' + billNum, bodyHtml, _releasePrintLock);
+}
+
+function setReservationRoomNumber(id) {
+    var inputEl = document.getElementById('rnum-' + id);
+    if (!inputEl) return;
+    var num = parseInt(inputEl.value || '0') || null;
+    var list = getData('taaza_reservations');
+    var r = list.find(function(x){ return x.id === id; });
+    if (!r) return;
+    r.roomNumber = num;
+    saveData('taaza_reservations', list);
+    auditLog('UPDATE', 'Reservation', 'Room number ' + (num || 'cleared') + ' assigned to ' + (r.fullName || id));
+    showBanner(num ? 'Room ' + num + ' assigned to ' + (r.fullName || id) + '.' : 'Room number cleared.');
+    renderReservations();
+}
+
+function printCombinedRoomBill(reservationId) {
+    if (!_acquirePrintLock()) return;
+    var list = getData('taaza_reservations');
+    var r    = list.find(function(x){ return x.id === reservationId; });
+    if (!r) { _releasePrintLock(); alert('Reservation not found.'); return; }
+    if (!r.roomNumber) { _releasePrintLock(); alert('No room number assigned to this reservation.'); return; }
+
+    var now     = new Date();
+    var dateStr = now.toISOString().split('T')[0];
+    var timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    var billNum = 'CMB-' + r.roomNumber + '-' + Date.now().toString().slice(-5);
+    var nights  = r.nights || 1;
+    var roomRate= r.roomRate || Math.round((r.total || 0) / nights);
+
+    /* Room charges */
+    var roomTotal = r.total || 0;
+    var advPaid   = r.deposit || 0;
+
+    /* Food orders for this room (all statuses) */
+    var foodOrders = getQrOrders().filter(function(o){
+        return (o.type === 'room' || (o.roomNum && !o.tableNum)) && Number(o.roomNum) === Number(r.roomNumber);
+    });
+    var foodTotal = foodOrders.reduce(function(s,o){ return s + (o.total || 0); }, 0);
+
+    /* Swim tickets for this room */
+    var swimTickets = getData(SWIM_KEY).filter(function(t){ return Number(t.roomNum) === Number(r.roomNumber); });
+    var swimTotal   = swimTickets.reduce(function(s,t){ return s + (t.total || 0); }, 0);
+
+    var grandTotal = roomTotal + foodTotal + swimTotal;
+    var balance    = r.balancePaid ? Math.max(0, foodTotal + swimTotal) : Math.max(0, grandTotal - advPaid);
+
+    /* Build rows */
+    var rows = '<tr><td>Room Charges (' + esc(r.roomType || 'Room') + ')</td>' +
+        '<td class="r">' + nights + ' night(s)</td>' +
+        '<td class="r">Rs. ' + roomRate.toLocaleString() + '/night</td>' +
+        '<td class="r">Rs. ' + roomTotal.toLocaleString() + '</td></tr>';
+
+    if (foodOrders.length) {
+        rows += '<tr><td colspan="4" style="padding-top:10px;font-weight:700;font-size:0.8rem;color:#555;text-transform:uppercase;letter-spacing:0.05em">Food Orders</td></tr>';
+        foodOrders.forEach(function(o) {
+            (o.items || []).forEach(function(it) {
+                rows += '<tr><td>' + (it.emoji || '🍽️') + ' ' + esc(it.name) + '</td>' +
+                    '<td class="r">' + it.qty + '</td>' +
+                    '<td class="r">Rs. ' + it.price + '</td>' +
+                    '<td class="r">Rs. ' + (it.price * it.qty) + '</td></tr>';
+            });
+        });
+        rows += '<tr><td colspan="3" style="font-weight:700;padding-top:4px">Food Subtotal</td><td class="r" style="font-weight:700">Rs. ' + foodTotal.toLocaleString() + '</td></tr>';
+    }
+
+    if (swimTickets.length) {
+        rows += '<tr><td colspan="4" style="padding-top:10px;font-weight:700;font-size:0.8rem;color:#555;text-transform:uppercase;letter-spacing:0.05em">Swimming Tickets</td></tr>';
+        swimTickets.forEach(function(t) {
+            if (t.adults > 0) rows += '<tr><td>&#x1F3CA; Adult Swimming Ticket</td><td class="r">' + t.adults + '</td><td class="r">Rs. 200</td><td class="r">Rs. ' + (t.adults * 200) + '</td></tr>';
+            if (t.kids   > 0) rows += '<tr><td>&#x1F3CA; Kids Swimming Ticket</td><td class="r">'  + t.kids   + '</td><td class="r">Rs. 100</td><td class="r">Rs. ' + (t.kids   * 100) + '</td></tr>';
+        });
+        rows += '<tr><td colspan="3" style="font-weight:700;padding-top:4px">Swim Subtotal</td><td class="r" style="font-weight:700">Rs. ' + swimTotal.toLocaleString() + '</td></tr>';
+    }
+
+    var bodyHtml =
+        '<div class="receipt-header">' +
+            '<img src="images/logo-dark.png" onerror="this.style.display=\'none\'">' +
+            '<h2>Taaza Resort</h2>' +
+            '<div class="sub">Combined Room Bill</div>' +
+            '<div class="sub">Bharatpur-5, Narayanpur, Chitwan</div>' +
+            '<div class="sub">PAN No: 608568546</div>' +
+        '</div>' +
+        '<div class="receipt-info">' +
+            '<p><span class="label">Bill No:</span> <strong>' + billNum + '</strong></p>' +
+            '<p><span class="label">Date:</span> ' + formatDate(dateStr) + ' &nbsp;<span class="label">Time:</span> ' + timeStr + '</p>' +
+            '<hr>' +
+            '<p><span class="label">Guest:</span> <strong>' + esc(r.fullName) + '</strong></p>' +
+            '<p><span class="label">Phone:</span> ' + esc(r.phone || '—') + '</p>' +
+            '<p><span class="label">Room Number:</span> <strong>' + r.roomNumber + '</strong> &nbsp;|&nbsp; <span class="label">Room Type:</span> ' + esc(r.roomType || '—') + '</p>' +
+            '<p><span class="label">Check-in:</span> ' + esc(r.checkIn || '—') + ' &nbsp;<span class="label">Check-out:</span> ' + esc(r.checkOut || '—') + ' &nbsp;|&nbsp; ' + nights + ' night(s)</p>' +
+        '</div>' +
+        '<table class="receipt-table"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>' +
+        '<div class="receipt-totals">' +
+            '<div class="rtotal-row"><span>Room Charges</span><span>Rs. ' + roomTotal.toLocaleString() + '</span></div>' +
+            (foodTotal  > 0 ? '<div class="rtotal-row"><span>Food Orders</span><span>Rs. ' + foodTotal.toLocaleString() + '</span></div>'  : '') +
+            (swimTotal  > 0 ? '<div class="rtotal-row"><span>Swimming</span><span>Rs. ' + swimTotal.toLocaleString() + '</span></div>'    : '') +
+            '<div class="rtotal-row"><span>Grand Total</span><span>Rs. ' + grandTotal.toLocaleString() + '</span></div>' +
+            '<div class="rtotal-row"><span>Advance Paid</span><span>- Rs. ' + advPaid.toLocaleString() + '</span></div>' +
+            '<div class="rtotal-row grand"><span>BALANCE DUE</span><span>Rs. ' + balance.toLocaleString() + '</span></div>' +
+        '</div>' +
+        '<div class="receipt-footer">' +
+            '<p>&#x1F3E8; Thank you for choosing Taaza Resort!</p>' +
+            '<p>+977 9742864405 &nbsp;|&nbsp; tamanganish421@gmail.com</p>' +
+            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated bill.</p>' +
+        '</div>';
+
+    _printReceipt('Combined Room Bill ' + billNum, bodyHtml, _releasePrintLock);
 }
 
 /* ===== DAILY SALES ===== */
@@ -5511,8 +5633,7 @@ function updateQrOrderStatus(id, newStatus) {
         if (!already) {
             var now     = new Date();
             var timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
-            var sub     = typeof o.subtotal !== 'undefined' ? o.subtotal : (o.total || 0);
-            var vat     = o.vat || 0;
+            var sub = typeof o.subtotal !== 'undefined' ? o.subtotal : (o.total || 0);
             sales.push({
                 type:      isRoom ? 'qr-room' : 'qr-table',
                 date:      todayStr(),
@@ -5526,7 +5647,6 @@ function updateQrOrderStatus(id, newStatus) {
                     return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price };
                 }),
                 sub:   sub,
-                vat:   vat,
                 grand: o.total || sub
             });
             saveData(SALES_KEY, sales);
@@ -5861,12 +5981,9 @@ function renderRoomOrderCart() {
     }).join('');
 
     var sub   = _roomAdminCart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
-    var vat   = Math.round(sub * 0.13);
-    var grand = sub + vat;
+    var grand = sub;
     if (totalsEl) {
         totalsEl.style.display = 'block';
-        var subEl = document.getElementById('roomOrderSub');   if (subEl) subEl.textContent = 'Rs. ' + sub;
-        var vatEl = document.getElementById('roomOrderVat');   if (vatEl) vatEl.textContent = 'Rs. ' + vat;
         var totEl = document.getElementById('roomOrderTotal'); if (totEl) totEl.textContent = 'Rs. ' + grand;
     }
 }
@@ -5886,8 +6003,7 @@ function placeRoomOrderFromAdmin() {
     var guestName = ((document.getElementById('roomOrderGuest') || {}).value || '').trim();
     var note      = ((document.getElementById('roomOrderNote')  || {}).value || '').trim();
     var sub       = _roomAdminCart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
-    var vat       = Math.round(sub * 0.13);
-    var grand     = sub + vat;
+    var grand     = sub;
 
     var orderId = 'QR-R' + roomNum + '-' + Date.now();
     var order = {
@@ -5898,7 +6014,6 @@ function placeRoomOrderFromAdmin() {
         guestName: guestName || '',
         items:     _roomAdminCart.map(function(i){ return { name:i.name, price:i.price, emoji:i.emoji, qty:i.qty }; }),
         subtotal:  sub,
-        vat:       vat,
         total:     grand,
         status:    'pending',
         note:      note,

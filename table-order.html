@@ -854,7 +854,7 @@
             <span class="conf-row-val" id="confItemCount">—</span>
         </div>
         <div class="conf-row">
-            <span class="conf-row-label">Total (incl. VAT)</span>
+            <span class="conf-row-label">Total</span>
             <span class="conf-row-val" id="confTotal">—</span>
         </div>
     </div>
@@ -1428,9 +1428,8 @@ function renderOrderPanel() {
 
     document.getElementById('placeOrderBtn').disabled = false;
 
-    var sub = cart.reduce(function(s, c){ return s + c.price * c.qty; }, 0);
-    var vat = Math.round(sub * 0.13);
-    var total = sub + vat;
+    var sub   = cart.reduce(function(s, c){ return s + c.price * c.qty; }, 0);
+    var total = sub;
 
     var html = '';
 
@@ -1459,11 +1458,8 @@ function renderOrderPanel() {
 
     // Totals
     html += '<div class="order-totals">';
-    html += '<div class="order-total-row"><span>Subtotal</span><span>Rs. ' + sub + '</span></div>';
-    html += '<div class="order-total-row"><span>VAT (13%)</span><span>Rs. ' + vat + '</span></div>';
     html += '<div class="order-total-row grand"><span>Total</span><span>Rs. ' + total + '</span></div>';
     html += '</div>';
-    html += '<p class="vat-note" style="margin-top:8px">*VAT included as per government regulations.</p>';
 
     body.innerHTML = html;
 }
@@ -1474,10 +1470,9 @@ function renderOrderPanel() {
 function placeOrder() {
     if (!cart.length) return;
 
-    var note = (document.getElementById('orderNote') || {}).value || '';
-    var sub  = cart.reduce(function(s, c){ return s + c.price * c.qty; }, 0);
-    var vat  = Math.round(sub * 0.13);
-    var total = sub + vat;
+    var note  = (document.getElementById('orderNote') || {}).value || '';
+    var sub   = cart.reduce(function(s, c){ return s + c.price * c.qty; }, 0);
+    var total = sub;
 
     var orderId = isRoomOrder
         ? 'QR-R' + roomNum + '-' + Date.now()
@@ -1490,7 +1485,6 @@ function placeOrder() {
         type:      isRoomOrder ? 'room' : 'table',
         items:     cart.map(function(c){ return { name: c.name, price: c.price, qty: c.qty, emoji: c.emoji }; }),
         subtotal:  sub,
-        vat:       vat,
         total:     total,
         status:    'pending',
         note:      note.trim(),
