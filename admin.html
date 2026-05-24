@@ -110,6 +110,7 @@
             <a href="#" class="sidebar-link" onclick="return showTab('menuItems', this)">&#x1F37D;&#xFE0F; Menu Items</a>
             <a href="#" class="sidebar-link" onclick="return showTab('tableBills', this)">&#x1FA91; Table Bills</a>
             <a href="#" class="sidebar-link" onclick="return showTab('swimTickets', this)">&#x1F3CA; Swimming Tickets</a>
+            <a href="#" class="sidebar-link" onclick="return showTab('outsideOrder', this)">&#x1F6D2; Outside Order</a>
             <a href="#" class="sidebar-link" onclick="return showTab('stock', this)">&#x1F4E6; Stock Management <span id="adminNotifStock" class="notification-badge" style="display:none;background:#ef4444">0</span></a>
             <a href="#" class="sidebar-link" onclick="return showTab('dailySales', this)">&#x1F4CA; Daily Sales</a>
             <a href="#" class="sidebar-link" onclick="return showTab('guests', this)">&#x1F465; Guest Management</a>
@@ -778,6 +779,70 @@
                                 <button onclick="clearSwimHistory()" style="background:#ef4444;color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:600">Clear</button>
                             </div>
                             <div id="swimHistory"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- OUTSIDE / COUNTER ORDER TAB -->
+            <div class="admin-tab" id="tab-outsideOrder">
+                <h2 class="admin-section-title">&#x1F6D2; Outside / Counter Order</h2>
+                <div class="admin-two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+
+                    <!-- Order form -->
+                    <div class="admin-card" style="margin-bottom:0">
+                        <h3 style="margin-bottom:16px">New Counter Sale</h3>
+                        <div style="margin-bottom:12px">
+                            <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">CUSTOMER NAME (optional)</label>
+                            <input id="outsideGuestName" type="text" placeholder="e.g. Walk-in Customer"
+                                style="width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box">
+                        </div>
+                        <div style="margin-bottom:12px">
+                            <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">SEARCH MENU ITEMS</label>
+                            <input id="outsideItemSearch" type="text" placeholder="&#x1F50D; Type item name to search..."
+                                oninput="filterOutsideItems()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                onkeydown="if(event.key==='Escape'){var d=document.getElementById('outsideItemDropdown');if(d)d.style.display='none';this.value='';}"
+                                style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:16px;box-sizing:border-box;outline:none;-webkit-appearance:none">
+                            <div id="outsideItemDropdown" style="display:none;background:#fff;border:1.5px solid var(--accent);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.14);overflow:hidden;max-height:220px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:4px"></div>
+                        </div>
+                        <div id="outsideCart" style="min-height:48px;max-height:240px;overflow-y:auto;margin-bottom:10px">
+                            <p style="color:var(--mid);font-size:0.85rem;padding:4px 0">No items added yet.</p>
+                        </div>
+                        <div style="margin-bottom:14px">
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:4px">NOTE (optional)</label>
+                            <input id="outsideNote" type="text" placeholder="e.g. Takeaway, extra sauce..."
+                                style="width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.85rem;box-sizing:border-box;outline:none">
+                        </div>
+                        <div style="background:#fefce8;border:1px solid #fde047;border-radius:8px;padding:12px 16px;margin-bottom:16px">
+                            <div style="display:flex;justify-content:space-between;align-items:center">
+                                <span style="font-size:0.88rem;color:#713f12;font-weight:700">TOTAL</span>
+                                <span id="outsideTotalPreview" style="font-size:1.2rem;font-weight:800;color:#713f12">Rs. 0</span>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:10px">
+                            <button onclick="clearOutsideCart()" style="flex:1;background:#fff;border:1.5px solid var(--border);color:var(--mid);padding:12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.9rem;font-family:Inter,sans-serif">Clear</button>
+                            <button class="admin-print-btn" onclick="printOutsideBill()" style="flex:2;background:var(--green);color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Bill</button>
+                        </div>
+                    </div>
+
+                    <!-- Today's history -->
+                    <div>
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+                            <div class="stat-card" style="margin:0">
+                                <span class="stat-num" id="outsideTodayCount">0</span>
+                                <div class="stat-label">Orders Today</div>
+                            </div>
+                            <div class="stat-card" style="margin:0">
+                                <span class="stat-num" id="outsideTodayRevenue" style="font-size:1.1rem">Rs. 0</span>
+                                <div class="stat-label">Today's Revenue</div>
+                            </div>
+                        </div>
+                        <div class="admin-card" style="margin-bottom:0">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+                                <h3 style="margin:0">Today's Counter Sales</h3>
+                                <button onclick="clearOutsideHistory()" style="background:#ef4444;color:#fff;border:none;padding:5px 12px;border-radius:6px;cursor:pointer;font-size:0.78rem;font-weight:600">Clear</button>
+                            </div>
+                            <div id="outsideHistory"></div>
                         </div>
                     </div>
                 </div>
@@ -2609,6 +2674,7 @@ function showTab(name, linkEl) {
     if (name === 'dashboard')     updateStats();
     if (name === 'tableBills')    renderTablesGrid();
     if (name === 'swimTickets')   renderSwimTickets();
+    if (name === 'outsideOrder')  renderOutsideOrders();
     if (name === 'stock')         renderStock();
     if (name === 'dailySales')    { renderDailySales(); _populateAuditYears(); }
     if (name === 'guests')        renderGuestList();
@@ -3913,6 +3979,193 @@ function clearSwimFoodCart() {
     renderSwimFoodCart();
 }
 
+/* ===== OUTSIDE / COUNTER ORDER ===== */
+var OUTSIDE_KEY  = 'taaza_outside_orders';
+var _outsideCart = [];
+
+function filterOutsideItems() {
+    var query = (document.getElementById('outsideItemSearch').value || '').trim().toLowerCase();
+    var dd = document.getElementById('outsideItemDropdown');
+    if (!dd) return;
+    if (!query) { dd.style.display = 'none'; return; }
+    var items = getData(MENU_KEY);
+    var matches = items.filter(function(it) {
+        return (it.name || '').toLowerCase().indexOf(query) !== -1 && it.available !== false;
+    }).slice(0, 8);
+    if (!matches.length) { dd.style.display = 'none'; return; }
+    dd.innerHTML = matches.map(function(it) {
+        var safeEmoji = esc(it.emoji || '🍽️');
+        var safeName  = esc(it.name);
+        var safePrice = Number(it.price) || 0;
+        return '<div ' +
+            'data-name="' + safeName + '" ' +
+            'data-price="' + safePrice + '" ' +
+            'data-emoji="' + safeEmoji + '" ' +
+            'ontouchend="event.preventDefault();event.stopPropagation();selectOutsideItemFromEl(this)" ' +
+            'onclick="selectOutsideItemFromEl(this)" ' +
+            'style="padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:52px;' +
+            'border-bottom:1px solid #f0f0f0;transition:background 0.15s" ' +
+            'onmouseover="this.style.background=\'#fefce8\'" onmouseout="this.style.background=\'#fff\'">' +
+            '<span>' + safeEmoji + ' ' + safeName + '</span>' +
+            '<span style="font-weight:700;color:var(--green)">Rs. ' + safePrice + '</span>' +
+        '</div>';
+    }).join('');
+    dd.style.display = 'block';
+}
+
+function selectOutsideItemFromEl(el) {
+    var name  = el.dataset.name;
+    var price = parseInt(el.dataset.price) || 0;
+    var emoji = el.dataset.emoji || '🍽️';
+    var dd   = document.getElementById('outsideItemDropdown');
+    var srch = document.getElementById('outsideItemSearch');
+    if (dd) dd.style.display = 'none';
+    if (srch) srch.value = '';
+    var existing = _outsideCart.find(function(i) { return i.name === name; });
+    if (existing) { existing.qty += 1; } else { _outsideCart.push({ name:name, price:price, emoji:emoji, qty:1 }); }
+    renderOutsideCart();
+}
+
+function outsideCartQty(idx, delta) {
+    _outsideCart[idx].qty += delta;
+    if (_outsideCart[idx].qty <= 0) _outsideCart.splice(idx, 1);
+    renderOutsideCart();
+}
+
+function renderOutsideCart() {
+    var cartEl  = document.getElementById('outsideCart');
+    var totalEl = document.getElementById('outsideTotalPreview');
+    if (!cartEl) return;
+    if (!_outsideCart.length) {
+        cartEl.innerHTML = '<p style="color:var(--mid);font-size:0.85rem;padding:4px 0">No items added yet.</p>';
+        if (totalEl) totalEl.textContent = 'Rs. 0';
+        return;
+    }
+    cartEl.innerHTML = _outsideCart.map(function(item, idx) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed var(--border)">' +
+            '<span style="font-size:1.1rem">' + (item.emoji || '🍽️') + '</span>' +
+            '<span style="flex:1;font-size:0.88rem;font-weight:600">' + esc(item.name) + '</span>' +
+            '<div style="display:flex;align-items:center;gap:6px">' +
+                '<button onclick="outsideCartQty(' + idx + ',-1)" style="width:26px;height:26px;border:1px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1">&#8722;</button>' +
+                '<span style="min-width:20px;text-align:center;font-weight:700">' + item.qty + '</span>' +
+                '<button onclick="outsideCartQty(' + idx + ',1)"  style="width:26px;height:26px;border:1px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1">+</button>' +
+            '</div>' +
+            '<span style="min-width:64px;text-align:right;font-weight:600;font-size:0.88rem">Rs. ' + (item.price * item.qty) + '</span>' +
+        '</div>';
+    }).join('');
+    var total = _outsideCart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+    if (totalEl) totalEl.textContent = 'Rs. ' + total;
+}
+
+function clearOutsideCart() {
+    _outsideCart = [];
+    renderOutsideCart();
+    var noteEl = document.getElementById('outsideNote');      if (noteEl) noteEl.value = '';
+    var gnEl   = document.getElementById('outsideGuestName'); if (gnEl)   gnEl.value   = '';
+}
+
+function printOutsideBill() {
+    if (!_acquirePrintLock()) return;
+    if (!_outsideCart.length) { alert('Please add at least one item.'); _releasePrintLock(); return; }
+    var guestName = ((document.getElementById('outsideGuestName') || {}).value || '').trim() || 'Walk-in';
+    var note      = ((document.getElementById('outsideNote')       || {}).value || '').trim();
+    var total     = _outsideCart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+    var now       = new Date();
+    var dateStr   = now.toISOString().split('T')[0];
+    var timeStr   = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    var billNum   = 'OUT-' + Date.now().toString().slice(-6);
+
+    var outsideOrders = getData(OUTSIDE_KEY);
+    outsideOrders.push({
+        billNum:billNum, guestName:guestName, note:note,
+        items: _outsideCart.map(function(i){ return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }; }),
+        total:total, date:todayStr(), time:timeStr
+    });
+    saveData(OUTSIDE_KEY, outsideOrders);
+
+    var sales = getData(SALES_KEY);
+    sales.push({ type:'outside', date:todayStr(), time:timeStr, billNum:billNum, guestName:guestName,
+        items: _outsideCart.map(function(i){ return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }; }),
+        sub:total, grand:total });
+    saveData(SALES_KEY, sales);
+
+    deductStockFromOrder(_outsideCart);
+
+    var rows = _outsideCart.map(function(i) {
+        return '<tr><td>' + (i.emoji||'🍽️') + ' ' + esc(i.name) + '</td><td class="r">' + i.qty + '</td><td class="r">Rs. ' + i.price + '</td><td class="r">Rs. ' + (i.price*i.qty) + '</td></tr>';
+    }).join('');
+
+    var bodyHtml =
+        '<div class="receipt-header">' +
+            '<img src="images/logo-dark.png" onerror="this.style.display=\'none\'">' +
+            '<h2>Taaza Resort</h2>' +
+            '<div class="sub">Counter / Outside Sale</div>' +
+            '<div class="sub">Bharatpur-5, Narayanpur, Chitwan</div>' +
+            '<div class="sub">PAN No: 608568546</div>' +
+        '</div>' +
+        '<div class="receipt-info">' +
+            '<p><span class="label">Bill No:</span> <strong>' + billNum + '</strong></p>' +
+            '<p><span class="label">Date:</span> ' + formatDate(dateStr) + ' &nbsp;<span class="label">Time:</span> ' + timeStr + '</p>' +
+            '<hr>' +
+            '<p><span class="label">Customer:</span> ' + esc(guestName) + '</p>' +
+            (note ? '<p><span class="label">Note:</span> ' + esc(note) + '</p>' : '') +
+        '</div>' +
+        '<table class="receipt-table">' +
+            '<thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
+            '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+        '<div class="receipt-totals">' +
+            '<div class="rtotal-row grand"><span>TOTAL AMOUNT</span><span>Rs. ' + total + '</span></div>' +
+        '</div>' +
+        '<div class="receipt-footer">' +
+            '<p>Thank you for visiting Taaza Resort!</p>' +
+            '<p>+977 9742864405 &nbsp;|&nbsp; tamanganish421@gmail.com</p>' +
+            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated bill.</p>' +
+        '</div>';
+
+    _printReceipt('Outside Bill ' + billNum, bodyHtml, _releasePrintLock);
+    clearOutsideCart();
+    renderOutsideOrders();
+}
+
+function clearOutsideHistory() {
+    if (!confirm('Clear all outside order records for today?')) return;
+    var orders = getData(OUTSIDE_KEY);
+    var today  = todayStr();
+    saveData(OUTSIDE_KEY, orders.filter(function(o){ return o.date !== today; }));
+    renderOutsideOrders();
+}
+
+function renderOutsideOrders() {
+    var orders    = getData(OUTSIDE_KEY);
+    var today     = todayStr();
+    var todayList = orders.filter(function(o){ return o.date === today; });
+    var totalRev  = todayList.reduce(function(s,o){ return s + o.total; }, 0);
+
+    var cntEl = document.getElementById('outsideTodayCount');
+    var revEl = document.getElementById('outsideTodayRevenue');
+    if (cntEl) cntEl.textContent = todayList.length;
+    if (revEl) revEl.textContent = 'Rs. ' + totalRev;
+
+    var el = document.getElementById('outsideHistory');
+    if (!el) return;
+    if (!todayList.length) {
+        el.innerHTML = '<p style="color:var(--mid);font-size:0.85rem;padding:12px 0">No outside orders today.</p>';
+        return;
+    }
+    el.innerHTML = todayList.slice().reverse().map(function(o) {
+        var itemSummary = (o.items || []).map(function(i){ return esc(i.name) + ' &times;' + i.qty; }).join(', ');
+        return '<div style="padding:10px 0;border-bottom:1px dashed var(--border)">' +
+            '<div style="display:flex;justify-content:space-between;align-items:center">' +
+                '<div style="font-weight:600;font-size:0.9rem">&#x1F6D2; ' + esc(o.guestName || 'Walk-in') + '</div>' +
+                '<div style="font-weight:700;color:var(--green)">Rs. ' + o.total + '</div>' +
+            '</div>' +
+            '<div style="font-size:0.77rem;color:var(--mid);margin-top:2px">' + esc(o.billNum) + ' &nbsp;|&nbsp; ' + o.time + '</div>' +
+            '<div style="font-size:0.78rem;color:#555;margin-top:3px">' + itemSummary + '</div>' +
+        '</div>';
+    }).join('');
+}
+
 function renderSwimTickets() {
     var tickets     = getData(SWIM_KEY);
     var today       = todayStr();
@@ -4280,6 +4533,7 @@ function renderDailySales() {
     var catQrTable  = daySales.filter(function(s){ return s.type === 'qr-table'; }).reduce(function(a,b){ return a+b.grand; }, 0);
     var catQrRoom   = daySales.filter(function(s){ return s.type === 'qr-room'; }).reduce(function(a,b){ return a+b.grand; }, 0);
     var catSwim     = daySales.filter(function(s){ return s.type === 'swim'; }).reduce(function(a,b){ return a+b.grand; }, 0);
+    var catOutside  = daySales.filter(function(s){ return s.type === 'outside'; }).reduce(function(a,b){ return a+b.grand; }, 0);
     var catOther    = daySales.filter(function(s){ return s.type === 'food'; }).reduce(function(a,b){ return a+b.grand; }, 0);
     var catEl = document.getElementById('salesCatBreakdown');
     if (catEl) {
@@ -4288,6 +4542,7 @@ function renderDailySales() {
             { label:'&#x1F4F1; QR Table Orders',      val: catQrTable },
             { label:'&#x1F6CF;&#xFE0F; Room Orders',  val: catQrRoom  },
             { label:'&#x1F3CA; Swimming Tickets',      val: catSwim    },
+            { label:'&#x1F6D2; Outside / Counter',     val: catOutside },
             { label:'&#x1F4B3; Booking Payments',      val: resPayTotal},
             { label:'&#x1F372; Other',                 val: catOther   }
         ].filter(function(r){ return r.val > 0; });
@@ -4709,12 +4964,13 @@ function renderAuditReport() {
     });
 
     /* ---- Aggregate totals ---- */
-    var catTable   = 0, catQrTable = 0, catQrRoom = 0, catSwim = 0, catOther = 0;
+    var catTable   = 0, catQrTable = 0, catQrRoom = 0, catSwim = 0, catOutside = 0, catOther = 0;
     allSales.forEach(function(s) {
         if      (s.type === 'table')    catTable   += s.grand || 0;
         else if (s.type === 'qr-table') catQrTable += s.grand || 0;
         else if (s.type === 'qr-room')  catQrRoom  += s.grand || 0;
         else if (s.type === 'swim')     catSwim    += s.grand || 0;
+        else if (s.type === 'outside')  catOutside += s.grand || 0;
         else                            catOther   += s.grand || 0;
     });
     var catBooking  = resPays.reduce(function(a,p){ return a + p.amount; }, 0);
@@ -4731,6 +4987,7 @@ function renderAuditReport() {
             { label:'Table & QR Dine-in',   val:'Rs. ' + (catTable+catQrTable).toLocaleString(), color:'#059669' },
             { label:'Room Food Orders',      val:'Rs. ' + catQrRoom.toLocaleString(),  color:'#7c3aed'      },
             { label:'Swimming Tickets',      val:'Rs. ' + catSwim.toLocaleString(),    color:'#0ea5e9'      },
+            { label:'Outside / Counter',     val:'Rs. ' + catOutside.toLocaleString(), color:'#d97706'      },
             { label:'Booking Payments',      val:'Rs. ' + catBooking.toLocaleString(), color:' var(--accent)' }
         ].map(function(c){
             return '<div class="stat-card" style="margin:0;padding:14px 16px">' +
@@ -4822,6 +5079,7 @@ function renderAuditReport() {
             { label:'&#x1F4F1; QR Table Orders',       val: catQrTable },
             { label:'&#x1F6CF;&#xFE0F; Room Orders',   val: catQrRoom  },
             { label:'&#x1F3CA; Swimming Tickets',       val: catSwim    },
+            { label:'&#x1F6D2; Outside / Counter',      val: catOutside },
             { label:'&#x1F4B3; Booking Payments',       val: catBooking },
             { label:'&#x1F372; Other',                  val: catOther   }
         ].filter(function(c){ return c.val > 0; });
@@ -4896,12 +5154,13 @@ function printAuditReport() {
         }
     });
 
-    var catTable=0, catQrTable=0, catQrRoom=0, catSwim=0, catOther=0;
+    var catTable=0, catQrTable=0, catQrRoom=0, catSwim=0, catOutside=0, catOther=0;
     allSales.forEach(function(s){
         if      (s.type==='table')    catTable   += s.grand||0;
         else if (s.type==='qr-table') catQrTable += s.grand||0;
         else if (s.type==='qr-room')  catQrRoom  += s.grand||0;
         else if (s.type==='swim')     catSwim    += s.grand||0;
+        else if (s.type==='outside')  catOutside += s.grand||0;
         else                          catOther   += s.grand||0;
     });
     var catBooking = resPays.reduce(function(a,p){ return a+p.amount; },0);
@@ -4948,7 +5207,7 @@ function printAuditReport() {
         '</div>' +
         '<h3 style="font-size:0.9rem;margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.05em">Revenue by Category</h3>' +
         '<table class="receipt-table"><thead><tr><th>Category</th><th class="r">Amount</th><th class="r">Share</th></tr></thead><tbody>' +
-        [['Table Bills',catTable],['QR Table Orders',catQrTable],['Room Orders',catQrRoom],['Swimming Tickets',catSwim],['Booking Payments',catBooking],['Other',catOther]]
+        [['Table Bills',catTable],['QR Table Orders',catQrTable],['Room Orders',catQrRoom],['Swimming Tickets',catSwim],['Outside / Counter',catOutside],['Booking Payments',catBooking],['Other',catOther]]
             .filter(function(c){return c[1]>0;})
             .map(function(c){ return '<tr><td>'+c[0]+'</td><td class="r">Rs.'+c[1].toLocaleString()+'</td><td class="r">'+(grandTotal>0?((c[1]/grandTotal)*100).toFixed(1):'0')+'%</td></tr>'; }).join('') +
         '</tbody><tfoot><tr><td><strong>GRAND TOTAL</strong></td><td class="r"><strong>Rs.'+grandTotal.toLocaleString()+'</strong></td><td class="r"><strong>100%</strong></td></tr></tfoot></table>' +
