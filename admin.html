@@ -272,6 +272,216 @@
             padding: 0 5px !important;
         }
 
+        /* ══════════════════════════════════════════
+           DASHBOARD COMPONENTS
+           ══════════════════════════════════════════ */
+
+        /* Page header row */
+        .dash-page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 22px;
+            gap: 16px;
+        }
+        .dash-date-line {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+        .dash-header-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+        .dash-hdr-btn {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 7px 14px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: opacity 0.15s;
+        }
+        .dash-hdr-btn:hover { opacity: 0.85; }
+        .dash-hdr-blue  { background: #dbeafe; color: #1d4ed8; }
+        .dash-hdr-green { background: #dcfce7; color: #15803d; }
+
+        /* KPI cards grid */
+        .dash-kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+        .dash-kpi-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px 20px;
+            border: 1px solid #e8edf2;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+            cursor: default;
+            transition: transform 0.18s, box-shadow 0.18s;
+            text-decoration: none;
+        }
+        .dash-kpi-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.08); }
+        .dash-kpi-icon {
+            font-size: 1.6rem;
+            width: 48px; height: 48px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 12px;
+            flex-shrink: 0;
+        }
+        .dash-kpi-body { min-width: 0; }
+        .dash-kpi-num {
+            font-family: 'Inter', sans-serif;
+            font-size: 1.55rem;
+            font-weight: 800;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .dash-kpi-label {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: #94a3b8;
+            margin-top: 3px;
+        }
+
+        /* KPI colour themes */
+        .dash-kpi-gold   .dash-kpi-icon { background:#fef9ec; }
+        .dash-kpi-gold   .dash-kpi-num  { color:#b45309; }
+        .dash-kpi-blue   .dash-kpi-icon { background:#eff6ff; }
+        .dash-kpi-blue   .dash-kpi-num  { color:#1d4ed8; }
+        .dash-kpi-red    .dash-kpi-icon { background:#fff1f2; }
+        .dash-kpi-red    .dash-kpi-num  { color:#dc2626; }
+        .dash-kpi-green  .dash-kpi-icon { background:#f0fdf4; }
+        .dash-kpi-green  .dash-kpi-num  { color:#16a34a; }
+        .dash-kpi-emerald .dash-kpi-icon { background:#ecfdf5; }
+        .dash-kpi-emerald .dash-kpi-num  { color:#059669; }
+        .dash-kpi-purple  .dash-kpi-icon { background:#fdf4ff; }
+        .dash-kpi-purple  .dash-kpi-num  { color:#9333ea; }
+
+        /* 2-col dashboard rows */
+        .dash-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        /* Quick actions icon grid */
+        .dash-quick-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+        .dash-quick-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1.5px solid #e8edf2;
+            border-radius: 12px;
+            padding: 14px 8px;
+            cursor: pointer;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #374151;
+            transition: background 0.15s, border-color 0.15s, transform 0.15s;
+        }
+        .dash-quick-btn:hover {
+            background: #f1f5f9;
+            border-color: #cbd5e1;
+            transform: translateY(-1px);
+        }
+        .dqb-icon {
+            width: 40px; height: 40px;
+            border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        /* Today's activity rows */
+        .dash-activity-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 9px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .dash-activity-row:last-child { border-bottom: none; }
+        .dash-activity-dot {
+            width: 8px; height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        .dash-activity-text {
+            flex: 1;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            color: #374151;
+        }
+        .dash-activity-sub {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            margin-top: 1px;
+        }
+        .dash-activity-amt {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: #15803d;
+            white-space: nowrap;
+        }
+
+        /* Ghost refresh button */
+        .dash-ghost-btn {
+            background: none;
+            border: 1.5px solid #e2e8f0;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            color: #64748b;
+            transition: border-color 0.15s;
+        }
+        .dash-ghost-btn:hover { border-color: #94a3b8; }
+
+        /* Sessions card tweaks */
+        .sessions-card-header { margin-bottom: 14px; }
+        .sessions-title h3 { margin: 0; }
+
+        /* Mobile dashboard */
+        @media (max-width: 768px) {
+            .dash-page-header { flex-direction: column; gap: 10px; }
+            .dash-header-actions { width: 100%; }
+            .dash-hdr-btn { flex: 1; text-align: center; }
+            .dash-kpi-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            .dash-kpi-card { padding: 14px; gap: 10px; }
+            .dash-kpi-icon { width: 38px; height: 38px; font-size: 1.2rem; border-radius: 10px; }
+            .dash-kpi-num { font-size: 1.25rem; }
+            .dash-row { grid-template-columns: 1fr !important; gap: 14px; }
+            .dash-quick-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+            .dash-quick-btn { padding: 12px 6px; font-size: 0.7rem; }
+            .dqb-icon { width: 34px; height: 34px; font-size: 1rem; }
+        }
+        @media (max-width: 400px) {
+            .dash-kpi-grid { grid-template-columns: 1fr 1fr; }
+            .dash-kpi-num { font-size: 1.1rem; }
+            .dash-quick-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
         /* ── Prevent any horizontal bleed ── */
         #adminMain {
             max-width: 100vw;
@@ -500,77 +710,131 @@
 
             <!-- DASHBOARD TAB -->
             <div class="admin-tab active" id="tab-dashboard">
-                <h2 class="admin-section-title">Dashboard Overview</h2>
 
-                <div class="admin-stats">
-                    <div class="stat-card">
-                        <span class="stat-num" id="statRes">0</span>
-                        <div class="stat-label">Reservations</div>
+                <!-- Page header -->
+                <div class="dash-page-header">
+                    <div>
+                        <h2 class="admin-section-title" style="margin:0;border:none;padding:0">Dashboard</h2>
+                        <div id="dashDateLine" class="dash-date-line"></div>
                     </div>
-                    <div class="stat-card">
-                        <span class="stat-num" id="statMenu">0</span>
-                        <div class="stat-label">Menu Items</div>
+                    <div class="dash-header-actions">
+                        <button onclick="showQR()" class="dash-hdr-btn dash-hdr-blue">&#x1F4F7; QR Code</button>
+                        <button onclick="showTab('dailySales')" class="dash-hdr-btn dash-hdr-green">&#x1F4C8; Sales Report</button>
                     </div>
-                    <div class="stat-card" id="dashGuestStatCard" style="cursor:pointer" onclick="showTab('guests')">
-                        <span class="stat-num" id="statGuests">0</span>
-                        <div class="stat-label">&#x1F465; Guests</div>
+                </div>
+
+                <!-- KPI cards -->
+                <div class="dash-kpi-grid">
+                    <div class="dash-kpi-card dash-kpi-gold" onclick="showTab('dailySales')" style="cursor:pointer">
+                        <div class="dash-kpi-icon">&#x1F4B0;</div>
+                        <div class="dash-kpi-body">
+                            <div class="dash-kpi-num" id="statTodayRevenue">Rs. 0</div>
+                            <div class="dash-kpi-label">Today's Revenue</div>
+                        </div>
                     </div>
-                    <div class="stat-card stat-card-online">
-                        <span class="stat-num" id="statOnline">1</span>
-                        <div class="stat-label">&#x1F7E2; Staff Online</div>
+                    <div class="dash-kpi-card dash-kpi-blue" onclick="showTab('reservations')" style="cursor:pointer">
+                        <div class="dash-kpi-icon">&#x1F4CB;</div>
+                        <div class="dash-kpi-body">
+                            <div class="dash-kpi-num" id="statRes">0</div>
+                            <div class="dash-kpi-label">Reservations</div>
+                        </div>
                     </div>
-                    <div class="stat-card stat-card-danger" style="cursor:pointer" onclick="showTab('reservations')">
-                        <span class="stat-num" id="statBalanceDue">Rs.0</span>
-                        <div class="stat-label">&#x1F534; Balance Due</div>
+                    <div class="dash-kpi-card dash-kpi-red" onclick="showTab('reservations')" style="cursor:pointer">
+                        <div class="dash-kpi-icon">&#x26A0;&#xFE0F;</div>
+                        <div class="dash-kpi-body">
+                            <div class="dash-kpi-num" id="statBalanceDue">Rs. 0</div>
+                            <div class="dash-kpi-label">Balance Due</div>
+                        </div>
+                    </div>
+                    <div class="dash-kpi-card dash-kpi-green" id="dashGuestStatCard" onclick="showTab('guests')" style="cursor:pointer">
+                        <div class="dash-kpi-icon">&#x1F465;</div>
+                        <div class="dash-kpi-body">
+                            <div class="dash-kpi-num" id="statGuests">0</div>
+                            <div class="dash-kpi-label">Guest Profiles</div>
+                        </div>
+                    </div>
+                    <div class="dash-kpi-card dash-kpi-emerald stat-card-online" style="cursor:pointer" onclick="showTab('staff')">
+                        <div class="dash-kpi-icon">&#x1F7E2;</div>
+                        <div class="dash-kpi-body">
+                            <div class="dash-kpi-num" id="statOnline">1</div>
+                            <div class="dash-kpi-label">Staff Online</div>
+                        </div>
+                    </div>
+                    <div class="dash-kpi-card dash-kpi-purple" onclick="showTab('menuItems')" style="cursor:pointer">
+                        <div class="dash-kpi-icon">&#x1F37D;&#xFE0F;</div>
+                        <div class="dash-kpi-body">
+                            <div class="dash-kpi-num" id="statMenu">0</div>
+                            <div class="dash-kpi-label">Menu Items</div>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Due Balances Alert -->
                 <div id="balanceAlertWidget"></div>
 
-                <div class="admin-card">
-                    <h3>Quick Actions</h3>
-                    <div class="admin-quick-actions">
-                        <button class="admin-submit-btn green"
-                            onclick="showTab('menuItems')">
-                            + Add Menu Item
-                        </button>
-                        <button class="admin-submit-btn"
-                            style="background:#6b7280;color:#fff"
-                            onclick="resetAndSeed()">
-                            &#x1F504; Re-seed Menu
-                        </button>
-                        <button class="admin-submit-btn" style="background:#4B9CD3;color:#fff" onclick="showQR()">
-                            &#x1F4F7; Scan QR
-                        </button>
-                        <button id="dashGuestProfilesBtn" class="admin-submit-btn" style="background:#7c3aed;color:#fff" onclick="showTab('guests')">
-                            &#x1F465; Guest Profiles
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Live Weather Widget -->
-                <div class="admin-card" style="margin-bottom:24px">
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-                        <h3 style="margin:0">&#x1F324;&#xFE0F; Live Weather &mdash; Bharatpur</h3>
-                        <button onclick="forceRefreshWeather();initWeatherWidget();" style="background:none;border:1.5px solid var(--border);padding:4px 12px;border-radius:20px;cursor:pointer;font-size:0.78rem;font-weight:600;font-family:Inter,sans-serif;color:var(--mid)">&#x21BA; Refresh</button>
-                    </div>
-                    <div id="adminWeatherWidget">
-                        <p style="color:var(--mid);font-size:0.85rem">Loading weather&hellip;</p>
-                    </div>
-                </div>
-
-                <!-- Active Staff Sessions -->
-                <div class="admin-card" id="activeSessionsCard">
-                    <div class="sessions-card-header">
-                        <div class="sessions-title">
-                            <span class="online-pulse"></span>
-                            <h3>Active Staff Sessions</h3>
+                <!-- Row 2: Quick Actions + Today's Activity -->
+                <div class="dash-row admin-two-col">
+                    <div class="admin-card" style="margin-bottom:0">
+                        <h3>Quick Actions</h3>
+                        <div class="dash-quick-grid">
+                            <button class="dash-quick-btn" onclick="showTab('tableBills')">
+                                <span class="dqb-icon" style="background:#eff6ff;color:#1d4ed8">&#x1FA91;</span>
+                                <span>Table Bill</span>
+                            </button>
+                            <button class="dash-quick-btn" onclick="showTab('swimTickets')">
+                                <span class="dqb-icon" style="background:#ecfdf5;color:#059669">&#x1F3CA;</span>
+                                <span>Swim Ticket</span>
+                            </button>
+                            <button class="dash-quick-btn" onclick="showTab('outsideOrder')">
+                                <span class="dqb-icon" style="background:#fffbeb;color:#d97706">&#x1F6D2;</span>
+                                <span>Counter Sale</span>
+                            </button>
+                            <button class="dash-quick-btn" onclick="showTab('reservations')">
+                                <span class="dqb-icon" style="background:#fdf4ff;color:#9333ea">&#x1F6CF;&#xFE0F;</span>
+                                <span>Reservation</span>
+                            </button>
+                            <button class="dash-quick-btn" onclick="showTab('menuItems')">
+                                <span class="dqb-icon" style="background:#f0fdf4;color:#16a34a">&#x2795;</span>
+                                <span>Add Menu</span>
+                            </button>
+                            <button class="dash-quick-btn" onclick="showTab('stock')">
+                                <span class="dqb-icon" style="background:#fff7ed;color:#ea580c">&#x1F4E6;</span>
+                                <span>Stock</span>
+                            </button>
                         </div>
-                        <span class="sessions-count-badge" id="sessionsCountBadge">1</span>
                     </div>
-                    <div id="activeUsersList">
-                        <p style="color:var(--mid);font-size:0.88rem">Loading...</p>
+
+                    <div class="admin-card" style="margin-bottom:0">
+                        <h3>Today's Activity</h3>
+                        <div id="dashTodaySummary">
+                            <p style="color:#94a3b8;font-size:0.85rem;padding:8px 0">Loading&hellip;</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Row 3: Weather + Sessions -->
+                <div class="dash-row admin-two-col" style="margin-top:20px">
+                    <div class="admin-card" style="margin-bottom:0">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+                            <h3 style="margin:0">&#x1F324;&#xFE0F; Weather &mdash; Bharatpur</h3>
+                            <button onclick="forceRefreshWeather();initWeatherWidget();" class="dash-ghost-btn">&#x21BA; Refresh</button>
+                        </div>
+                        <div id="adminWeatherWidget">
+                            <p style="color:#94a3b8;font-size:0.85rem">Loading weather&hellip;</p>
+                        </div>
+                    </div>
+
+                    <div class="admin-card" id="activeSessionsCard" style="margin-bottom:0">
+                        <div class="sessions-card-header">
+                            <div class="sessions-title">
+                                <span class="online-pulse"></span>
+                                <h3>Active Staff Sessions</h3>
+                            </div>
+                            <span class="sessions-count-badge" id="sessionsCountBadge">1</span>
+                        </div>
+                        <div id="activeUsersList">
+                            <p style="color:#94a3b8;font-size:0.88rem">Loading...</p>
+                        </div>
                     </div>
                 </div>
 
@@ -583,23 +847,10 @@
                         <div id="qrCodeContainer" style="display:flex;justify-content:center;margin-bottom:14px"></div>
                         <div id="qrModalUrl" style="font-size:0.72rem;color:var(--mid);word-break:break-all;background:#f8fafc;border:1px solid var(--border);border-radius:6px;padding:6px 10px;margin-bottom:16px"></div>
                         <div style="display:flex;gap:10px;justify-content:center">
-                            <button onclick="downloadMenuQR()" style="background:var(--green);color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;font-weight:700;font-size:0.88rem">
-                                &#x2B07;&#xFE0F; Download PNG
-                            </button>
-                            <button onclick="closeQR()" style="background:#e5e7eb;color:#374151;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;font-size:0.88rem">
-                                Close
-                            </button>
+                            <button onclick="downloadMenuQR()" style="background:var(--green);color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;font-weight:700;font-size:0.88rem">&#x2B07;&#xFE0F; Download PNG</button>
+                            <button onclick="closeQR()" style="background:#e5e7eb;color:#374151;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;font-weight:600;font-size:0.88rem">Close</button>
                         </div>
                     </div>
-                </div>
-
-                <div class="admin-card">
-                    <h3>About This Panel</h3>
-                    <p style="color:var(--mid);font-size:0.9rem;line-height:1.7;margin:0">
-                        This admin panel manages the restaurant menu, room &amp; table orders, reservations, and billing.<br>
-                        <strong>Menu Items</strong> (taaza_menu_items) — the dine-in and room-service menu.<br><br>
-                        Use <em>Re-seed Nepali Menu</em> to restore the default authentic Nepali cuisine data at any time.
-                    </p>
                 </div>
             </div>
 
@@ -3709,12 +3960,66 @@ function updateStats() {
     var dueRes   = res.filter(function(r){ return _getBalanceDue(r) > 0; });
     var dueTotal = dueRes.reduce(function(s,r){ return s + _getBalanceDue(r); }, 0);
     var bdEl = document.getElementById('statBalanceDue');
-    if (bdEl) bdEl.textContent = 'Rs.' + dueTotal.toLocaleString();
+    if (bdEl) bdEl.textContent = 'Rs. ' + dueTotal.toLocaleString();
+
+    /* Today's revenue */
+    var todaySales = getData(SALES_KEY).filter(function(s){ return s.date === todayStr(); });
+    var todayRev   = todaySales.reduce(function(a,s){ return a + (s.grand || 0); }, 0);
+    var trEl = document.getElementById('statTodayRevenue');
+    if (trEl) trEl.textContent = 'Rs. ' + todayRev.toLocaleString();
+
+    /* Dashboard date line */
+    var dlEl = document.getElementById('dashDateLine');
+    if (dlEl) {
+        var now = new Date();
+        dlEl.textContent = now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+    }
 
     /* Render dashboard balance alert widget */
     renderBalanceAlertWidget(dueRes);
 
+    renderDashTodaySummary(todaySales);
+
     if (typeof renderAdminNotificationBadges === 'function') renderAdminNotificationBadges();
+}
+
+function renderDashTodaySummary(todaySales) {
+    var el = document.getElementById('dashTodaySummary');
+    if (!el) return;
+    if (!todaySales) todaySales = getData(SALES_KEY).filter(function(s){ return s.date === todayStr(); });
+
+    var typeMap = {
+        'table':   { label:'Table Bill',      color:'#1d4ed8' },
+        'qr-table':{ label:'QR Table Order',  color:'#7c3aed' },
+        'qr-room': { label:'Room Order',       color:'#9333ea' },
+        'swim':    { label:'Swim Ticket',      color:'#0ea5e9' },
+        'outside': { label:'Counter Sale',     color:'#d97706' },
+        'food':    { label:'Other',            color:'#64748b' }
+    };
+
+    if (!todaySales.length) {
+        el.innerHTML = '<p style="color:#94a3b8;font-size:0.85rem;padding:8px 0;text-align:center">No sales recorded today yet.</p>';
+        return;
+    }
+
+    var recent = todaySales.slice(-6).reverse();
+    el.innerHTML = recent.map(function(s) {
+        var meta = typeMap[s.type] || { label: s.type || 'Sale', color:'#64748b' };
+        var itemSummary = (s.items || []).slice(0,2).map(function(i){ return i.name + (i.qty > 1 ? ' ×'+i.qty : ''); }).join(', ');
+        if (s.items && s.items.length > 2) itemSummary += ' +' + (s.items.length - 2) + ' more';
+        return '<div class="dash-activity-row">' +
+            '<div class="dash-activity-dot" style="background:' + meta.color + '"></div>' +
+            '<div class="dash-activity-text">' +
+                '<div style="font-weight:600">' + esc(s.guestName || 'Guest') + ' <span style="font-weight:400;color:#94a3b8;font-size:0.75rem">' + meta.label + '</span></div>' +
+                (itemSummary ? '<div class="dash-activity-sub">' + esc(itemSummary) + '</div>' : '') +
+            '</div>' +
+            '<div class="dash-activity-amt">Rs. ' + (s.grand || 0).toLocaleString() + '</div>' +
+        '</div>';
+    }).join('') +
+    '<div style="margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;display:flex;justify-content:space-between;align-items:center">' +
+        '<span style="font-size:0.78rem;color:#64748b;font-family:Inter,sans-serif">' + todaySales.length + ' transaction' + (todaySales.length !== 1 ? 's' : '') + ' today</span>' +
+        '<button onclick="showTab(\'dailySales\')" style="font-size:0.75rem;font-weight:600;color:#1d4ed8;background:none;border:none;cursor:pointer;font-family:Inter,sans-serif;padding:0">View all &rarr;</button>' +
+    '</div>';
 }
 
 function renderBalanceAlertWidget(dueRes) {
