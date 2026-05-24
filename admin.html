@@ -49,7 +49,6 @@
             </a>
             <ul class="nav-links">
                 <li><a href="index.html">&#x2190; Back to Site</a></li>
-                <li><a href="delivery.html">Online Delivery</a></li>
                 <li><a href="menu.html">Menu</a></li>
             </ul>
             <div class="nav-dots-menu">
@@ -58,7 +57,6 @@
                     <a href="index.html">&#x1F3E0; Back to Home</a>
                     <a href="rooms.html">&#x1F6CF;&#xFE0F; Rooms &amp; Suites</a>
                     <a href="amenities.html">&#x2728; Amenities</a>
-                    <a href="delivery.html">&#x1F6F5; Online Delivery</a>
                     <a href="menu.html">&#x1F374; Digital Menu</a>
                     <div class="dropdown-divider"></div>
                     <a href="#" class="admin-link" onclick="doLogout(); return false;">&#x1F6AA; Logout</a>
@@ -81,10 +79,8 @@
             <select id="adminNavSelect" onchange="adminNavChange(this.value)" style="width:auto;flex:1;min-width:0">
                 <option value="dashboard">📊 Dashboard</option>
                 <option value="reservations">📋 Reservations</option>
-                <option value="orders">🛵 Food Orders</option>
-                <option value="qrOrders">📱 QR Table Orders</option>
+                <option value="qrOrders">📱 QR &amp; Room Orders</option>
                 <option value="menuItems">🍽️ Menu Items</option>
-                <option value="deliveryFoods">📦 Delivery Foods</option>
                 <option value="tableBills">🪑 Table Bills</option>
                 <option value="swimTickets">🏊 Swimming Tickets</option>
                 <option value="dailySales">📈 Daily Sales</option>
@@ -107,10 +103,8 @@
             <h3>Navigation</h3>
             <a href="#" class="sidebar-link active" onclick="return showTab('dashboard', this)">&#x1F4CA; Dashboard</a>
             <a href="#" class="sidebar-link" onclick="return showTab('reservations', this)">&#x1F4CB; Reservations <span id="adminNotifReservations" class="notification-badge" style="display:none">0</span></a>
-            <a href="#" class="sidebar-link" onclick="return showTab('orders', this)">&#x1F6F5; Food Orders <span id="adminNotifOrders" class="notification-badge" style="display:none">0</span></a>
-            <a href="#" class="sidebar-link" onclick="return showTab('qrOrders', this)">&#x1F4F1; QR Table Orders <span id="adminNotifQrOrders" class="notification-badge" style="display:none">0</span></a>
+            <a href="#" class="sidebar-link" onclick="return showTab('qrOrders', this)">&#x1F4F1; QR &amp; Room Orders <span id="adminNotifQrOrders" class="notification-badge" style="display:none">0</span></a>
             <a href="#" class="sidebar-link" onclick="return showTab('menuItems', this)">&#x1F37D;&#xFE0F; Menu Items</a>
-            <a href="#" class="sidebar-link" onclick="return showTab('deliveryFoods', this)">&#x1F6F5; Delivery Foods</a>
             <a href="#" class="sidebar-link" onclick="return showTab('tableBills', this)">&#x1FA91; Table Bills</a>
             <a href="#" class="sidebar-link" onclick="return showTab('swimTickets', this)">&#x1F3CA; Swimming Tickets</a>
             <a href="#" class="sidebar-link" onclick="return showTab('dailySales', this)">&#x1F4CA; Daily Sales</a>
@@ -135,16 +129,8 @@
                         <div class="stat-label">Reservations</div>
                     </div>
                     <div class="stat-card">
-                        <span class="stat-num" id="statOrders">0</span>
-                        <div class="stat-label">Food Orders</div>
-                    </div>
-                    <div class="stat-card">
                         <span class="stat-num" id="statMenu">0</span>
                         <div class="stat-label">Menu Items</div>
-                    </div>
-                    <div class="stat-card">
-                        <span class="stat-num" id="statDelivery">0</span>
-                        <div class="stat-label">Delivery Foods</div>
                     </div>
                     <div class="stat-card" id="dashGuestStatCard" style="cursor:pointer" onclick="showTab('guests')">
                         <span class="stat-num" id="statGuests">0</span>
@@ -169,10 +155,6 @@
                         <button class="admin-submit-btn green"
                             onclick="showTab('menuItems')">
                             + Add Menu Item
-                        </button>
-                        <button class="admin-submit-btn"
-                            onclick="showTab('deliveryFoods')">
-                            + Add Delivery Food
                         </button>
                         <button class="admin-submit-btn"
                             style="background:#6b7280;color:#fff"
@@ -235,9 +217,8 @@
                 <div class="admin-card">
                     <h3>About This Panel</h3>
                     <p style="color:var(--mid);font-size:0.9rem;line-height:1.7;margin:0">
-                        This admin panel manages two data stores saved in browser localStorage:<br>
-                        <strong>Menu Items</strong> (taaza_menu_items) — the dine-in restaurant menu, and<br>
-                        <strong>Delivery Foods</strong> (taaza_delivery_foods) — items available on the Online Delivery page.<br><br>
+                        This admin panel manages the restaurant menu, room &amp; table orders, reservations, and billing.<br>
+                        <strong>Menu Items</strong> (taaza_menu_items) — the dine-in and room-service menu.<br><br>
                         Use <em>Re-seed Nepali Menu</em> to restore the default authentic Nepali cuisine data at any time.
                     </p>
                 </div>
@@ -390,20 +371,9 @@
             </div>
 
             <!-- ORDERS TAB -->
-            <div class="admin-tab" id="tab-orders">
-                <h2 class="admin-section-title">Online Food Orders</h2>
-                <div class="admin-card">
-                    <div class="card-header-flex" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:15px">
-                        <h3>Customer Deliveries</h3>
-                        <button class="delete-btn" onclick="clearOrders()" style="background:#ef4444;border-color:#ef4444;color:#fff;padding:6px 14px;border-radius:4px;cursor:pointer">Clear All</button>
-                    </div>
-                    <div id="ordersList"></div>
-                </div>
-            </div>
-
             <!-- QR TABLE ORDERS TAB -->
             <div class="admin-tab" id="tab-qrOrders">
-                <h2 class="admin-section-title">&#x1F4F1; QR Table Orders</h2>
+                <h2 class="admin-section-title">&#x1F4F1; QR &amp; Room Orders</h2>
 
                 <!-- Menu QR Code Card -->
                 <div class="admin-card" style="margin-bottom:20px">
@@ -457,7 +427,7 @@
                 <div class="admin-card" style="margin-bottom:20px">
                     <h3 style="margin-bottom:14px">&#x1F4F7; Generate Table QR Codes</h3>
                     <div style="background:#ecfdf5;border:1px solid #6ee7b7;border-radius:8px;padding:12px 16px;margin-bottom:16px;font-size:0.83rem;color:#065f46;line-height:1.6">
-                        <strong>&#x2705; Hosted on taazaresort.com:</strong> QR codes will direct customers to <strong>taazaresort.com/table-order.html?table=X</strong>. Print and place them on each table.
+                        <strong>&#x2705; Hosted on taazaresort.com:</strong> Table QR codes direct customers to <strong>taazaresort.com/table-order.html?table=X</strong>. For room service, use <strong>table-order.html?room=X</strong> (X = room number). Print and place QR codes on each table/room.
                     </div>
                     <div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end">
                         <div>
@@ -564,65 +534,6 @@
             </div>
 
             <!-- DELIVERY FOODS TAB -->
-            <div class="admin-tab" id="tab-deliveryFoods">
-                <h2 class="admin-section-title">Delivery Foods (Online Orders)</h2>
-
-                <div class="admin-card">
-                    <h3>Add New Delivery Food</h3>
-                    <form class="admin-form" onsubmit="addDeliveryFood(event)">
-                        <div>
-                            <label>Food Name *</label>
-                            <input type="text" id="df-name" placeholder="e.g. Chicken Momo" required>
-                        </div>
-                        <div>
-                            <label>Category *</label>
-                            <select id="df-category" required>
-                                <option value="">Select category</option>
-                                <option>Starters</option>
-                                <option>Main Course</option>
-                                <option>Noodles</option>
-                                <option>Rice</option>
-                                <option>Desserts</option>
-                                <option>Beverages</option>
-                                <option>Combos</option>
-                                <option>Fast Food</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Price (Rs.) *</label>
-                            <input type="number" id="df-price" placeholder="e.g. 150" min="0" required>
-                        </div>
-                        <div>
-                            <label>Delivery Time (mins)</label>
-                            <input type="number" id="df-time" placeholder="30" min="5" value="30">
-                        </div>
-                        <div>
-                            <label>Emoji Icon</label>
-                            <input type="text" id="df-emoji" placeholder="e.g. 🥟" maxlength="4">
-                        </div>
-                        <div class="full-width">
-                            <label>Description</label>
-                            <textarea id="df-desc" placeholder="Short description of the food item..."></textarea>
-                        </div>
-                        <div>
-                            <label>Available for Delivery</label>
-                            <select id="df-available">
-                                <option value="yes">Yes</option>
-                                <option value="no">No</option>
-                            </select>
-                        </div>
-                        <div class="full-width">
-                            <button type="submit" class="admin-submit-btn">+ Add Delivery Food</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="admin-card">
-                    <h3>All Delivery Foods</h3>
-                    <div id="deliveryFoodsList"></div>
-                </div>
-            </div>
-
             <!-- TABLE BILLS TAB -->
             <div class="admin-tab" id="tab-tableBills">
                 <h2 class="admin-section-title">&#x1FA91; Table Bills</h2>
@@ -2333,9 +2244,7 @@ function showTab(name, linkEl) {
     var sel = document.getElementById('adminNavSelect');
     if (sel) sel.value = name;
     if (name === 'menuItems')     renderMenuItems();
-    if (name === 'deliveryFoods') renderDeliveryFoods();
     if (name === 'reservations')  { renderReservations(); clearAdminNotification('reservations'); updateStats(); }
-    if (name === 'orders')        { renderOrders(); clearAdminNotification('orders'); }
     if (name === 'qrOrders')     { renderQrOrders(); clearAdminNotification('qrOrders'); _renderMenuQrInline(); }
     if (name === 'dashboard')     updateStats();
     if (name === 'tableBills')    renderTablesGrid();
@@ -2515,7 +2424,7 @@ function renderReservations() {
         return new Date(b.createdAt || b.checkIn || 0) - new Date(a.createdAt || a.checkIn || 0);
     });
     el.innerHTML = '<table class="items-table">' +
-        '<thead><tr><th>ID</th><th>Guest</th><th>Stay Info</th><th>Rooms</th><th>Financials</th><th>Balance Due</th><th>Status</th><th>Payment Screenshot</th><th>Notify</th></tr></thead>' +
+        '<thead><tr><th>ID</th><th>Guest</th><th>Stay Info</th><th>Rooms</th><th>Financials</th><th>Balance Due</th><th>Status</th><th>Payment Screenshot</th><th>Notify</th><th>Bill</th></tr></thead>' +
         '<tbody>' +
         list.map(function(r) {
             var sourceTag = r.source === 'walkin'
@@ -2569,6 +2478,9 @@ function renderReservations() {
                 '<td style="white-space:nowrap">' +
                     (r.phone ? '<button onclick="adminResendWhatsApp(\'' + esc(r.id) + '\')" class="notif-action-btn wa">&#x1F4AC; WA</button>' : '') +
                     (r.email ? '<button onclick="adminResendEmail(\'' + esc(r.id) + '\')" class="notif-action-btn email" style="margin-top:4px">&#x1F4E7; Email</button>' : '<span style="color:var(--mid);font-size:0.75rem">No email</span>') +
+                '</td>' +
+                '<td style="white-space:nowrap">' +
+                    '<button onclick="printReservationBill(\'' + esc(r.id) + '\')" style="background:var(--green);color:#fff;border:none;padding:7px 13px;border-radius:7px;cursor:pointer;font-size:0.8rem;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:5px">&#x1F5A8; Print Bill</button>' +
                 '</td>' +
             '</tr>';
         }).join('') +
@@ -2782,6 +2694,7 @@ function printOrderBill(orderId) {
             '<h2>Taaza Resort</h2>' +
             '<div class="sub">Online Food Order &mdash; Delivery Receipt</div>' +
             '<div class="sub">Bharatpur-5, Narayanpur, Chitwan</div>' +
+            '<div class="sub">PAN No: 608568546</div>' +
         '</div>' +
         '<div class="receipt-info">' +
             '<p><span class="label">Order #:</span> <strong>' + order.id + '</strong></p>' +
@@ -2805,7 +2718,7 @@ function printOrderBill(orderId) {
             '<p style="margin-top:8px">' + (order.paymentMethod.includes('Online') ? 'Your payment has been processed. Thank you!' : 'Please keep Rs. ' + order.grand + ' ready for the delivery agent.') + '</p>' +
             '<p>&#x2764;&#xFE0F; Thank you for ordering from Taaza Resort!</p>' +
             '<p>Queries? Call us: +977 9742864405</p>' +
-            '<p style="margin-top:10px;font-size:0.75rem;color:#bbb">This is a computer-generated receipt.</p>' +
+            '<p style="margin-top:10px;font-size:0.75rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated receipt.</p>' +
         '</div>';
     _printReceipt('Bill — Taaza Resort', receiptHtml, _releasePrintLock);
 }
@@ -2971,16 +2884,12 @@ function _getBalanceDue(r) {
 }
 
 function updateStats() {
-    var menu     = getData(MENU_KEY);
-    var delivery = getData(DELIVERY_KEY);
-    var res      = getData('taaza_reservations');
-    var orders   = getData('taaza_orders');
-    var guests   = getData(GUESTS_KEY);
+    var menu   = getData(MENU_KEY);
+    var res    = getData('taaza_reservations');
+    var guests = getData(GUESTS_KEY);
 
-    document.getElementById('statMenu').textContent     = menu.length;
-    document.getElementById('statDelivery').textContent = delivery.length;
-    document.getElementById('statRes').textContent      = res.length;
-    document.getElementById('statOrders').textContent   = orders.length;
+    document.getElementById('statMenu').textContent = menu.length;
+    document.getElementById('statRes').textContent  = res.length;
     var sgEl = document.getElementById('statGuests');
     if (sgEl) sgEl.textContent = guests.length;
 
@@ -3474,6 +3383,7 @@ function printTableBill(tableNum) {
             '<h2>Taaza Resort</h2>' +
             '<div class="sub">Table Bill &mdash; Dine-in</div>' +
             '<div class="sub">Bharatpur-5, Narayanpur, Chitwan</div>' +
+            '<div class="sub">PAN No: 608568546</div>' +
         '</div>' +
         '<div class="receipt-info">' +
             '<p><span class="label">Bill No:</span> <strong>' + billNum + '</strong></p>' +
@@ -3490,7 +3400,7 @@ function printTableBill(tableNum) {
         '<div class="receipt-footer">' +
             '<p>&#x2764;&#xFE0F; Thank you for dining at Taaza Resort!</p>' +
             '<p>+977 9742864405 &nbsp;|&nbsp; tamanganish421@gmail.com</p>' +
-            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">This is a computer-generated bill.</p>' +
+            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated bill.</p>' +
         '</div>';
 
     _printReceipt('Table Bill T-' + tableNum, bodyHtml, _releasePrintLock);
@@ -3599,6 +3509,7 @@ function printSwimTicket() {
             '<h2>Taaza Resort</h2>' +
             '<div class="sub">Swimming Pool Entry Ticket</div>' +
             '<div class="sub">Bharatpur-5, Narayanpur, Chitwan</div>' +
+            '<div class="sub">PAN No: 608568546</div>' +
         '</div>' +
         '<div class="receipt-info">' +
             '<p><span class="label">Ticket No:</span> <strong>' + billNum + '</strong></p>' +
@@ -3618,7 +3529,7 @@ function printSwimTicket() {
             '<p style="font-weight:bold;font-size:0.9rem;color:#333">Valid for same day only</p>' +
             '<p>&#x1F3CA; Enjoy your swim at Taaza Resort!</p>' +
             '<p>+977 9742864405 &nbsp;|&nbsp; tamanganish421@gmail.com</p>' +
-            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">This is a computer-generated ticket.</p>' +
+            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated ticket.</p>' +
         '</div>';
 
     _printReceipt('Swim Ticket ' + billNum, bodyHtml, _releasePrintLock);
@@ -3634,6 +3545,72 @@ function clearSwimHistory() {
     if (!confirm('Clear all swim ticket records?')) return;
     saveData(SWIM_KEY, []);
     renderSwimTickets();
+}
+
+/* ===== RESERVATION BILL PRINT ===== */
+function printReservationBill(reservationId) {
+    if (!_acquirePrintLock()) return;
+    var list = getData('taaza_reservations');
+    var r = list.find(function(x) { return x.id === reservationId; });
+    if (!r) { _releasePrintLock(); alert('Reservation not found.'); return; }
+
+    var now     = new Date();
+    var dateStr = now.toISOString().split('T')[0];
+    var timeStr = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+    var billNum = 'RES-BILL-' + (r.id || Date.now().toString().slice(-6));
+
+    var advPaid  = r.deposit  || 0;
+    var total    = r.total    || 0;
+    var balance  = r.balancePaid ? 0 : Math.max(0, total - advPaid);
+    var nights   = r.nights   || 1;
+    var roomRate = r.roomRate || Math.round(total / nights);
+
+    var rows =
+        '<tr><td>Room Charges (' + esc(r.roomType || 'Room') + ')</td>' +
+        '<td class="r">' + nights + ' night(s)</td>' +
+        '<td class="r">Rs. ' + roomRate.toLocaleString() + '</td>' +
+        '<td class="r">Rs. ' + total.toLocaleString() + '</td></tr>';
+
+    if (r.package) {
+        rows += '<tr><td colspan="3">Package: ' + esc(r.package.name) + '</td><td class="r">Included</td></tr>';
+    }
+
+    var bodyHtml =
+        '<div class="receipt-header">' +
+            '<img src="images/logo-dark.png" onerror="this.style.display=\'none\'">' +
+            '<h2>Taaza Resort</h2>' +
+            '<div class="sub">Room Reservation Invoice</div>' +
+            '<div class="sub">Bharatpur-5, Narayanpur, Chitwan</div>' +
+            '<div class="sub">PAN No: 608568546</div>' +
+        '</div>' +
+        '<div class="receipt-info">' +
+            '<p><span class="label">Invoice No:</span> <strong>' + billNum + '</strong></p>' +
+            '<p><span class="label">Date:</span> ' + formatDate(dateStr) + ' &nbsp;<span class="label">Time:</span> ' + timeStr + '</p>' +
+            '<hr>' +
+            '<p><span class="label">Guest Name:</span> <strong>' + esc(r.fullName) + '</strong></p>' +
+            '<p><span class="label">Phone:</span> ' + esc(r.phone || '—') + '</p>' +
+            (r.email ? '<p><span class="label">Email:</span> ' + esc(r.email) + '</p>' : '') +
+            '<hr>' +
+            '<p><span class="label">Reservation ID:</span> ' + esc(r.id) + '</p>' +
+            '<p><span class="label">Room Type:</span> <strong>' + esc(r.roomType || '—') + '</strong></p>' +
+            '<p><span class="label">Check-in:</span> ' + esc(r.checkIn || '—') + ' &nbsp;<span class="label">Check-out:</span> ' + esc(r.checkOut || '—') + '</p>' +
+            '<p><span class="label">Duration:</span> ' + nights + ' night(s) &nbsp;|&nbsp; <span class="label">Guests:</span> ' + (r.guests || 1) + '</p>' +
+        '</div>' +
+        '<table class="receipt-table"><thead><tr><th>Description</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
+        '<tbody>' + rows + '</tbody></table>' +
+        '<div class="receipt-totals">' +
+            '<div class="rtotal-row"><span>Room Total</span><span>Rs. ' + total.toLocaleString() + '</span></div>' +
+            '<div class="rtotal-row"><span>Advance Paid</span><span>- Rs. ' + advPaid.toLocaleString() + '</span></div>' +
+            '<div class="rtotal-row grand"><span>BALANCE DUE</span><span>Rs. ' + balance.toLocaleString() + '</span></div>' +
+        '</div>' +
+        '<div class="receipt-footer">' +
+            '<p>Status: <strong>' + esc(r.status || '—') + '</strong></p>' +
+            '<p>&#x1F3E8; Thank you for choosing Taaza Resort!</p>' +
+            '<p>+977 9742864405 &nbsp;|&nbsp; tamanganish421@gmail.com</p>' +
+            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated invoice.</p>' +
+        '</div>';
+
+    _printReceipt('Reservation Invoice ' + billNum, bodyHtml, _releasePrintLock);
 }
 
 /* ===== DAILY SALES ===== */
@@ -5274,11 +5251,16 @@ function renderQrOrders() {
     if (!listEl) return;
 
     if (!sorted.length) {
-        listEl.innerHTML = '<p class="no-items-msg" style="text-align:center;padding:32px 0;color:var(--mid)">No QR table orders yet. Customers can scan QR codes to order.</p>';
+        listEl.innerHTML = '<p class="no-items-msg" style="text-align:center;padding:32px 0;color:var(--mid)">No QR table or room orders yet.</p>';
         return;
     }
 
     listEl.innerHTML = sorted.map(function(o) {
+        var isRoom = o.type === 'room' || (o.roomNum && !o.tableNum);
+        var locationLabel = isRoom
+            ? ('&#x1F6CF;&#xFE0F; Room ' + o.roomNum)
+            : ('&#x1FA91; Table ' + o.tableNum);
+
         var statusBadge, actionBtns;
         if (o.status === 'pending') {
             statusBadge = '<span style="background:#fef3c7;color:#d97706;border:1px solid #fde68a;padding:3px 10px;border-radius:20px;font-size:0.75rem;font-weight:700">&#x23F3; PENDING</span>';
@@ -5305,11 +5287,19 @@ function renderQrOrders() {
 
         var noteHtml = o.note ? '<div style="font-size:0.8rem;color:var(--mid);margin-top:8px;font-style:italic">&#x1F4DD; ' + o.note + '</div>' : '';
 
+        var tableBillBtn = !isRoom
+            ? '<button onclick="showTab(\'tableBills\');setTimeout(function(){selectTable(' + o.tableNum + ');},100)" style="background:var(--gold);color:var(--green-deep);border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:700">&#x1FA91; Table Bill</button>'
+            : '';
+
+        var footerNote = isRoom
+            ? '<div style="font-size:0.75rem;color:#2563eb;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">&#x1F6CF;&#xFE0F; Room service order &mdash; deliver to Room ' + o.roomNum + '.</div>'
+            : '<div style="font-size:0.75rem;color:#059669;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">&#x2705; Items automatically added to Table T-' + o.tableNum + ' bill &mdash; go to <strong>Table Bills</strong> tab to print &amp; record payment.</div>';
+
         return '<div style="border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;background:' +
             (o.status === 'pending' ? '#fffbf0' : o.status === 'preparing' ? '#f0f4ff' : '#f0fdf4') + '">' +
             '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px">' +
                 '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">' +
-                    '<span style="font-family:\'Playfair Display\',serif;font-size:1.05rem;font-weight:700;color:var(--green)">&#x1FA91; Table ' + o.tableNum + '</span>' +
+                    '<span style="font-family:\'Playfair Display\',serif;font-size:1.05rem;font-weight:700;color:var(--green)">' + locationLabel + '</span>' +
                     statusBadge +
                 '</div>' +
                 '<div style="font-size:0.78rem;color:var(--mid)">' + timeStr + '</div>' +
@@ -5323,11 +5313,11 @@ function renderQrOrders() {
                 '</div>' +
                 '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
                     actionBtns +
-                    '<button onclick="showTab(\'tableBills\');setTimeout(function(){selectTable(' + o.tableNum + ');},100)" style="background:var(--gold);color:var(--green-deep);border:none;padding:7px 14px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:700">&#x1FA91; Table Bill</button>' +
+                    tableBillBtn +
                     '<button onclick="deleteQrOrder(\'' + o.id + '\')" style="background:none;border:1.5px solid #e5e7eb;color:#6b7280;padding:6px 12px;border-radius:6px;cursor:pointer;font-family:inherit;font-size:0.82rem;font-weight:600">&#x1F5D1; Delete</button>' +
                 '</div>' +
             '</div>' +
-            '<div style="font-size:0.75rem;color:#059669;margin-top:8px;padding-top:8px;border-top:1px dashed var(--border)">&#x2705; Items automatically added to Table T-' + o.tableNum + ' bill &mdash; go to <strong>Table Bills</strong> tab to print &amp; record payment.</div>' +
+            footerNote +
         '</div>';
     }).join('');
 }
@@ -5340,7 +5330,8 @@ function updateQrOrderStatus(id, newStatus) {
     saveQrOrders(orders);
     renderQrOrders();
     showBanner('Order ' + id + ' marked as ' + newStatus + '!');
-    auditLog('UPDATE', 'QR Order', 'Order ' + id + ' (Table ' + o.tableNum + ') status changed to ' + newStatus);
+    var loc = (o.type === 'room' || o.roomNum) ? 'Room ' + o.roomNum : 'Table ' + o.tableNum;
+    auditLog('UPDATE', 'QR Order', 'Order ' + id + ' (' + loc + ') status changed to ' + newStatus);
 }
 
 function deleteQrOrder(id) {
@@ -5511,17 +5502,6 @@ function printQRCodes() {
    Fires when delivery.html / booking.html write to localStorage from another tab. */
 window.addEventListener('storage', function(e) {
     if (!e.key) return;
-    if (e.key === 'taaza_orders') {
-        var ordersTab = document.getElementById('tab-orders');
-        if (ordersTab && ordersTab.classList.contains('active')) renderOrders();
-        updateStats();
-        var badge = document.getElementById('adminNotifOrders');
-        if (badge) {
-            var cnt = getAdminNotifications().orders || 0;
-            badge.textContent = cnt;
-            badge.style.display = cnt > 0 ? 'inline-flex' : 'none';
-        }
-    }
     if (e.key === 'taaza_reservations') {
         var resTab = document.getElementById('tab-reservations');
         if (resTab && resTab.classList.contains('active')) renderReservations();

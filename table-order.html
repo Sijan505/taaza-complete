@@ -801,9 +801,9 @@
                     <div class="to-brand-sub">BHARATPUR-5, NARAYANPUR</div>
                 </div>
             </div>
-            <div class="to-table-badge">
-                <span>&#x1FA91;</span>
-                Table <span id="headerTableNum">?</span>
+            <div class="to-table-badge" id="headerBadge">
+                <span id="headerBadgeIcon">&#x1FA91;</span>
+                <span id="headerTableNum">?</span>
             </div>
         </div>
 
@@ -827,8 +827,8 @@
 <!-- ===== ERROR STATE ===== -->
 <div id="errorState" class="page-error" style="display:none">
     <div style="font-size:3.5rem;margin-bottom:16px">&#x1FA91;</div>
-    <h1>Invalid Table QR</h1>
-    <p>This QR code doesn't have a valid table number. Please ask your waiter for assistance.</p>
+    <h1>Invalid QR Code</h1>
+    <p>This QR code doesn't have a valid table or room number. Please ask reception for assistance.</p>
 </div>
 
 <!-- ===== CONFIRMATION SCREEN ===== -->
@@ -867,7 +867,7 @@
         </div>
     </div>
 
-    <p class="conf-note">Your server will bring your order to Table <strong id="confTableNum2">?</strong>. No need to go anywhere!</p>
+    <p class="conf-note">Your order will be delivered to <strong id="confTableNum2">?</strong>. No need to go anywhere!</p>
 
     <button onclick="resetForNewOrder()"
         style="margin-top:28px;background:var(--green);color:#fff;border:none;padding:13px 32px;border-radius:50px;font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:8px;">
@@ -907,6 +907,8 @@
 
 var QR_ORDERS_KEY = 'taaza_qr_orders';
 var tableNum      = null;
+var roomNum       = null;
+var isRoomOrder   = false;
 var cart          = [];      /* [{name, price, qty, emoji, category}] */
 var placedOrderId = null;
 var statusPollTimer = null;
@@ -1146,14 +1148,21 @@ var MENU = [
 function init() {
     var params = new URLSearchParams(window.location.search);
     var t = params.get('table');
+    var r = params.get('room');
     tableNum = t ? parseInt(t, 10) : null;
+    roomNum  = r ? parseInt(r, 10) : null;
 
-    if (!tableNum || isNaN(tableNum) || tableNum < 1) {
+    if (roomNum && !isNaN(roomNum) && roomNum > 0) {
+        isRoomOrder = true;
+        document.getElementById('headerTableNum').textContent = 'Room ' + roomNum;
+        var iconEl = document.getElementById('headerBadgeIcon');
+        if (iconEl) iconEl.textContent = '🛏️';
+    } else if (!tableNum || isNaN(tableNum) || tableNum < 1) {
         document.getElementById('errorState').style.display = 'flex';
         return;
+    } else {
+        document.getElementById('headerTableNum').textContent = tableNum;
     }
-
-    document.getElementById('headerTableNum').textContent = tableNum;
     document.getElementById('errorState').style.display = 'none';
     document.getElementById('orderingApp').style.display = 'block';
 
@@ -1470,11 +1479,15 @@ function placeOrder() {
     var vat  = Math.round(sub * 0.13);
     var total = sub + vat;
 
-    var orderId = 'QR-T' + tableNum + '-' + Date.now();
+    var orderId = isRoomOrder
+        ? 'QR-R' + roomNum + '-' + Date.now()
+        : 'QR-T' + tableNum + '-' + Date.now();
 
     var order = {
         id:        orderId,
-        tableNum:  tableNum,
+        tableNum:  isRoomOrder ? null : tableNum,
+        roomNum:   isRoomOrder ? roomNum : null,
+        type:      isRoomOrder ? 'room' : 'table',
         items:     cart.map(function(c){ return { name: c.name, price: c.price, qty: c.qty, emoji: c.emoji }; }),
         subtotal:  sub,
         vat:       vat,
@@ -1490,8 +1503,9 @@ function placeOrder() {
     orders.push(order);
     localStorage.setItem(QR_ORDERS_KEY, JSON.stringify(orders));
 
-    // Merge items into Table Bills so admin sees it in Table Bills tab
-    try {
+    // Merge items into Table Bills only for table (not room) orders
+    if (!isRoomOrder) {
+      try {
         var tableOrders = JSON.parse(localStorage.getItem('taaza_table_orders') || '{}');
         if (!tableOrders[tableNum]) {
             tableOrders[tableNum] = { items: [], guestName: '', openedAt: new Date().toISOString() };
@@ -1509,7 +1523,8 @@ function placeOrder() {
             window._taazaDB.collection('taaza_meta').doc('table_orders').set({ data: tableOrders })
                 .catch(function(e) { console.error('[Taaza] Table orders sync failed:', e); });
         }
-    } catch(e) {}
+      } catch(e) {}
+    }
 
     if (window._taazaDB) {
         window._taazaDB.collection('taaza_qr_orders').doc(orderId).set(order)
@@ -1532,8 +1547,8 @@ function showConfirmation(order) {
 
     var conf = document.getElementById('confirmationScreen');
     document.getElementById('confOrderNum').textContent  = order.id;
-    document.getElementById('confTableNum').textContent  = 'Table ' + order.tableNum;
-    document.getElementById('confTableNum2').textContent = order.tableNum;
+    document.getElementById('confTableNum').textContent  = isRoomOrder ? 'Room ' + roomNum : 'Table ' + order.tableNum;
+    document.getElementById('confTableNum2').textContent = isRoomOrder ? 'Room ' + roomNum : order.tableNum;
     document.getElementById('confItemCount').textContent = order.items.reduce(function(s,i){ return s+i.qty; }, 0) + ' item(s)';
     document.getElementById('confTotal').textContent     = 'Rs. ' + order.total;
     updateConfStatus(order.status);
@@ -1615,7 +1630,7 @@ document.addEventListener('DOMContentLoaded', init);
   <a href="index.html"><span class="mbn-icon">🏠</span>Home</a>
   <a href="menu.html"><span class="mbn-icon">🍽️</span>Menu</a>
   <a href="booking.html"><span class="mbn-icon">📅</span>Book</a>
-  <a href="delivery.html"><span class="mbn-icon">🛵</span>Order</a>
+  <a href="menu.html"><span class="mbn-icon">🍽️</span>Menu</a>
   <a href="contact.html"><span class="mbn-icon">📞</span>Contact</a>
 </nav>
 </body>

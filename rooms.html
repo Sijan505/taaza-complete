@@ -31,15 +31,11 @@
                 <li><a href="rooms.html" class="active">Rooms</a></li>
                 <li><a href="amenities.html">Amenities</a></li>
                 <li class="nav-book"><a href="booking.html">Book Now</a></li>
-                <li><a href="delivery.html">Online Delivery</a></li>
                 <li><a href="menu.html" class="nav-menu">🍽️ Menu</a></li>
                 <li><a href="contact.html">Contact</a></li>
                 <li class="nav-admin-link"><a href="admin.html">&#x1F512; Admin</a></li>
             </ul>
             <div class="nav-dots-menu">
-                <a href="delivery.html" class="cart-nav-btn" id="cartNavBtn">
-                    &#x1F6D2; <span class="cart-nav-count" id="cartNavCount">0</span>
-                </a>
                 <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
                     <span></span>
                     <span></span>
@@ -50,7 +46,6 @@
                     <a href="index.html">&#x1F3E0; Home</a>
                     <a href="rooms.html" class="active">&#x1F6CF;&#xFE0F; Rooms &amp; Suites</a>
                     <a href="amenities.html">&#x2728; Amenities</a>
-                    <a href="delivery.html">&#x1F6F5; Online Delivery</a>
                     <a href="menu.html">&#x1F374; Digital Menu</a>
                     <a href="contact.html">&#x1F4DE; Contact Us</a>
                     <div class="dropdown-divider"></div>
@@ -139,6 +134,41 @@
         </div>
     </section>
 
+    <!-- ===== ROOM SERVICE ===== -->
+    <section style="background:var(--cream,#f8f4ef);padding:64px 0;border-top:1px solid var(--border,#e5e7eb)">
+        <div class="container">
+            <div style="text-align:center;max-width:520px;margin:0 auto">
+                <span class="section-label">Room Service</span>
+                <h2 style="margin-bottom:12px">Order Food to Your Room</h2>
+                <span class="gold-divider center"></span>
+                <p style="color:var(--text-muted,#6b7280);margin:16px 0 32px">Enjoy restaurant-quality meals delivered directly to your room &mdash; available daily 7 AM to 10 PM.</p>
+                <div style="display:flex;gap:12px;justify-content:center;align-items:flex-end;flex-wrap:wrap">
+                    <div style="text-align:left">
+                        <label style="display:block;font-size:0.78rem;font-weight:600;color:var(--mid,#6b7280);margin-bottom:8px;letter-spacing:0.05em;text-transform:uppercase">Your Room Number</label>
+                        <input type="number" id="roomServiceNum" min="1" max="999" placeholder="e.g. 101"
+                            style="padding:13px 18px;border:2px solid var(--border,#e5e7eb);border-radius:10px;font-size:1rem;font-family:inherit;outline:none;width:160px;text-align:center;letter-spacing:2px"
+                            onkeydown="if(event.key==='Enter')startRoomOrder()">
+                    </div>
+                    <button onclick="startRoomOrder()"
+                        style="background:var(--green,#1e3a2a);color:#fff;border:none;padding:13px 28px;border-radius:10px;font-family:inherit;font-size:0.95rem;font-weight:700;cursor:pointer;white-space:nowrap;transition:opacity 0.2s"
+                        onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
+                        &#x1F374; Order Food
+                    </button>
+                </div>
+                <p style="margin-top:16px;font-size:0.82rem;color:var(--mid,#6b7280)">
+                    Or call reception: <strong>+977 9742864405</strong>
+                </p>
+            </div>
+        </div>
+    </section>
+    <script>
+    function startRoomOrder() {
+        var rn = (document.getElementById('roomServiceNum').value || '').trim();
+        if (!rn || isNaN(Number(rn)) || Number(rn) < 1) { alert('Please enter a valid room number.'); return; }
+        window.location.href = 'table-order.html?room=' + encodeURIComponent(rn);
+    }
+    </script>
+
     <!-- ===== FOOTER ===== -->
     <footer class="footer">
         <div class="container">
@@ -155,7 +185,6 @@
                         <li><a href="rooms.html">Rooms &amp; Suites</a></li>
                         <li><a href="amenities.html">Amenities</a></li>
                         <li><a href="menu.html">Digital Menu</a></li>
-                        <li><a href="delivery.html">Online Delivery</a></li>
                         <li><a href="contact.html">Contact</a></li>
                     </ul>
                 </div>
@@ -200,7 +229,7 @@
   <a href="index.html"><span class="mbn-icon">🏠</span>Home</a>
   <a href="rooms.html" class="active"><span class="mbn-icon">🛏️</span>Rooms</a>
   <a href="booking.html"><span class="mbn-icon">📅</span>Book</a>
-  <a href="delivery.html"><span class="mbn-icon">🛵</span>Order</a>
+  <a href="menu.html"><span class="mbn-icon">🍽️</span>Menu</a>
   <a href="contact.html"><span class="mbn-icon">📞</span>Contact</a>
 </nav>
 </body>
