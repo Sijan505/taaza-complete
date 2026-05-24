@@ -15,6 +15,283 @@
             0%, 100% { opacity: 1;   transform: scale(1); }
             50%       { opacity: 0.4; transform: scale(0.8); }
         }
+
+        /* ══════════════════════════════════════════════════
+           ADMIN PANEL — PROFESSIONAL REDESIGN
+           ══════════════════════════════════════════════════ */
+
+        /* ── Login screen ── */
+        .admin-login-overlay {
+            background: radial-gradient(ellipse at 30% 50%, #0d2016 0%, #0a1810 40%, #111827 100%);
+        }
+        .login-box {
+            border-radius: 20px;
+            padding: 52px 44px 44px;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(197,160,89,0.08);
+            position: relative;
+            overflow: hidden;
+        }
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #c5a059, #e8c97a, #c5a059);
+        }
+        .login-logo {
+            width: 88px; height: 88px;
+            border: 2px solid rgba(197,160,89,0.25);
+            padding: 4px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+        }
+        .login-form input[type="password"] {
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: #f8fafc;
+            letter-spacing: 6px;
+            color: #1e293b;
+        }
+        .login-form input[type="password"]:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 4px rgba(30,58,42,0.1);
+            background: #fff;
+        }
+        .login-btn {
+            border-radius: 10px;
+            padding: 15px;
+            letter-spacing: 0.05em;
+            font-size: 0.95rem;
+        }
+        .login-btn:hover {
+            box-shadow: 0 8px 28px rgba(30,58,42,0.35);
+        }
+
+        /* ── Navbar in admin context ── */
+        #adminMain .navbar {
+            background: #0f172a !important;
+            border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+            box-shadow: none !important;
+        }
+        #adminMain .navbar .logo-text { color: #fff !important; }
+        #adminMain .navbar .logo-sub  { color: rgba(255,255,255,0.5) !important; }
+        #adminMain .nav-links a       { color: rgba(255,255,255,0.65) !important; }
+        #adminMain .nav-links a:hover { color: #fff !important; }
+        #adminMain .dots-btn          { color: rgba(255,255,255,0.7) !important; }
+
+        /* ── Hero bar — slim horizontal strip ── */
+        .admin-hero {
+            background: linear-gradient(to right, #0a1810, #122218 50%, #0a1810) !important;
+            border-bottom: 1px solid rgba(197,160,89,0.15) !important;
+            padding: 14px 32px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            text-align: left !important;
+        }
+        .admin-hero h1 {
+            font-size: 0.95rem !important;
+            font-family: 'Inter', sans-serif !important;
+            font-weight: 700 !important;
+            letter-spacing: 0.02em !important;
+            margin: 0 !important;
+            opacity: 0.9;
+        }
+        .admin-hero p {
+            margin: 0 !important;
+            font-size: 0.82rem !important;
+            color: rgba(255,255,255,0.55) !important;
+            justify-content: flex-end !important;
+        }
+
+        /* ── Layout ── */
+        .admin-layout {
+            grid-template-columns: 256px 1fr !important;
+            min-height: calc(100vh - 118px) !important;
+        }
+
+        /* ── Sidebar ── */
+        .admin-sidebar {
+            background: #0f172a !important;
+            padding: 16px 0 60px !important;
+            position: sticky !important;
+            top: 0 !important;
+            height: 100vh !important;
+            overflow-y: auto !important;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.08) transparent;
+        }
+        .admin-sidebar::-webkit-scrollbar { width: 4px; }
+        .admin-sidebar::-webkit-scrollbar-track { background: transparent; }
+        .admin-sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .admin-sidebar h3 {
+            color: rgba(255,255,255,0.28) !important;
+            font-size: 0.62rem !important;
+            letter-spacing: 0.22em !important;
+            padding: 20px 20px 8px !important;
+            font-weight: 700 !important;
+        }
+        .admin-sidebar h3.first { padding-top: 6px !important; }
+
+        .sidebar-link {
+            padding: 9px 18px !important;
+            font-size: 0.855rem !important;
+            color: rgba(255,255,255,0.5) !important;
+            border-left: 3px solid transparent !important;
+            gap: 9px !important;
+            transition: all 0.14s !important;
+        }
+        .sidebar-link:hover {
+            background: rgba(255,255,255,0.05) !important;
+            color: rgba(255,255,255,0.85) !important;
+            border-left-color: rgba(197,160,89,0.45) !important;
+        }
+        .sidebar-link.active {
+            background: rgba(197,160,89,0.12) !important;
+            color: #e8c97a !important;
+            border-left-color: #c5a059 !important;
+            font-weight: 600 !important;
+        }
+
+        /* ── Content area ── */
+        .admin-content {
+            background: #f1f5f9 !important;
+            padding: 28px 32px !important;
+        }
+
+        /* ── Section titles ── */
+        .admin-section-title {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            color: #0f172a !important;
+            letter-spacing: -0.02em !important;
+            padding-bottom: 14px !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+            margin-bottom: 22px !important;
+        }
+
+        /* ── Cards ── */
+        .admin-card {
+            background: #fff !important;
+            border-radius: 14px !important;
+            padding: 24px 28px !important;
+            border: 1px solid #e8edf2 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 4px 14px rgba(0,0,0,0.03) !important;
+            margin-bottom: 20px !important;
+        }
+        .admin-card h3 {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 0.7rem !important;
+            font-weight: 700 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.12em !important;
+            color: #94a3b8 !important;
+            margin-bottom: 16px !important;
+        }
+
+        /* ── Stat cards ── */
+        .admin-stats { gap: 14px !important; margin-bottom: 22px !important; }
+        .stat-card {
+            background: #fff !important;
+            border-radius: 14px !important;
+            padding: 20px 16px 16px !important;
+            border: 1px solid #e8edf2 !important;
+            border-top: 3px solid #c5a059 !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04) !important;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px) !important;
+            box-shadow: 0 6px 22px rgba(0,0,0,0.08) !important;
+        }
+        .stat-card .stat-num {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 1.9rem !important;
+            font-weight: 800 !important;
+            color: #0f172a !important;
+            letter-spacing: -0.04em !important;
+        }
+        .stat-card .stat-label {
+            color: #64748b !important;
+            font-size: 0.72rem !important;
+            font-weight: 600 !important;
+            text-transform: uppercase !important;
+            letter-spacing: 0.07em !important;
+            margin-top: 4px !important;
+        }
+        .stat-card-online { border-top-color: #22c55e !important; }
+        .stat-card-online .stat-num { color: #16a34a !important; }
+        .stat-card-danger { border-top-color: #ef4444 !important; }
+        .stat-card-danger .stat-num { color: #dc2626 !important; }
+
+        /* ── Items table ── */
+        .items-table th {
+            background: #f8fafc !important;
+            color: #64748b !important;
+            font-size: 0.7rem !important;
+            letter-spacing: 0.1em !important;
+            border-bottom: 2px solid #e2e8f0 !important;
+        }
+        .items-table td { border-bottom: 1px solid #f1f5f9 !important; color: #1e293b !important; }
+        .items-table tr:hover td { background: #f8fafc !important; }
+
+        /* ── Buttons ── */
+        .admin-submit-btn {
+            border-radius: 8px !important;
+            font-size: 0.875rem !important;
+            padding: 10px 22px !important;
+        }
+        .admin-submit-btn:hover { box-shadow: 0 4px 14px rgba(197,160,89,0.3) !important; }
+        .admin-submit-btn.green:hover { box-shadow: 0 4px 14px rgba(30,58,42,0.25) !important; }
+        .delete-btn { border-radius: 6px !important; }
+        .delete-btn:hover { background: #ef4444 !important; color: #fff !important; }
+
+        /* ── Form inputs ── */
+        .admin-form label { color: #64748b !important; font-size: 0.7rem !important; letter-spacing: 0.1em !important; }
+        .admin-form input,
+        .admin-form select,
+        .admin-form textarea {
+            border: 1.5px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            color: #1e293b !important;
+        }
+        .admin-form input:focus,
+        .admin-form select:focus,
+        .admin-form textarea:focus {
+            border-color: var(--green) !important;
+            box-shadow: 0 0 0 3px rgba(30,58,42,0.08) !important;
+        }
+
+        /* ── Notification badges ── */
+        .notification-badge {
+            min-width: 18px !important;
+            height: 18px !important;
+            font-size: 0.68rem !important;
+            padding: 0 5px !important;
+        }
+
+        /* ── Mobile nav ── */
+        @media (max-width: 768px) {
+            .admin-hero { padding: 10px 16px !important; }
+            .admin-hero h1 { font-size: 0.88rem !important; }
+            .admin-mobile-nav {
+                background: #0f172a !important;
+                border-bottom: 1px solid rgba(255,255,255,0.08) !important;
+            }
+            .admin-mobile-nav select {
+                background-color: #1e293b !important;
+                color: #fff !important;
+                border-color: rgba(255,255,255,0.15) !important;
+            }
+            .admin-content { padding: 14px !important; background: #f1f5f9 !important; }
+            .admin-card { padding: 18px 16px !important; border-radius: 12px !important; }
+            .stat-card { border-radius: 12px !important; }
+            .admin-section-title { font-size: 1.1rem !important; }
+        }
+        @media (max-width: 480px) {
+            .admin-content { padding: 12px !important; }
+            .admin-card    { padding: 14px 12px !important; }
+        }
     </style>
 </head>
 <body>
@@ -67,9 +344,9 @@
 
     <!-- Admin Hero -->
     <div class="admin-hero">
-        <h1 id="adminHeroTitle">&#x1F512; Admin Panel</h1>
-        <p id="adminHeroSub">Welcome
-            <button onclick="doLogout()" style="background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.3);color:#fff;padding:5px 16px;border-radius:50px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.82rem;font-weight:500;margin-left:10px;transition:all 0.2s;">Logout</button>
+        <h1 id="adminHeroTitle">&#x1F512; Taaza Resort &mdash; Admin</h1>
+        <p id="adminHeroSub">
+            <button onclick="doLogout()" style="background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.8);padding:6px 16px;border-radius:6px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.8rem;font-weight:600;transition:all 0.2s;letter-spacing:0.02em;">&#x1F6AA; Logout</button>
         </p>
     </div>
 
@@ -77,21 +354,34 @@
     <div class="admin-mobile-nav">
         <div style="display:flex;gap:8px;align-items:center">
             <select id="adminNavSelect" onchange="adminNavChange(this.value)" style="width:auto;flex:1;min-width:0">
+                <optgroup label="— Operations">
                 <option value="dashboard">📊 Dashboard</option>
                 <option value="reservations">📋 Reservations</option>
                 <option value="qrOrders">📱 QR Table Orders</option>
                 <option value="roomOrders">🛏️ Room Orders</option>
-                <option value="menuItems">🍽️ Menu Items</option>
+                </optgroup>
+                <optgroup label="— Billing">
                 <option value="tableBills">🪑 Table Bills</option>
                 <option value="swimTickets">🏊 Swimming Tickets</option>
+                <option value="outsideOrder">🛒 Outside Order</option>
+                </optgroup>
+                <optgroup label="— Inventory">
+                <option value="menuItems">🍽️ Menu Items</option>
                 <option value="stock">📦 Stock Management</option>
+                </optgroup>
+                <optgroup label="— Reports">
                 <option value="dailySales">📈 Daily Sales</option>
+                </optgroup>
+                <optgroup label="— People">
                 <option value="guests">👥 Guest Management</option>
                 <option value="staff">💼 Staff Management</option>
                 <option value="loyalty">⭐ Loyalty &amp; Rewards</option>
                 <option value="reviews">💬 Reviews &amp; Ratings</option>
+                </optgroup>
+                <optgroup label="— System">
                 <option value="auditLog">🔍 Audit Log</option>
-                <option value="settings">⚙️ Email &amp; SMS Settings</option>
+                <option value="settings">⚙️ Settings</option>
+                </optgroup>
             </select>
             <button onclick="doLogout()" style="flex-shrink:0;background:#ef4444;color:#fff;border:none;padding:10px 14px;border-radius:8px;font-size:0.85rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;white-space:nowrap;touch-action:manipulation">&#x1F6AA; Logout</button>
         </div>
@@ -102,23 +392,33 @@
 
         <!-- Sidebar -->
         <aside class="admin-sidebar">
-            <h3>Navigation</h3>
+            <h3 class="first">OPERATIONS</h3>
             <a href="#" class="sidebar-link active" onclick="return showTab('dashboard', this)">&#x1F4CA; Dashboard</a>
             <a href="#" class="sidebar-link" onclick="return showTab('reservations', this)">&#x1F4CB; Reservations <span id="adminNotifReservations" class="notification-badge" style="display:none">0</span></a>
             <a href="#" class="sidebar-link" onclick="return showTab('qrOrders', this)">&#x1F4F1; QR Table Orders <span id="adminNotifQrOrders" class="notification-badge" style="display:none">0</span></a>
             <a href="#" class="sidebar-link" onclick="return showTab('roomOrders', this)">&#x1F6CF;&#xFE0F; Room Orders <span id="adminNotifRoomOrders" class="notification-badge" style="display:none">0</span></a>
-            <a href="#" class="sidebar-link" onclick="return showTab('menuItems', this)">&#x1F37D;&#xFE0F; Menu Items</a>
+
+            <h3>BILLING</h3>
             <a href="#" class="sidebar-link" onclick="return showTab('tableBills', this)">&#x1FA91; Table Bills</a>
             <a href="#" class="sidebar-link" onclick="return showTab('swimTickets', this)">&#x1F3CA; Swimming Tickets</a>
             <a href="#" class="sidebar-link" onclick="return showTab('outsideOrder', this)">&#x1F6D2; Outside Order</a>
+
+            <h3>INVENTORY</h3>
+            <a href="#" class="sidebar-link" onclick="return showTab('menuItems', this)">&#x1F37D;&#xFE0F; Menu Items</a>
             <a href="#" class="sidebar-link" onclick="return showTab('stock', this)">&#x1F4E6; Stock Management <span id="adminNotifStock" class="notification-badge" style="display:none;background:#ef4444">0</span></a>
+
+            <h3>REPORTS</h3>
             <a href="#" class="sidebar-link" onclick="return showTab('dailySales', this)">&#x1F4CA; Daily Sales</a>
+
+            <h3>PEOPLE</h3>
             <a href="#" class="sidebar-link" onclick="return showTab('guests', this)">&#x1F465; Guest Management</a>
             <a href="#" class="sidebar-link" onclick="return showTab('staff', this)">&#x1F4BC; Staff Management</a>
             <a href="#" class="sidebar-link" onclick="return showTab('loyalty', this)">&#x2B50; Loyalty &amp; Rewards</a>
             <a href="#" class="sidebar-link" onclick="return showTab('reviews', this)">&#x1F4AC; Reviews &amp; Ratings</a>
+
+            <h3>SYSTEM</h3>
             <a href="#" class="sidebar-link" onclick="return showTab('auditLog', this)">&#x1F50D; Audit Log</a>
-            <a href="#" class="sidebar-link" onclick="return showTab('settings', this)">&#x2699;&#xFE0F; Email &amp; SMS Settings</a>
+            <a href="#" class="sidebar-link" onclick="return showTab('settings', this)">&#x2699;&#xFE0F; Settings</a>
         </aside>
 
         <!-- Content -->
