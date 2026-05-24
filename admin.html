@@ -802,6 +802,64 @@
                     <h3 style="margin-bottom:14px">&#x1F3E8; Booking &amp; Reservation Payments</h3>
                     <div id="salesBookingList"></div>
                 </div>
+
+                <!-- ===== AUDIT REPORT ===== -->
+                <div class="admin-card" style="margin-top:28px;border-top:3px solid var(--accent)">
+                    <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:20px">
+                        <div>
+                            <h3 style="margin:0 0 4px">&#x1F4D1; Annual Audit Report</h3>
+                            <p style="margin:0;font-size:0.82rem;color:var(--mid)">Sales summary for tax filing &mdash; PAN No: 608568546</p>
+                        </div>
+                        <button onclick="printAuditReport()" style="background:var(--accent);color:#fff;border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;font-family:Inter,sans-serif;display:flex;align-items:center;gap:8px">&#x1F5A8; Print Audit Report</button>
+                    </div>
+
+                    <!-- Controls -->
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px;padding:14px 16px;background:var(--cream,#f8f4ef);border-radius:10px">
+                        <div>
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:4px">QUICK SELECT</label>
+                            <select id="auditYearSelect" onchange="onAuditYearChange()" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none;background:#fff">
+                                <option value="">-- Select Year --</option>
+                            </select>
+                        </div>
+                        <div style="display:flex;align-items:flex-end;gap:6px">
+                            <div>
+                                <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:4px">FROM DATE</label>
+                                <input type="date" id="auditFrom" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none">
+                            </div>
+                            <div>
+                                <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:4px">TO DATE</label>
+                                <input type="date" id="auditTo" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none">
+                            </div>
+                            <button onclick="renderAuditReport()" style="background:var(--green);color:#fff;border:none;padding:8px 18px;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.88rem;white-space:nowrap">&#x1F50D; Generate</button>
+                        </div>
+                    </div>
+
+                    <!-- Summary stat cards -->
+                    <div id="auditSummaryCards" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px"></div>
+
+                    <!-- Monthly breakdown -->
+                    <div style="margin-bottom:24px">
+                        <h4 style="margin:0 0 12px;font-size:0.95rem;color:var(--green)">&#x1F4C5; Monthly Breakdown</h4>
+                        <div id="auditMonthlyTable" style="overflow-x:auto"></div>
+                    </div>
+
+                    <!-- Category breakdown + Top items (2 col) -->
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start">
+                        <div>
+                            <h4 style="margin:0 0 12px;font-size:0.95rem;color:var(--green)">&#x1F4B0; Revenue by Category</h4>
+                            <div id="auditCategoryTable"></div>
+                        </div>
+                        <div>
+                            <h4 style="margin:0 0 12px;font-size:0.95rem;color:var(--green)">&#x1F37D;&#xFE0F; Top Items Sold</h4>
+                            <div id="auditTopItems"></div>
+                        </div>
+                    </div>
+
+                    <div id="auditEmptyMsg" style="text-align:center;padding:32px 0;color:var(--mid);display:none">
+                        <div style="font-size:2rem;margin-bottom:8px">&#x1F4D1;</div>
+                        <p>Select a year or date range and click Generate.</p>
+                    </div>
+                </div>
             </div>
 
 
@@ -2391,7 +2449,7 @@ function showTab(name, linkEl) {
     if (name === 'dashboard')     updateStats();
     if (name === 'tableBills')    renderTablesGrid();
     if (name === 'swimTickets')   renderSwimTickets();
-    if (name === 'dailySales')    renderDailySales();
+    if (name === 'dailySales')    { renderDailySales(); _populateAuditYears(); }
     if (name === 'guests')        renderGuestList();
     if (name === 'staff')         initStaffTab();
     if (name === 'settings')      { loadNotifSettings(); renderNotifLog(); }
@@ -4051,6 +4109,331 @@ function clearDailySales() {
     if (!confirm('Delete all daily sales records? This cannot be undone.')) return;
     saveData(SALES_KEY, []);
     renderDailySales();
+}
+
+/* ===== AUDIT REPORT ===== */
+
+function _populateAuditYears() {
+    var sel = document.getElementById('auditYearSelect');
+    if (!sel) return;
+    var sales = getData(SALES_KEY);
+    var res   = getData('taaza_reservations');
+    var years = {};
+    sales.forEach(function(s){ if (s.date) years[s.date.slice(0,4)] = true; });
+    res.forEach(function(r){
+        if (r.createdAt) years[r.createdAt.slice(0,4)] = true;
+        if (r.balancePaidAt) years[r.balancePaidAt.slice(0,4)] = true;
+    });
+    var list = Object.keys(years).sort().reverse();
+    var cur  = sel.value;
+    sel.innerHTML = '<option value="">-- Select Year --</option>' +
+        list.map(function(y){ return '<option value="' + y + '"' + (y === cur ? ' selected' : '') + '>' + y + '</option>'; }).join('');
+    if (!cur && list.length) sel.value = list[0];
+}
+
+function onAuditYearChange() {
+    var yr = document.getElementById('auditYearSelect').value;
+    if (!yr) return;
+    document.getElementById('auditFrom').value = yr + '-01-01';
+    document.getElementById('auditTo').value   = yr + '-12-31';
+    renderAuditReport();
+}
+
+function renderAuditReport() {
+    var fromVal = (document.getElementById('auditFrom') || {}).value;
+    var toVal   = (document.getElementById('auditTo')   || {}).value;
+    var emptyEl = document.getElementById('auditEmptyMsg');
+
+    if (!fromVal || !toVal) {
+        if (emptyEl) emptyEl.style.display = 'block';
+        ['auditSummaryCards','auditMonthlyTable','auditCategoryTable','auditTopItems'].forEach(function(id){
+            var el = document.getElementById(id); if (el) el.innerHTML = '';
+        });
+        return;
+    }
+    if (emptyEl) emptyEl.style.display = 'none';
+
+    var fromDate = fromVal;
+    var toDate   = toVal;
+
+    /* ---- Pull data ---- */
+    var allSales = getData(SALES_KEY).filter(function(s){
+        return s.date >= fromDate && s.date <= toDate;
+    });
+
+    /* Reservation payments in range */
+    var allRes = getData('taaza_reservations');
+    var resPays = [];
+    allRes.forEach(function(r) {
+        var createdDate = (r.createdAt || '').slice(0,10);
+        if (createdDate >= fromDate && createdDate <= toDate && r.deposit > 0 &&
+            (r.status === 'Advance Paid' || r.status === 'Fully Paid')) {
+            resPays.push({ date: createdDate, amount: r.deposit, subtype: 'advance' });
+        }
+        if (r.balancePaid && r.balancePaidAt) {
+            var bDate = r.balancePaidAt.slice(0,10);
+            if (bDate >= fromDate && bDate <= toDate) {
+                var bal = Math.max(0, (r.total || 0) - (r.deposit || 0));
+                if (bal > 0) resPays.push({ date: bDate, amount: bal, subtype: 'balance' });
+            }
+        }
+    });
+
+    /* ---- Aggregate totals ---- */
+    var catTable   = 0, catQrTable = 0, catQrRoom = 0, catSwim = 0, catOther = 0;
+    allSales.forEach(function(s) {
+        if      (s.type === 'table')    catTable   += s.grand || 0;
+        else if (s.type === 'qr-table') catQrTable += s.grand || 0;
+        else if (s.type === 'qr-room')  catQrRoom  += s.grand || 0;
+        else if (s.type === 'swim')     catSwim    += s.grand || 0;
+        else                            catOther   += s.grand || 0;
+    });
+    var catBooking  = resPays.reduce(function(a,p){ return a + p.amount; }, 0);
+    var salesTotal  = allSales.reduce(function(a,s){ return a + (s.grand || 0); }, 0);
+    var grandTotal  = salesTotal + catBooking;
+    var totalTxns   = allSales.length + resPays.length;
+
+    /* ---- Summary cards ---- */
+    var cardsEl = document.getElementById('auditSummaryCards');
+    if (cardsEl) {
+        cardsEl.innerHTML = [
+            { label:'Total Revenue',        val:'Rs. ' + grandTotal.toLocaleString(),  color:'var(--green)' },
+            { label:'Total Transactions',   val:totalTxns,                             color:'#1d4ed8'      },
+            { label:'Table & QR Dine-in',   val:'Rs. ' + (catTable+catQrTable).toLocaleString(), color:'#059669' },
+            { label:'Room Food Orders',      val:'Rs. ' + catQrRoom.toLocaleString(),  color:'#7c3aed'      },
+            { label:'Swimming Tickets',      val:'Rs. ' + catSwim.toLocaleString(),    color:'#0ea5e9'      },
+            { label:'Booking Payments',      val:'Rs. ' + catBooking.toLocaleString(), color:' var(--accent)' }
+        ].map(function(c){
+            return '<div class="stat-card" style="margin:0;padding:14px 16px">' +
+                '<span class="stat-num" style="font-size:1.1rem;color:' + c.color + '">' + c.val + '</span>' +
+                '<div class="stat-label">' + c.label + '</div>' +
+            '</div>';
+        }).join('');
+    }
+
+    /* ---- Monthly breakdown ---- */
+    var monthMap = {};
+    function addToMonth(date, key, amount) {
+        var ym = date.slice(0,7);
+        if (!monthMap[ym]) monthMap[ym] = { table:0, qrTable:0, qrRoom:0, swim:0, booking:0, other:0 };
+        monthMap[ym][key] += amount;
+    }
+    allSales.forEach(function(s) {
+        var key = s.type === 'table'    ? 'table'
+                : s.type === 'qr-table' ? 'qrTable'
+                : s.type === 'qr-room'  ? 'qrRoom'
+                : s.type === 'swim'     ? 'swim' : 'other';
+        addToMonth(s.date, key, s.grand || 0);
+    });
+    resPays.forEach(function(p){ addToMonth(p.date, 'booking', p.amount); });
+
+    var months = Object.keys(monthMap).sort();
+    var monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+    var monthlyEl = document.getElementById('auditMonthlyTable');
+    if (monthlyEl) {
+        if (!months.length) {
+            monthlyEl.innerHTML = '<p style="color:var(--mid);font-size:0.85rem">No data for this period.</p>';
+        } else {
+            var colStyle = 'padding:9px 10px;text-align:right;white-space:nowrap;font-size:0.83rem';
+            var hdrStyle = 'padding:9px 10px;text-align:right;font-size:0.78rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--mid);font-weight:700';
+            var rowTotals = { table:0, qrTable:0, qrRoom:0, swim:0, booking:0, other:0, grand:0 };
+            var rowsHtml  = months.map(function(ym) {
+                var m = monthMap[ym];
+                var parts = ym.split('-');
+                var mLabel = monthNames[parseInt(parts[1],10)-1] + ' ' + parts[0];
+                var rowGrand = m.table + m.qrTable + m.qrRoom + m.swim + m.booking + m.other;
+                rowTotals.table    += m.table;
+                rowTotals.qrTable  += m.qrTable;
+                rowTotals.qrRoom   += m.qrRoom;
+                rowTotals.swim     += m.swim;
+                rowTotals.booking  += m.booking;
+                rowTotals.other    += m.other;
+                rowTotals.grand    += rowGrand;
+                var fmt = function(v){ return v > 0 ? 'Rs. ' + v.toLocaleString() : '<span style="color:#ccc">—</span>'; };
+                return '<tr style="border-bottom:1px dashed var(--border)">' +
+                    '<td style="padding:9px 10px;font-weight:600;font-size:0.85rem;white-space:nowrap">' + mLabel + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt(m.table)   + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt(m.qrTable) + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt(m.qrRoom)  + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt(m.swim)    + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt(m.booking) + '</td>' +
+                    '<td style="' + colStyle + ';font-weight:700;color:var(--green)">Rs. ' + rowGrand.toLocaleString() + '</td>' +
+                '</tr>';
+            }).join('');
+            var fmt2 = function(v){ return v > 0 ? 'Rs. ' + v.toLocaleString() : '—'; };
+            monthlyEl.innerHTML =
+                '<table style="width:100%;border-collapse:collapse;font-size:0.85rem">' +
+                '<thead><tr style="background:var(--green);color:#fff">' +
+                    '<th style="' + hdrStyle + ';text-align:left;color:#fff">Month</th>' +
+                    '<th style="' + hdrStyle + ';color:#fff">Table Bills</th>' +
+                    '<th style="' + hdrStyle + ';color:#fff">QR Table</th>' +
+                    '<th style="' + hdrStyle + ';color:#fff">Room Orders</th>' +
+                    '<th style="' + hdrStyle + ';color:#fff">Swimming</th>' +
+                    '<th style="' + hdrStyle + ';color:#fff">Bookings</th>' +
+                    '<th style="' + hdrStyle + ';color:#fff">Month Total</th>' +
+                '</tr></thead><tbody>' + rowsHtml + '</tbody>' +
+                '<tfoot><tr style="background:#f0fdf4;font-weight:700;border-top:2px solid var(--green)">' +
+                    '<td style="padding:10px;font-size:0.85rem">TOTAL</td>' +
+                    '<td style="' + colStyle + '">' + fmt2(rowTotals.table)   + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt2(rowTotals.qrTable) + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt2(rowTotals.qrRoom)  + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt2(rowTotals.swim)    + '</td>' +
+                    '<td style="' + colStyle + '">' + fmt2(rowTotals.booking) + '</td>' +
+                    '<td style="' + colStyle + ';color:var(--green);font-size:0.92rem">Rs. ' + rowTotals.grand.toLocaleString() + '</td>' +
+                '</tr></tfoot></table>';
+        }
+    }
+
+    /* ---- Category breakdown ---- */
+    var catEl = document.getElementById('auditCategoryTable');
+    if (catEl) {
+        var cats = [
+            { label:'&#x1FA91; Table Bills',          val: catTable   },
+            { label:'&#x1F4F1; QR Table Orders',       val: catQrTable },
+            { label:'&#x1F6CF;&#xFE0F; Room Orders',   val: catQrRoom  },
+            { label:'&#x1F3CA; Swimming Tickets',       val: catSwim    },
+            { label:'&#x1F4B3; Booking Payments',       val: catBooking },
+            { label:'&#x1F372; Other',                  val: catOther   }
+        ].filter(function(c){ return c.val > 0; });
+        var pct = function(v){ return grandTotal > 0 ? ((v/grandTotal)*100).toFixed(1) + '%' : '0%'; };
+        catEl.innerHTML = cats.length ? '<table style="width:100%;border-collapse:collapse;font-size:0.85rem">' +
+            cats.map(function(c){
+                return '<tr style="border-bottom:1px dashed var(--border)">' +
+                    '<td style="padding:8px 6px">' + c.label + '</td>' +
+                    '<td style="padding:8px 6px;text-align:right;font-weight:700;color:var(--green)">Rs. ' + c.val.toLocaleString() + '</td>' +
+                    '<td style="padding:8px 6px;text-align:right;color:var(--mid);font-size:0.8rem">' + pct(c.val) + '</td>' +
+                '</tr>';
+            }).join('') +
+            '<tr style="border-top:2px solid var(--green);font-weight:700">' +
+                '<td style="padding:10px 6px">Grand Total</td>' +
+                '<td style="padding:10px 6px;text-align:right;color:var(--green);font-size:0.95rem">Rs. ' + grandTotal.toLocaleString() + '</td>' +
+                '<td style="padding:10px 6px;text-align:right;color:var(--mid)">100%</td>' +
+            '</tr></table>'
+        : '<p style="color:var(--mid);font-size:0.85rem">No data.</p>';
+    }
+
+    /* ---- Top items sold ---- */
+    var itemMap = {};
+    allSales.forEach(function(s) {
+        (s.items || []).forEach(function(it) {
+            var k = it.name;
+            if (!itemMap[k]) itemMap[k] = { name:k, emoji:it.emoji||'🍽️', qty:0, total:0, price:it.price };
+            itemMap[k].qty   += it.qty;
+            itemMap[k].total += it.price * it.qty;
+        });
+    });
+    var topItems = Object.values(itemMap).sort(function(a,b){ return b.total - a.total; }).slice(0,15);
+    var topEl = document.getElementById('auditTopItems');
+    if (topEl) {
+        topEl.innerHTML = topItems.length ? '<table style="width:100%;border-collapse:collapse;font-size:0.83rem">' +
+            '<thead><tr style="border-bottom:2px solid var(--border)">' +
+                '<th style="padding:7px 6px;text-align:left;color:var(--mid);font-weight:600">#</th>' +
+                '<th style="padding:7px 6px;text-align:left;color:var(--mid);font-weight:600">Item</th>' +
+                '<th style="padding:7px 6px;text-align:right;color:var(--mid);font-weight:600">Qty</th>' +
+                '<th style="padding:7px 6px;text-align:right;color:var(--mid);font-weight:600">Revenue</th>' +
+            '</tr></thead><tbody>' +
+            topItems.map(function(it, i){
+                return '<tr style="border-bottom:1px dashed var(--border)">' +
+                    '<td style="padding:7px 6px;color:var(--mid)">' + (i+1) + '</td>' +
+                    '<td style="padding:7px 6px">' + it.emoji + ' ' + esc(it.name) + '</td>' +
+                    '<td style="padding:7px 6px;text-align:right;font-weight:600">' + it.qty + '</td>' +
+                    '<td style="padding:7px 6px;text-align:right;font-weight:700;color:var(--green)">Rs. ' + it.total.toLocaleString() + '</td>' +
+                '</tr>';
+            }).join('') + '</tbody></table>'
+        : '<p style="color:var(--mid);font-size:0.85rem">No item data.</p>';
+    }
+}
+
+function printAuditReport() {
+    if (!_acquirePrintLock()) return;
+    var fromVal = (document.getElementById('auditFrom') || {}).value;
+    var toVal   = (document.getElementById('auditTo')   || {}).value;
+    if (!fromVal || !toVal) { _releasePrintLock(); alert('Please generate the audit report first.'); return; }
+
+    var allSales = getData(SALES_KEY).filter(function(s){ return s.date >= fromVal && s.date <= toVal; });
+    var allRes   = getData('taaza_reservations');
+    var resPays  = [];
+    allRes.forEach(function(r) {
+        var cd = (r.createdAt || '').slice(0,10);
+        if (cd >= fromVal && cd <= toVal && r.deposit > 0 && (r.status === 'Advance Paid' || r.status === 'Fully Paid'))
+            resPays.push({ date:cd, amount:r.deposit, label:'Advance — ' + (r.fullName||'') });
+        if (r.balancePaid && r.balancePaidAt) {
+            var bd = r.balancePaidAt.slice(0,10);
+            if (bd >= fromVal && bd <= toVal) {
+                var bal = Math.max(0,(r.total||0)-(r.deposit||0));
+                if (bal > 0) resPays.push({ date:bd, amount:bal, label:'Balance — ' + (r.fullName||'') });
+            }
+        }
+    });
+
+    var catTable=0, catQrTable=0, catQrRoom=0, catSwim=0, catOther=0;
+    allSales.forEach(function(s){
+        if      (s.type==='table')    catTable   += s.grand||0;
+        else if (s.type==='qr-table') catQrTable += s.grand||0;
+        else if (s.type==='qr-room')  catQrRoom  += s.grand||0;
+        else if (s.type==='swim')     catSwim    += s.grand||0;
+        else                          catOther   += s.grand||0;
+    });
+    var catBooking = resPays.reduce(function(a,p){ return a+p.amount; },0);
+    var grandTotal = allSales.reduce(function(a,s){ return a+(s.grand||0); },0) + catBooking;
+
+    /* Monthly breakdown */
+    var monthMap2 = {};
+    var monthNames2 = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function addM(date,key,amount){ var ym=date.slice(0,7); if(!monthMap2[ym]) monthMap2[ym]={table:0,qrTable:0,qrRoom:0,swim:0,booking:0,other:0}; monthMap2[ym][key]+=amount; }
+    allSales.forEach(function(s){ addM(s.date, s.type==='table'?'table':s.type==='qr-table'?'qrTable':s.type==='qr-room'?'qrRoom':s.type==='swim'?'swim':'other', s.grand||0); });
+    resPays.forEach(function(p){ addM(p.date,'booking',p.amount); });
+
+    var monthRows = Object.keys(monthMap2).sort().map(function(ym){
+        var m=monthMap2[ym]; var parts=ym.split('-');
+        var mLabel=monthNames2[parseInt(parts[1],10)-1]+' '+parts[0];
+        var rowGrand=m.table+m.qrTable+m.qrRoom+m.swim+m.booking+m.other;
+        var f=function(v){return v>0?'Rs.'+v.toLocaleString():'—';};
+        return '<tr><td>'+mLabel+'</td><td class="r">'+f(m.table)+'</td><td class="r">'+f(m.qrTable)+'</td><td class="r">'+f(m.qrRoom)+'</td><td class="r">'+f(m.swim)+'</td><td class="r">'+f(m.booking)+'</td><td class="r" style="font-weight:bold">Rs.'+rowGrand.toLocaleString()+'</td></tr>';
+    }).join('');
+
+    /* Top items */
+    var imap={};
+    allSales.forEach(function(s){ (s.items||[]).forEach(function(it){ if(!imap[it.name]) imap[it.name]={name:it.name,qty:0,total:0}; imap[it.name].qty+=it.qty; imap[it.name].total+=it.price*it.qty; }); });
+    var topRows=Object.values(imap).sort(function(a,b){return b.total-a.total;}).slice(0,15).map(function(it,i){
+        return '<tr><td>'+(i+1)+'</td><td>'+esc(it.name)+'</td><td class="r">'+it.qty+'</td><td class="r">Rs.'+it.total.toLocaleString()+'</td></tr>';
+    }).join('');
+
+    var nowStr = new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'long',year:'numeric'});
+    var periodLabel = fromVal + ' to ' + toVal;
+
+    var bodyHtml =
+        '<div class="receipt-header">' +
+            '<img src="images/logo-dark.png" onerror="this.style.display=\'none\'">' +
+            '<h2>Taaza Resort</h2>' +
+            '<div class="sub" style="font-size:1rem;font-weight:bold;color:#333">ANNUAL AUDIT REPORT</div>' +
+            '<div class="sub">Bharatpur-5, Narayanpur, Chitwan, Nepal</div>' +
+            '<div class="sub">PAN No: 608568546 &nbsp;|&nbsp; +977 9742864405</div>' +
+            '<div class="sub">Report Period: ' + periodLabel + '</div>' +
+            '<div class="sub">Generated: ' + nowStr + '</div>' +
+        '</div>' +
+        '<div class="receipt-info">' +
+            '<p><span class="label">Total Revenue:</span> <strong>Rs. ' + grandTotal.toLocaleString() + '</strong></p>' +
+            '<p><span class="label">Total Transactions:</span> ' + (allSales.length + resPays.length) + '</p>' +
+        '</div>' +
+        '<h3 style="font-size:0.9rem;margin:14px 0 6px;text-transform:uppercase;letter-spacing:0.05em">Revenue by Category</h3>' +
+        '<table class="receipt-table"><thead><tr><th>Category</th><th class="r">Amount</th><th class="r">Share</th></tr></thead><tbody>' +
+        [['Table Bills',catTable],['QR Table Orders',catQrTable],['Room Orders',catQrRoom],['Swimming Tickets',catSwim],['Booking Payments',catBooking],['Other',catOther]]
+            .filter(function(c){return c[1]>0;})
+            .map(function(c){ return '<tr><td>'+c[0]+'</td><td class="r">Rs.'+c[1].toLocaleString()+'</td><td class="r">'+(grandTotal>0?((c[1]/grandTotal)*100).toFixed(1):'0')+'%</td></tr>'; }).join('') +
+        '</tbody><tfoot><tr><td><strong>GRAND TOTAL</strong></td><td class="r"><strong>Rs.'+grandTotal.toLocaleString()+'</strong></td><td class="r"><strong>100%</strong></td></tr></tfoot></table>' +
+        '<h3 style="font-size:0.9rem;margin:18px 0 6px;text-transform:uppercase;letter-spacing:0.05em">Monthly Breakdown</h3>' +
+        '<table class="receipt-table"><thead><tr><th>Month</th><th class="r">Table</th><th class="r">QR</th><th class="r">Room</th><th class="r">Swim</th><th class="r">Booking</th><th class="r">Total</th></tr></thead><tbody>' + monthRows + '</tbody></table>' +
+        (topRows ? '<h3 style="font-size:0.9rem;margin:18px 0 6px;text-transform:uppercase;letter-spacing:0.05em">Top Items Sold</h3>' +
+        '<table class="receipt-table"><thead><tr><th>#</th><th>Item</th><th class="r">Qty</th><th class="r">Revenue</th></tr></thead><tbody>' + topRows + '</tbody></table>' : '') +
+        '<div class="receipt-footer">' +
+            '<p style="font-weight:bold">This is an official audit report for tax purposes.</p>' +
+            '<p>PAN No: 608568546 &nbsp;|&nbsp; Taaza Resort, Bharatpur-5, Narayanpur, Chitwan</p>' +
+            '<p style="font-size:0.72rem;color:#bbb;margin-top:8px">This is a computer-generated report. &nbsp;|&nbsp; Generated on ' + nowStr + '</p>' +
+        '</div>';
+
+    _printReceipt('Audit Report ' + fromVal + ' to ' + toVal, bodyHtml, _releasePrintLock);
 }
 
 /* =============================================================
