@@ -84,6 +84,7 @@
                 <option value="menuItems">🍽️ Menu Items</option>
                 <option value="tableBills">🪑 Table Bills</option>
                 <option value="swimTickets">🏊 Swimming Tickets</option>
+                <option value="stock">📦 Stock Management</option>
                 <option value="dailySales">📈 Daily Sales</option>
                 <option value="guests">👥 Guest Management</option>
                 <option value="staff">💼 Staff Management</option>
@@ -109,6 +110,7 @@
             <a href="#" class="sidebar-link" onclick="return showTab('menuItems', this)">&#x1F37D;&#xFE0F; Menu Items</a>
             <a href="#" class="sidebar-link" onclick="return showTab('tableBills', this)">&#x1FA91; Table Bills</a>
             <a href="#" class="sidebar-link" onclick="return showTab('swimTickets', this)">&#x1F3CA; Swimming Tickets</a>
+            <a href="#" class="sidebar-link" onclick="return showTab('stock', this)">&#x1F4E6; Stock Management <span id="adminNotifStock" class="notification-badge" style="display:none;background:#ef4444">0</span></a>
             <a href="#" class="sidebar-link" onclick="return showTab('dailySales', this)">&#x1F4CA; Daily Sales</a>
             <a href="#" class="sidebar-link" onclick="return showTab('guests', this)">&#x1F465; Guest Management</a>
             <a href="#" class="sidebar-link" onclick="return showTab('staff', this)">&#x1F4BC; Staff Management</a>
@@ -748,6 +750,134 @@
                             </div>
                             <div id="swimHistory"></div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- STOCK MANAGEMENT TAB -->
+            <div class="admin-tab" id="tab-stock">
+                <h2 class="admin-section-title">&#x1F4E6; Stock Management</h2>
+
+                <!-- Summary stats -->
+                <div class="admin-stats" style="margin-bottom:20px">
+                    <div class="stat-card" style="margin:0">
+                        <span class="stat-num" id="stockStatTotal">0</span>
+                        <div class="stat-label">Total Items</div>
+                    </div>
+                    <div class="stat-card" style="margin:0;border-top:3px solid #10b981">
+                        <span class="stat-num" id="stockStatHealthy" style="color:#059669">0</span>
+                        <div class="stat-label">&#x2705; Healthy Stock</div>
+                    </div>
+                    <div class="stat-card" style="margin:0;border-top:3px solid #f59e0b">
+                        <span class="stat-num" id="stockStatLow" style="color:#d97706">0</span>
+                        <div class="stat-label">&#x26A0;&#xFE0F; Low Stock</div>
+                    </div>
+                    <div class="stat-card" style="margin:0;border-top:3px solid #ef4444">
+                        <span class="stat-num" id="stockStatOut" style="color:#dc2626">0</span>
+                        <div class="stat-label">&#x274C; Out of Stock</div>
+                    </div>
+                </div>
+
+                <!-- Low stock alert banner -->
+                <div id="stockAlertBanner" style="display:none;background:#fff5f5;border:1.5px solid #fca5a5;border-radius:10px;padding:14px 18px;margin-bottom:20px">
+                    <div style="font-weight:700;color:#dc2626;margin-bottom:10px">&#x26A0;&#xFE0F; Items Needing Restock</div>
+                    <div id="stockAlertList"></div>
+                </div>
+
+                <!-- Two-column layout -->
+                <div style="display:grid;grid-template-columns:360px 1fr;gap:24px;align-items:start">
+
+                    <!-- Add / Edit form -->
+                    <div class="admin-card" style="margin-bottom:0;position:sticky;top:80px">
+                        <h3 style="margin:0 0 16px" id="stockFormTitle">&#x2795; Add Stock Item</h3>
+                        <input type="hidden" id="stockEditId">
+
+                        <div style="margin-bottom:11px">
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:5px">ITEM NAME *</label>
+                            <input id="stockName" type="text" placeholder="e.g. Carlsberg Beer"
+                                style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box;outline:none">
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px">
+                            <div>
+                                <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:5px">CATEGORY</label>
+                                <select id="stockCategory" style="width:100%;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none;background:#fff">
+                                    <option value="Beverages">Beverages</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Spirits">Spirits</option>
+                                    <option value="Cigarettes">Cigarettes</option>
+                                    <option value="Dairy">Dairy</option>
+                                    <option value="Dry Goods">Dry Goods</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:5px">UNIT</label>
+                                <select id="stockUnit" style="width:100%;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none;background:#fff">
+                                    <option value="bottles">Bottles</option>
+                                    <option value="cans">Cans</option>
+                                    <option value="glasses">Glasses</option>
+                                    <option value="plates">Plates</option>
+                                    <option value="pcs">Pieces</option>
+                                    <option value="kg">Kg</option>
+                                    <option value="liters">Liters</option>
+                                    <option value="packets">Packets</option>
+                                    <option value="boxes">Boxes</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:11px">
+                            <div>
+                                <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:5px">CURRENT QTY *</label>
+                                <input id="stockCurrentQty" type="number" min="0" placeholder="e.g. 50"
+                                    style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box;outline:none">
+                            </div>
+                            <div>
+                                <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:5px">MIN QTY (alert)</label>
+                                <input id="stockMinQty" type="number" min="0" placeholder="e.g. 10"
+                                    style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box;outline:none">
+                            </div>
+                        </div>
+
+                        <div style="margin-bottom:16px">
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:5px">LINKED MENU ITEM NAME <span style="font-weight:400">(exact name — for auto-deduction)</span></label>
+                            <input id="stockMenuLink" type="text" placeholder="e.g. Carlsberg Beer (must match menu item exactly)"
+                                style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;box-sizing:border-box;outline:none">
+                            <div style="font-size:0.73rem;color:var(--mid);margin-top:4px">Leave blank if you manage this stock manually only.</div>
+                        </div>
+
+                        <div style="display:flex;gap:8px">
+                            <button onclick="saveStockItem()" style="flex:1;background:var(--green);color:#fff;border:none;padding:11px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.92rem;font-family:Inter,sans-serif">&#x2705; Save Item</button>
+                            <button onclick="cancelStockEdit()" id="stockCancelBtn" style="display:none;background:none;border:1.5px solid var(--border);color:var(--mid);padding:11px 16px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;font-size:0.9rem">Cancel</button>
+                        </div>
+                    </div>
+
+                    <!-- Stock list -->
+                    <div>
+                        <!-- Search + filter bar -->
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px">
+                            <input type="text" id="stockSearch" placeholder="&#x1F50D; Search items..."
+                                oninput="renderStock()"
+                                style="flex:1;min-width:160px;padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none">
+                            <select id="stockCatFilter" onchange="renderStock()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none;background:#fff">
+                                <option value="">All Categories</option>
+                                <option value="Beverages">Beverages</option>
+                                <option value="Food">Food</option>
+                                <option value="Spirits">Spirits</option>
+                                <option value="Cigarettes">Cigarettes</option>
+                                <option value="Dairy">Dairy</option>
+                                <option value="Dry Goods">Dry Goods</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <select id="stockStatusFilter" onchange="renderStock()" style="padding:9px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;outline:none;background:#fff">
+                                <option value="">All Status</option>
+                                <option value="out">Out of Stock</option>
+                                <option value="low">Low Stock</option>
+                                <option value="ok">Healthy</option>
+                            </select>
+                        </div>
+                        <div id="stockList"></div>
                     </div>
                 </div>
             </div>
@@ -1694,6 +1824,7 @@ const DELIVERY_KEY   = 'taaza_delivery_foods';
 const SWIM_KEY       = 'taaza_swim_tickets';
 const SALES_KEY      = 'taaza_daily_sales';
 const GUESTS_KEY     = 'taaza_guests';
+const STOCK_KEY      = 'taaza_stock';
 
 /* =============================================================
    ACTIVE STAFF SESSION TRACKING
@@ -2449,6 +2580,7 @@ function showTab(name, linkEl) {
     if (name === 'dashboard')     updateStats();
     if (name === 'tableBills')    renderTablesGrid();
     if (name === 'swimTickets')   renderSwimTickets();
+    if (name === 'stock')         renderStock();
     if (name === 'dailySales')    { renderDailySales(); _populateAuditYears(); }
     if (name === 'guests')        renderGuestList();
     if (name === 'staff')         initStaffTab();
@@ -3624,6 +3756,9 @@ function printTableBill(tableNum) {
     });
     saveData(SALES_KEY, sales);
 
+    /* Deduct stock for table bill items */
+    deductStockFromOrder(order.items);
+
     /* Mark related QR orders as served */
     var qrOrders = getQrOrders();
     var changed = false;
@@ -4107,6 +4242,251 @@ function clearDailySales() {
     if (!confirm('Delete all daily sales records? This cannot be undone.')) return;
     saveData(SALES_KEY, []);
     renderDailySales();
+}
+
+/* ===== STOCK MANAGEMENT ===== */
+
+function getStock() { return getData(STOCK_KEY); }
+function saveStock(list) { saveData(STOCK_KEY, list); }
+
+function _stockStatus(s) {
+    if ((s.currentQty || 0) <= 0) return 'out';
+    if (s.minQty > 0 && (s.currentQty || 0) <= s.minQty) return 'low';
+    return 'ok';
+}
+
+function renderStock() {
+    var stock      = getStock();
+    var search     = ((document.getElementById('stockSearch')      || {}).value || '').trim().toLowerCase();
+    var catFilter  = (document.getElementById('stockCatFilter')    || {}).value || '';
+    var statFilter = (document.getElementById('stockStatusFilter') || {}).value || '';
+
+    /* Stats */
+    var total   = stock.length;
+    var healthy = stock.filter(function(s){ return _stockStatus(s) === 'ok';  }).length;
+    var low     = stock.filter(function(s){ return _stockStatus(s) === 'low'; }).length;
+    var out     = stock.filter(function(s){ return _stockStatus(s) === 'out'; }).length;
+
+    var el; el = document.getElementById('stockStatTotal');   if (el) el.textContent = total;
+    el = document.getElementById('stockStatHealthy');         if (el) el.textContent = healthy;
+    el = document.getElementById('stockStatLow');             if (el) el.textContent = low;
+    el = document.getElementById('stockStatOut');             if (el) el.textContent = out;
+
+    /* Low stock notification badge */
+    var badge = document.getElementById('adminNotifStock');
+    var alertCount = low + out;
+    if (badge) { badge.textContent = alertCount; badge.style.display = alertCount > 0 ? 'inline-flex' : 'none'; }
+
+    /* Alert banner */
+    var alertItems = stock.filter(function(s){ return _stockStatus(s) !== 'ok'; })
+        .sort(function(a,b){ return (a.currentQty||0) - (b.currentQty||0); });
+    var banner = document.getElementById('stockAlertBanner');
+    var alertList = document.getElementById('stockAlertList');
+    if (banner && alertList) {
+        if (!alertItems.length) {
+            banner.style.display = 'none';
+        } else {
+            banner.style.display = 'block';
+            alertList.innerHTML = alertItems.map(function(s) {
+                var st = _stockStatus(s);
+                var color = st === 'out' ? '#dc2626' : '#d97706';
+                var icon  = st === 'out' ? '&#x274C;' : '&#x26A0;&#xFE0F;';
+                return '<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed #fca5a5">' +
+                    '<span style="font-size:0.88rem">' + icon + ' <strong>' + esc(s.name) + '</strong> <span style="color:var(--mid);font-size:0.78rem">(' + esc(s.category || '') + ')</span></span>' +
+                    '<span style="font-weight:700;color:' + color + ';font-size:0.88rem">' + (s.currentQty || 0) + ' ' + esc(s.unit || 'pcs') + (s.minQty ? ' / min ' + s.minQty : '') + '</span>' +
+                '</div>';
+            }).join('');
+        }
+    }
+
+    /* Filter list */
+    var filtered = stock.filter(function(s) {
+        if (search && (s.name || '').toLowerCase().indexOf(search) === -1 &&
+            (s.category || '').toLowerCase().indexOf(search) === -1) return false;
+        if (catFilter && s.category !== catFilter) return false;
+        if (statFilter && _stockStatus(s) !== statFilter) return false;
+        return true;
+    });
+
+    /* Sort: out first, then low, then ok; within group by name */
+    var order = { out:0, low:1, ok:2 };
+    filtered.sort(function(a,b){
+        var sd = order[_stockStatus(a)] - order[_stockStatus(b)];
+        return sd !== 0 ? sd : (a.name || '').localeCompare(b.name || '');
+    });
+
+    var listEl = document.getElementById('stockList');
+    if (!listEl) return;
+
+    if (!filtered.length) {
+        listEl.innerHTML = '<div class="admin-card" style="text-align:center;padding:32px 0;color:var(--mid)">' +
+            '<div style="font-size:2.5rem;margin-bottom:8px">&#x1F4E6;</div>' +
+            '<p>' + (stock.length ? 'No items match your filter.' : 'No stock items yet. Add your first item.') + '</p></div>';
+        return;
+    }
+
+    listEl.innerHTML = filtered.map(function(s) {
+        var st = _stockStatus(s);
+        var statusBadge = st === 'out'
+            ? '<span style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;padding:3px 10px;border-radius:20px;font-size:0.73rem;font-weight:700">&#x274C; OUT OF STOCK</span>'
+            : st === 'low'
+            ? '<span style="background:#fef3c7;color:#d97706;border:1px solid #fde68a;padding:3px 10px;border-radius:20px;font-size:0.73rem;font-weight:700">&#x26A0;&#xFE0F; LOW STOCK</span>'
+            : '<span style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;padding:3px 10px;border-radius:20px;font-size:0.73rem;font-weight:700">&#x2705; IN STOCK</span>';
+
+        var bgColor = st === 'out' ? '#fff5f5' : st === 'low' ? '#fffbf0' : '#fff';
+
+        var updatedStr = '';
+        if (s.updatedAt) {
+            try { updatedStr = new Date(s.updatedAt).toLocaleDateString('en-GB', {day:'2-digit',month:'short',year:'numeric'}); } catch(e){}
+        }
+
+        return '<div style="background:' + bgColor + ';border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:10px">' +
+            '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:8px;margin-bottom:10px">' +
+                '<div>' +
+                    '<div style="font-weight:700;font-size:1rem;color:var(--green);margin-bottom:4px">' + esc(s.name) + '</div>' +
+                    '<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">' +
+                        '<span style="background:#f3f4f6;padding:2px 8px;border-radius:20px;font-size:0.75rem;color:var(--mid)">' + esc(s.category || 'Other') + '</span>' +
+                        (s.menuItemName ? '<span style="background:#eff6ff;color:#1d4ed8;padding:2px 8px;border-radius:20px;font-size:0.75rem">&#x1F517; ' + esc(s.menuItemName) + '</span>' : '') +
+                        statusBadge +
+                    '</div>' +
+                '</div>' +
+                '<div style="text-align:right">' +
+                    '<div style="font-size:1.6rem;font-weight:800;color:' + (st==='out'?'#dc2626':st==='low'?'#d97706':'var(--green)') + '">' + (s.currentQty || 0) + '</div>' +
+                    '<div style="font-size:0.78rem;color:var(--mid)">' + esc(s.unit || 'pcs') + (s.minQty ? ' &nbsp;|&nbsp; min: ' + s.minQty : '') + '</div>' +
+                '</div>' +
+            '</div>' +
+            '<div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center">' +
+                '<button onclick="adjustStock(\'' + s.id + '\',1)" style="background:var(--green);color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700">+1</button>' +
+                '<button onclick="adjustStock(\'' + s.id + '\',5)" style="background:#059669;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700">+5</button>' +
+                '<button onclick="adjustStock(\'' + s.id + '\',-1)" style="background:#f59e0b;color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700">−1</button>' +
+                '<button onclick="restockPrompt(\'' + s.id + '\')" style="background:var(--accent);color:#fff;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:0.82rem;font-weight:700">&#x1F4E6; Restock</button>' +
+                '<button onclick="editStockItem(\'' + s.id + '\')" style="background:none;border:1.5px solid var(--border);color:var(--mid);padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem">&#x270F;&#xFE0F; Edit</button>' +
+                '<button onclick="deleteStockItem(\'' + s.id + '\')" style="background:none;border:1.5px solid #fca5a5;color:#dc2626;padding:6px 12px;border-radius:6px;cursor:pointer;font-size:0.82rem">&#x1F5D1;</button>' +
+                (updatedStr ? '<span style="margin-left:auto;font-size:0.72rem;color:var(--mid)">Updated ' + updatedStr + '</span>' : '') +
+            '</div>' +
+        '</div>';
+    }).join('');
+}
+
+function saveStockItem() {
+    var name     = (document.getElementById('stockName')       || {}).value.trim();
+    var cat      = (document.getElementById('stockCategory')   || {}).value;
+    var unit     = (document.getElementById('stockUnit')       || {}).value;
+    var qty      = parseInt((document.getElementById('stockCurrentQty') || {}).value || '0') || 0;
+    var minQty   = parseInt((document.getElementById('stockMinQty')     || {}).value || '0') || 0;
+    var menuLink = ((document.getElementById('stockMenuLink')  || {}).value || '').trim();
+    var editId   = (document.getElementById('stockEditId')     || {}).value || '';
+
+    if (!name) { alert('Please enter an item name.'); return; }
+
+    var stock = getStock();
+    if (editId) {
+        var item = stock.find(function(s){ return s.id === editId; });
+        if (item) {
+            item.name = name; item.category = cat; item.unit = unit;
+            item.currentQty = qty; item.minQty = minQty; item.menuItemName = menuLink;
+            item.updatedAt = new Date().toISOString();
+        }
+    } else {
+        stock.push({
+            id: 'STK-' + Date.now(),
+            name: name, category: cat, unit: unit,
+            currentQty: qty, minQty: minQty, menuItemName: menuLink,
+            updatedAt: new Date().toISOString()
+        });
+    }
+    saveStock(stock);
+    cancelStockEdit();
+    renderStock();
+    showBanner((editId ? 'Stock item updated: ' : 'Stock item added: ') + name);
+    auditLog('STOCK', editId ? 'Update' : 'Add', (editId ? 'Updated' : 'Added') + ' stock item: ' + name + ' — qty ' + qty);
+}
+
+function editStockItem(id) {
+    var s = getStock().find(function(x){ return x.id === id; });
+    if (!s) return;
+    document.getElementById('stockEditId').value      = s.id;
+    document.getElementById('stockName').value        = s.name || '';
+    document.getElementById('stockCategory').value    = s.category || 'Beverages';
+    document.getElementById('stockUnit').value        = s.unit || 'bottles';
+    document.getElementById('stockCurrentQty').value  = s.currentQty || 0;
+    document.getElementById('stockMinQty').value      = s.minQty || 0;
+    document.getElementById('stockMenuLink').value    = s.menuItemName || '';
+    document.getElementById('stockFormTitle').textContent = '✏️ Edit Stock Item';
+    document.getElementById('stockCancelBtn').style.display = 'inline-block';
+    document.getElementById('stockName').focus();
+    document.querySelector('#tab-stock .admin-card').scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function cancelStockEdit() {
+    document.getElementById('stockEditId').value      = '';
+    document.getElementById('stockName').value        = '';
+    document.getElementById('stockCurrentQty').value  = '';
+    document.getElementById('stockMinQty').value      = '';
+    document.getElementById('stockMenuLink').value    = '';
+    document.getElementById('stockFormTitle').textContent = '➕ Add Stock Item';
+    document.getElementById('stockCancelBtn').style.display = 'none';
+}
+
+function deleteStockItem(id) {
+    var s = getStock().find(function(x){ return x.id === id; });
+    if (!s || !confirm('Delete stock item: ' + s.name + '?')) return;
+    saveStock(getStock().filter(function(x){ return x.id !== id; }));
+    renderStock();
+    showBanner('Deleted: ' + s.name);
+}
+
+function adjustStock(id, delta) {
+    var stock = getStock();
+    var s = stock.find(function(x){ return x.id === id; });
+    if (!s) return;
+    s.currentQty = Math.max(0, (s.currentQty || 0) + delta);
+    s.updatedAt  = new Date().toISOString();
+    saveStock(stock);
+    renderStock();
+    auditLog('STOCK', 'Adjust', s.name + ' qty ' + (delta > 0 ? '+' : '') + delta + ' → ' + s.currentQty);
+}
+
+function restockPrompt(id) {
+    var stock = getStock();
+    var s = stock.find(function(x){ return x.id === id; });
+    if (!s) return;
+    var val = prompt('Restock "' + s.name + '"\nCurrent: ' + (s.currentQty||0) + ' ' + (s.unit||'pcs') + '\nEnter quantity to ADD:', '');
+    if (val === null || val.trim() === '') return;
+    var add = parseInt(val) || 0;
+    if (add <= 0) { alert('Please enter a positive number.'); return; }
+    s.currentQty = (s.currentQty || 0) + add;
+    s.updatedAt  = new Date().toISOString();
+    saveStock(stock);
+    renderStock();
+    showBanner('Restocked ' + s.name + ': +' + add + ' → ' + s.currentQty + ' ' + (s.unit||'pcs'));
+    auditLog('STOCK', 'Restock', s.name + ' restocked +' + add + ' → ' + s.currentQty);
+}
+
+function deductStockFromOrder(items) {
+    if (!items || !items.length) return;
+    var stock   = getStock();
+    var changed = false;
+    items.forEach(function(it) {
+        var name = (it.name || '').toLowerCase().trim();
+        var s = stock.find(function(x){
+            return x.menuItemName && x.menuItemName.toLowerCase().trim() === name;
+        });
+        if (s) {
+            var before = s.currentQty || 0;
+            s.currentQty  = Math.max(0, before - (it.qty || 1));
+            s.updatedAt   = new Date().toISOString();
+            changed = true;
+            auditLog('STOCK', 'Auto-deduct', s.name + ' −' + it.qty + ' (order) → ' + s.currentQty);
+        }
+    });
+    if (changed) {
+        saveStock(stock);
+        /* Update low-stock badge if stock tab is not open */
+        var alertCount = stock.filter(function(s){ return _stockStatus(s) !== 'ok'; }).length;
+        var badge = document.getElementById('adminNotifStock');
+        if (badge) { badge.textContent = alertCount; badge.style.display = alertCount > 0 ? 'inline-flex' : 'none'; }
+    }
 }
 
 /* ===== AUDIT REPORT ===== */
@@ -6006,6 +6386,9 @@ function updateQrOrderStatus(id, newStatus) {
     showBanner('Order ' + id + ' marked as ' + newStatus + '!');
     var loc = isRoom ? 'Room ' + o.roomNum : 'Table ' + o.tableNum;
     auditLog('UPDATE', 'QR Order', 'Order ' + id + ' (' + loc + ') status changed to ' + newStatus);
+
+    /* Deduct stock when served */
+    if (newStatus === 'served') deductStockFromOrder(o.items);
 
     /* Record to daily sales once when served */
     if (newStatus === 'served') {
