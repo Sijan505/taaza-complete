@@ -3344,8 +3344,7 @@ function renderTableOrderPanel() {
     var order  = orders[activeTable] || { items: [], guestName: '' };
     var panel  = document.getElementById('tableOrderContent');
 
-    var menuItems = getData(DELIVERY_KEY);
-    if (!menuItems.length) menuItems = getData(MENU_KEY);
+    var menuItems = getData(MENU_KEY);
 
     var itemsHtml = order.items.length ? order.items.map(function(item, idx) {
         return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed var(--border)">' +
@@ -3409,8 +3408,7 @@ function filterTableItems() {
     if (!drop) return;
     if (!query) { drop.style.display = 'none'; return; }
 
-    var items = getData(DELIVERY_KEY);
-    if (!items.length) items = getData(MENU_KEY);
+    var items = getData(MENU_KEY);
     var matches = items.filter(function(m) {
         return m.available !== false && (m.name || '').toLowerCase().indexOf(query) !== -1;
     });
@@ -6283,8 +6281,7 @@ function filterRoomItems() {
     if (!drop) return;
     if (!query) { drop.style.display = 'none'; return; }
 
-    var items = getData(DELIVERY_KEY);
-    if (!items.length) items = getData(MENU_KEY);
+    var items = getData(MENU_KEY);
     var matches = items.filter(function(m) {
         return m.available !== false && (m.name || '').toLowerCase().indexOf(query) !== -1;
     });
