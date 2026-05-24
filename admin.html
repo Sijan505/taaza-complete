@@ -557,6 +557,48 @@
                     </div>
                 </div>
 
+                <!-- Create Room Order -->
+                <div class="admin-card" style="margin-bottom:24px">
+                    <h3 style="margin:0 0 16px">&#x2795; Create Room Order</h3>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+                        <div>
+                            <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">ROOM NUMBER *</label>
+                            <input id="roomOrderNum" type="number" min="1" placeholder="e.g. 101"
+                                style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box;outline:none">
+                        </div>
+                        <div>
+                            <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">GUEST NAME (optional)</label>
+                            <input id="roomOrderGuest" type="text" placeholder="e.g. Ram Thapa"
+                                style="width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box;outline:none">
+                        </div>
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">ADD ITEM</label>
+                        <input id="roomItemSearch" type="text" placeholder="&#x1F50D; Type item name to search..."
+                            oninput="filterRoomItems()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                            onkeydown="if(event.key==='Escape'){var d=document.getElementById('roomItemDropdown');if(d)d.style.display='none';this.value='';}"
+                            style="width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:16px;box-sizing:border-box;-webkit-appearance:none;touch-action:manipulation;outline:none">
+                        <div id="roomItemDropdown" style="display:none;background:#fff;border:1.5px solid var(--accent);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.14);overflow:hidden;max-height:240px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:4px"></div>
+                    </div>
+                    <div id="roomOrderCart" style="min-height:60px;max-height:220px;overflow-y:auto;margin-bottom:12px">
+                        <p style="color:var(--mid);font-size:0.85rem;padding:12px 0">No items yet. Search above to add.</p>
+                    </div>
+                    <div id="roomOrderTotals" style="display:none;border-top:2px dashed var(--border);padding-top:12px;margin-bottom:12px">
+                        <div style="display:flex;justify-content:space-between;font-size:0.88rem;color:var(--mid)"><span>Subtotal</span><span id="roomOrderSub">Rs. 0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-size:0.88rem;color:var(--mid);margin-top:4px"><span>VAT (13%)</span><span id="roomOrderVat">Rs. 0</span></div>
+                        <div style="display:flex;justify-content:space-between;font-weight:700;font-size:1rem;margin-top:8px;padding-top:8px;border-top:1px solid var(--border)"><span>Grand Total</span><span style="color:var(--green)" id="roomOrderTotal">Rs. 0</span></div>
+                    </div>
+                    <div style="margin-bottom:12px">
+                        <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">SPECIAL NOTE (optional)</label>
+                        <input id="roomOrderNote" type="text" placeholder="e.g. No spicy, extra napkins..."
+                            style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-family:Inter,sans-serif;font-size:0.88rem;box-sizing:border-box;outline:none">
+                    </div>
+                    <div style="display:flex;gap:10px">
+                        <button onclick="placeRoomOrderFromAdmin()" style="flex:1;background:var(--green);color:#fff;border:none;padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x2705; Place Room Order</button>
+                        <button onclick="clearRoomCart()" style="background:none;border:1.5px solid #e5e7eb;color:#6b7280;padding:13px 18px;border-radius:8px;cursor:pointer;font-family:Inter,sans-serif;font-size:0.9rem;font-weight:600">&#x1F5D1; Clear</button>
+                    </div>
+                </div>
+
                 <!-- Room Food Orders -->
                 <div class="admin-card" style="margin-bottom:24px">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
@@ -5663,6 +5705,156 @@ function printRoomSwimTicket() {
     document.getElementById('roomSwimAdults').value    = 0;
     document.getElementById('roomSwimKids').value      = 0;
     document.getElementById('roomSwimTotalPreview').textContent = 'Rs. 0';
+    renderRoomOrders();
+}
+
+/* ===== ROOM ORDER CREATOR ===== */
+var _roomAdminCart = [];
+
+function filterRoomItems() {
+    var query = (document.getElementById('roomItemSearch').value || '').trim().toLowerCase();
+    var drop  = document.getElementById('roomItemDropdown');
+    if (!drop) return;
+    if (!query) { drop.style.display = 'none'; return; }
+
+    var items = getData(DELIVERY_KEY);
+    if (!items.length) items = getData(MENU_KEY);
+    var matches = items.filter(function(m) {
+        return m.available !== false && (m.name || '').toLowerCase().indexOf(query) !== -1;
+    });
+
+    if (!matches.length) {
+        drop.innerHTML = '<div style="padding:10px 14px;color:var(--mid);font-size:0.85rem;font-family:Inter,sans-serif">No items found</div>';
+        drop.style.display = 'block';
+        return;
+    }
+    drop.innerHTML = matches.map(function(m) {
+        var safeName  = esc(m.name);
+        var safeEmoji = esc(m.emoji || '🍽️');
+        var safePrice = Number(m.price);
+        return '<div ' +
+            'data-name="'  + safeName  + '" ' +
+            'data-price="' + safePrice + '" ' +
+            'data-emoji="' + safeEmoji + '" ' +
+            'ontouchend="event.preventDefault();event.stopPropagation();selectRoomItemFromEl(this)" ' +
+            'onclick="selectRoomItemFromEl(this)" ' +
+            'style="padding:14px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;min-height:52px;' +
+            'border-bottom:1px solid #f0f0f0;font-size:0.95rem;font-family:Inter,sans-serif;' +
+            '-webkit-tap-highlight-color:rgba(30,58,42,0.1);touch-action:manipulation;user-select:none;-webkit-user-select:none" ' +
+            'onmouseenter="this.style.background=\'#f6fff8\'" onmouseleave="this.style.background=\'\'">' +
+            '<span style="font-size:1rem;pointer-events:none">' + safeEmoji + ' ' + safeName + '</span>' +
+            '<span style="color:var(--mid);font-size:0.82rem;white-space:nowrap;margin-left:8px;pointer-events:none">Rs. ' + safePrice + '</span>' +
+            '</div>';
+    }).join('');
+    drop.style.display = 'block';
+}
+
+function selectRoomItemFromEl(el) {
+    var name  = el.dataset.name;
+    var price = Number(el.dataset.price);
+    var emoji = el.dataset.emoji || '🍽️';
+    var drop     = document.getElementById('roomItemDropdown');
+    var searchEl = document.getElementById('roomItemSearch');
+    if (drop)     drop.style.display = 'none';
+    if (searchEl) searchEl.value = '';
+
+    var existing = _roomAdminCart.find(function(i) { return i.name === name; });
+    if (existing) {
+        existing.qty++;
+    } else {
+        _roomAdminCart.push({ name: name, price: price, emoji: emoji, qty: 1 });
+    }
+    renderRoomOrderCart();
+}
+
+function roomAdminCartQty(idx, delta) {
+    _roomAdminCart[idx].qty += delta;
+    if (_roomAdminCart[idx].qty <= 0) _roomAdminCart.splice(idx, 1);
+    renderRoomOrderCart();
+}
+
+function renderRoomOrderCart() {
+    var cartEl   = document.getElementById('roomOrderCart');
+    var totalsEl = document.getElementById('roomOrderTotals');
+    if (!cartEl) return;
+
+    if (!_roomAdminCart.length) {
+        cartEl.innerHTML = '<p style="color:var(--mid);font-size:0.85rem;padding:12px 0">No items yet. Search above to add.</p>';
+        if (totalsEl) totalsEl.style.display = 'none';
+        return;
+    }
+
+    cartEl.innerHTML = _roomAdminCart.map(function(item, idx) {
+        return '<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px dashed var(--border)">' +
+            '<span style="font-size:1.1rem">' + (item.emoji || '🍽️') + '</span>' +
+            '<span style="flex:1;font-size:0.88rem;font-weight:600">' + esc(item.name) + '</span>' +
+            '<div style="display:flex;align-items:center;gap:6px">' +
+                '<button onclick="roomAdminCartQty(' + idx + ',-1)" style="width:26px;height:26px;border:1px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1">−</button>' +
+                '<span style="min-width:20px;text-align:center;font-weight:700">' + item.qty + '</span>' +
+                '<button onclick="roomAdminCartQty(' + idx + ',1)"  style="width:26px;height:26px;border:1px solid var(--border);background:#fff;border-radius:50%;cursor:pointer;font-size:1rem;line-height:1">+</button>' +
+            '</div>' +
+            '<span style="min-width:64px;text-align:right;font-weight:600;font-size:0.88rem">Rs. ' + (item.price * item.qty) + '</span>' +
+        '</div>';
+    }).join('');
+
+    var sub   = _roomAdminCart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+    var vat   = Math.round(sub * 0.13);
+    var grand = sub + vat;
+    if (totalsEl) {
+        totalsEl.style.display = 'block';
+        var subEl = document.getElementById('roomOrderSub');   if (subEl) subEl.textContent = 'Rs. ' + sub;
+        var vatEl = document.getElementById('roomOrderVat');   if (vatEl) vatEl.textContent = 'Rs. ' + vat;
+        var totEl = document.getElementById('roomOrderTotal'); if (totEl) totEl.textContent = 'Rs. ' + grand;
+    }
+}
+
+function clearRoomCart() {
+    _roomAdminCart = [];
+    renderRoomOrderCart();
+    var noteEl = document.getElementById('roomOrderNote');
+    if (noteEl) noteEl.value = '';
+}
+
+function placeRoomOrderFromAdmin() {
+    var roomNum = parseInt((document.getElementById('roomOrderNum') || {}).value) || 0;
+    if (!roomNum || roomNum < 1) { alert('Please enter a valid room number.'); return; }
+    if (!_roomAdminCart.length) { alert('Please add at least one item.'); return; }
+
+    var guestName = ((document.getElementById('roomOrderGuest') || {}).value || '').trim();
+    var note      = ((document.getElementById('roomOrderNote')  || {}).value || '').trim();
+    var sub       = _roomAdminCart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
+    var vat       = Math.round(sub * 0.13);
+    var grand     = sub + vat;
+
+    var orderId = 'QR-R' + roomNum + '-' + Date.now();
+    var order = {
+        id:        orderId,
+        tableNum:  null,
+        roomNum:   roomNum,
+        type:      'room',
+        guestName: guestName || '',
+        items:     _roomAdminCart.map(function(i){ return { name:i.name, price:i.price, emoji:i.emoji, qty:i.qty }; }),
+        subtotal:  sub,
+        vat:       vat,
+        total:     grand,
+        status:    'pending',
+        note:      note,
+        orderedAt: new Date().toISOString(),
+        source:    'admin'
+    };
+
+    var orders = getQrOrders();
+    orders.push(order);
+    saveQrOrders(orders);
+
+    auditLog('CREATE', 'Room Order', 'Admin placed order ' + orderId + ' for Room ' + roomNum + ' — Rs. ' + grand);
+    showBanner('Order placed for Room ' + roomNum + '!');
+
+    clearRoomCart();
+    var numEl = document.getElementById('roomOrderNum');
+    var guestEl = document.getElementById('roomOrderGuest');
+    if (numEl)   numEl.value   = '';
+    if (guestEl) guestEl.value = '';
     renderRoomOrders();
 }
 
