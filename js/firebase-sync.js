@@ -7,11 +7,17 @@
     return;
   }
 
-  if (!firebase.apps.length) {
-    firebase.initializeApp(window.TAAZA_FIREBASE_CONFIG);
+  var db;
+  try {
+    if (!firebase.apps.length) {
+      firebase.initializeApp(window.TAAZA_FIREBASE_CONFIG);
+    }
+    db = firebase.firestore();
+    window._taazaDB = db;
+  } catch (e) {
+    console.warn('[Taaza] Firebase init failed — sync disabled.', e);
+    return;
   }
-  var db = firebase.firestore();
-  window._taazaDB = db;
 
   // Flush any reservations queued before Firebase finished loading
   if (window._taazaPendingRes && window._taazaPendingRes.length) {
@@ -46,12 +52,24 @@
 
   function safeSet(col, id, data) {
     db.collection(col).doc(id).set(stripScreenshot(data))
-      .catch(function (e) { console.error('[Taaza] Firestore set error:', col, id, e); });
+      .catch(function (e) {
+        if (e && e.code === 'permission-denied') {
+          console.warn('[Taaza] Firebase rules expired — go to Firebase Console → Firestore → Rules and republish.');
+        } else {
+          console.error('[Taaza] Firestore set error:', col, id, e);
+        }
+      });
   }
 
   function safeDelete(col, id) {
     db.collection(col).doc(id).delete()
-      .catch(function (e) { console.error('[Taaza] Firestore delete error:', col, id, e); });
+      .catch(function (e) {
+        if (e && e.code === 'permission-denied') {
+          console.warn('[Taaza] Firebase rules expired — go to Firebase Console → Firestore → Rules and republish.');
+        } else {
+          console.error('[Taaza] Firestore delete error:', col, id, e);
+        }
+      });
   }
 
   // ----------------------------------------------------------
