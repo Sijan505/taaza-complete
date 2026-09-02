@@ -8,6 +8,6 @@
 // 4. Paste them below
 
 var TAAZA_SUPABASE_CONFIG = {
-  url:     "https://iawtxwmtkwkzsovlveof.supabase.co",
-  anonKey: "sb_publishable_Y5hJ1HaaMsl1QJfJN7eecg_SoEhvNZk"
+  url:     "https://xjgarkitgwdyxzwewqyy.supabase.co",
+  anonKey: "sb_publishable_25K-OxMYUIA1rJ3eispsgQ_X61rTd9S"
 };
