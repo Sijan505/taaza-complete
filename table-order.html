@@ -912,6 +912,26 @@ var isRoomOrder   = false;
 var cart          = [];      /* [{name, price, qty, emoji, category}] */
 var placedOrderId = null;
 var statusPollTimer = null;
+var _placingOrder = false; /* guards against a double-tap on "Place Order" creating two separate orders */
+
+/* Save to Supabase if the SDK has already loaded, otherwise queue it —
+   the three Supabase <script> tags load at the bottom of this page, and
+   on a slow mobile connection a guest can tap "Place Order" before that
+   finishes, before window._taazaDB even exists. Without this fallback
+   that write would just be silently skipped forever: the order stays in
+   this phone's own localStorage only, the confirmation screen still
+   shows normally, and the order never reaches the admin dashboard.
+   Queuing into the same outbox supabase-sync.js drains means it gets
+   picked up the moment that script finishes loading. */
+function _taazaSafeSave(table, id, data) {
+    if (window._taazaDB) { window._taazaDB.save(table, id, data); return; }
+    try {
+        var items = JSON.parse(localStorage.getItem('taaza_sync_outbox') || '[]');
+        items = items.filter(function(it) { return !(it.table === table && it.id === id); });
+        items.push({ table: table, id: id, data: data, queuedAt: Date.now() });
+        localStorage.setItem('taaza_sync_outbox', JSON.stringify(items));
+    } catch (e) {}
+}
 
 /* ================================================================
    MENU DATA
@@ -1122,6 +1142,51 @@ var MENU = [
             { name: 'Fresh Juice Pineapple', price: 100, emoji: '🍍' },
             { name: 'Red Bull Regular',      price: 150, emoji: '⚡' },
             { name: 'Red Bull Imported',     price: 350, emoji: '⚡' }
+        ]
+    },
+    {
+        cat: 'Hard Drinks', emoji: '🥃',
+        items: [
+            { name: 'Old Durbar (Black) - 60ml', price: 350,  emoji: '🥃' },
+            { name: 'Old Durbar (Black) - Qtr',  price: 1000, emoji: '🥃' },
+            { name: 'Old Durbar (Black) - Half', price: 2050, emoji: '🥃' },
+            { name: 'Old Durbar (Black) - Full', price: 4900, emoji: '🥃' },
+            { name: 'Old Durbar (Red) - 60ml',   price: 270,  emoji: '🥃' },
+            { name: 'Old Durbar (Red) - Qtr',    price: 800,  emoji: '🥃' },
+            { name: 'Old Durbar (Red) - Half',   price: 1600, emoji: '🥃' },
+            { name: 'Old Durbar (Red) - Full',   price: 3200, emoji: '🥃' },
+            { name: '8848 Vodka - 60ml',         price: 220,  emoji: '🥃' },
+            { name: '8848 Vodka - Qtr',          price: 650,  emoji: '🥃' },
+            { name: '8848 Vodka - Half',         price: 1300, emoji: '🥃' },
+            { name: '8848 Vodka - Full',         price: 2600, emoji: '🥃' },
+            { name: 'Red Signature - 60ml',      price: 250,  emoji: '🥃' },
+            { name: 'Red Signature - Qtr',       price: 750,  emoji: '🥃' },
+            { name: 'Red Signature - Half',      price: 1500, emoji: '🥃' },
+            { name: 'Red Signature - Full',      price: 3000, emoji: '🥃' },
+            { name: 'Golden Oak - 60ml',         price: 135,  emoji: '🥃' },
+            { name: 'Golden Oak - Qtr',          price: 400,  emoji: '🥃' },
+            { name: 'Golden Oak - Half',         price: 800,  emoji: '🥃' },
+            { name: 'Golden Oak - Full',         price: 1600, emoji: '🥃' },
+            { name: 'Khukuri Rum - 60ml',        price: 220,  emoji: '🥃' },
+            { name: 'Khukuri Rum - Qtr',         price: 650,  emoji: '🥃' },
+            { name: 'Khukuri Rum - Half',        price: 1300, emoji: '🥃' },
+            { name: 'Khukuri Rum - Full',        price: 2600, emoji: '🥃' },
+            { name: 'Ruslan Vodka - 60ml',       price: 200,  emoji: '🥃' },
+            { name: 'Ruslan Vodka - Qtr',        price: 600,  emoji: '🥃' },
+            { name: 'Ruslan Vodka - Half',       price: 1200, emoji: '🥃' },
+            { name: 'Ruslan Vodka - Full',       price: 2400, emoji: '🥃' },
+            { name: 'Yeti Vodka - 60ml',         price: 235,  emoji: '🥃' },
+            { name: 'Yeti Vodka - Qtr',          price: 700,  emoji: '🥃' },
+            { name: 'Yeti Vodka - Half',         price: 1400, emoji: '🥃' },
+            { name: 'Yeti Vodka - Full',         price: 2800, emoji: '🥃' },
+            { name: 'Gorkhas N Guns - 60ml',     price: 300,  emoji: '🥃' },
+            { name: 'Gorkhas N Guns - Qtr',      price: 900,  emoji: '🥃' },
+            { name: 'Gorkhas N Guns - Half',     price: 1800, emoji: '🥃' },
+            { name: 'Gorkhas N Guns - Full',     price: 3600, emoji: '🥃' },
+            { name: 'Highlander - 60ml',         price: 135,  emoji: '🥃' },
+            { name: 'Highlander - Qtr',          price: 400,  emoji: '🥃' },
+            { name: 'Highlander - Half',         price: 800,  emoji: '🥃' },
+            { name: 'Highlander - Full',         price: 1600, emoji: '🥃' }
         ]
     },
     {
@@ -1468,7 +1533,8 @@ function renderOrderPanel() {
    PLACE ORDER
    ================================================================ */
 function placeOrder() {
-    if (!cart.length) return;
+    if (!cart.length || _placingOrder) return;
+    _placingOrder = true;
 
     var note  = (document.getElementById('orderNote') || {}).value || '';
     var sub   = cart.reduce(function(s, c){ return s + c.price * c.qty; }, 0);
@@ -1513,17 +1579,15 @@ function placeOrder() {
             }
         });
         localStorage.setItem('taaza_table_orders', JSON.stringify(tableOrders));
-        if (window._taazaDB) {
-            window._taazaDB.collection('taaza_meta').doc('table_orders').set({ data: tableOrders })
-                .catch(function(e) { console.error('[Taaza] Table orders sync failed:', e); });
-        }
+        /* One row per table (taaza_tables), not a shared whole-object
+           blob — so this write can never race with, or get clobbered
+           by, another table's concurrent update or admin's own
+           payment-completion write. */
+        _taazaSafeSave('taaza_tables', String(tableNum), tableOrders[tableNum]);
       } catch(e) {}
     }
 
-    if (window._taazaDB) {
-        window._taazaDB.collection('taaza_qr_orders').doc(orderId).set(order)
-            .catch(function(e) { console.error('[Taaza] QR order sync failed:', e); });
-    }
+    _taazaSafeSave('taaza_qr_orders', orderId, order);
 
     placedOrderId = orderId;
 
@@ -1599,6 +1663,7 @@ function resetForNewOrder() {
     if (statusPollTimer) clearInterval(statusPollTimer);
     cart = [];
     placedOrderId = null;
+    _placingOrder = false;
 
     document.getElementById('confirmationScreen').classList.remove('visible');
     document.getElementById('orderingApp').style.display = 'block';
@@ -1615,10 +1680,9 @@ function resetForNewOrder() {
 document.addEventListener('DOMContentLoaded', init);
 </script>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="js/firebase-config.js?v=2"></script>
-<script src="js/firebase-sync.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js?v=2"></script>
+<script src="js/supabase-sync.js?v=3"></script>
 
 <nav class="mobile-btm-nav">
   <a href="index.html"><span class="mbn-icon">🏠</span>Home</a>

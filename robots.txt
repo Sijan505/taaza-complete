@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin
 Disallow: /admin.html
 
-Sitemap: https://taaza-complete-main.vercel.app/sitemap.xml
+Sitemap: https://www.taazaresort.com/sitemap.xml

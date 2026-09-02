@@ -201,7 +201,7 @@ Items that have been implemented and tested:
 - [ ] Setup email/SMS notifications for orders
 - [ ] Integrate payment gateway (eSewa, Khalti)
 - [ ] Add customer login system
-- [ ] Setup real database (Firebase, MongoDB, etc.)
+- [x] Setup real database (Supabase)
 - [ ] Add order delivery tracking
 - [ ] Implement inventory management
 - [ ] Add promotional/coupon system

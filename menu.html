@@ -714,12 +714,12 @@
                         <tr><td>Old Durbar (Red)</td><td>270</td><td>800</td><td>1600</td><td>3200</td></tr>
                         <tr><td>8848 Vodka</td><td>220</td><td>650</td><td>1300</td><td>2600</td></tr>
                         <tr><td>Red Signature</td><td>250</td><td>750</td><td>1500</td><td>3000</td></tr>
-                        <tr><td>Golden Oak</td><td>125</td><td>375</td><td>750</td><td>1500</td></tr>
+                        <tr><td>Golden Oak</td><td>135</td><td>400</td><td>800</td><td>1600</td></tr>
                         <tr><td>Khukuri Rum</td><td>220</td><td>650</td><td>1300</td><td>2600</td></tr>
                         <tr><td>Ruslan Vodka</td><td>200</td><td>600</td><td>1200</td><td>2400</td></tr>
                         <tr><td>Yeti Vodka</td><td>235</td><td>700</td><td>1400</td><td>2800</td></tr>
                         <tr><td>Gorkhas N Guns</td><td>300</td><td>900</td><td>1800</td><td>3600</td></tr>
-                        <tr><td>Highlander</td><td>125</td><td>375</td><td>750</td><td>1500</td></tr>
+                        <tr><td>Highlander</td><td>135</td><td>400</td><td>800</td><td>1600</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -848,5 +848,82 @@
 </footer>
 
 <script src="js/script.js"></script>
+<script>
+/* ===== LIVE MENU PRICES — mirrors admin panel's "taaza_menu_items" ===== */
+(function () {
+    var MENU_KEY = 'taaza_menu_items';
+
+    /* Names on this page that don't match admin's item name exactly.
+       Maps the displayed name -> one or two admin item names (two = a
+       combined price cell like "Rs. 650 / 550", shown in that order). */
+    var NAME_MAP = {
+        'Toast Bread & Omlete':    ['Toast Bread Omlete'],
+        'Chicken Lolipop':         ['Chicken Lollipop'],
+        'Sada Khana (Veg Thali)':  ['Sada Khana'],
+        'Bandel / Duck Khaja Set': ['Bandel Khaja Set', 'Duck Choila Khaja Set'],
+        'Red Bull (Imp)':          ['Red Bull (Imported)'],
+        'Carlsberg / Tuborg Beer': ['Carlsberg Beer', 'Tuborg Beer'],
+        'Gorkha Premium / Strong': ['Gorkha Premium', 'Gorkha Strong'],
+        'J.P. Chenet Wine':        ['J.P. Chenet'],
+        'Big Master / Akira Wine': ['Big Master', 'Akira']
+    };
+
+    function norm(s) { return (s || '').toLowerCase().trim(); }
+
+    function isAvailable(item) { return item.available !== false && item.available !== 'no'; }
+
+    function getMenuMap() {
+        var items = [];
+        try { items = JSON.parse(localStorage.getItem(MENU_KEY) || '[]'); } catch (e) {}
+        var map = {};
+        items.forEach(function (i) { if (i && i.name) map[norm(i.name)] = i; });
+        return map;
+    }
+
+    function refreshMenuPrices() {
+        var map = getMenuMap();
+        if (!Object.keys(map).length) return; // admin hasn't synced yet — keep static prices
+
+        /* Standard name/price pairs */
+        document.querySelectorAll('.menu-item').forEach(function (el) {
+            var nameEl  = el.querySelector('.menu-item-name');
+            var priceEl = el.querySelector('.menu-item-price');
+            if (!nameEl || !priceEl) return;
+            var names  = NAME_MAP[nameEl.textContent.trim()] || [nameEl.textContent.trim()];
+            var prices = names.map(function (n) {
+                var item = map[norm(n)];
+                return (item && isAvailable(item)) ? item.price : null;
+            });
+            if (prices.some(function (p) { return p === null; })) return;
+            priceEl.textContent = 'Rs. ' + prices.map(function (p) { return Number(p).toLocaleString(); }).join(' / ');
+        });
+
+        /* Mo:Mo table — base name + Steam/Fry/Chilly columns */
+        document.querySelectorAll('.momo-row').forEach(function (row) {
+            var spans = row.querySelectorAll('span');
+            if (spans.length < 4) return;
+            var baseName = spans[0].textContent.trim();
+            ['Steam', 'Fry', 'Chilly'].forEach(function (suffix, i) {
+                var item = map[norm(baseName + ' (' + suffix + ')')];
+                if (item && isAvailable(item)) spans[i + 1].textContent = Number(item.price).toLocaleString();
+            });
+        });
+
+        /* Hard drinks table — only the 60ml column is admin-managed */
+        document.querySelectorAll('.drinks-table tbody tr').forEach(function (row) {
+            var cells = row.querySelectorAll('td');
+            if (cells.length < 2) return;
+            var item = map[norm(cells[0].textContent.trim())];
+            if (item && isAvailable(item)) cells[1].textContent = Number(item.price).toLocaleString();
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', refreshMenuPrices);
+    window.refreshMenuPrices = refreshMenuPrices; // called again by supabase-sync.js on live updates
+}());
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js?v=2"></script>
+<script src="js/supabase-sync.js?v=3"></script>
 </body>
 </html>

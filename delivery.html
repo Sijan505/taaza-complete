@@ -492,7 +492,15 @@ function loadFoods() {
         return;
     }
     buildFilters();
-    renderFoods(allFoods);
+    /* Not renderFoods(allFoods) — loadFoods() re-runs every time the admin
+       changes any delivery item (live via supabase-sync.js's realtime
+       taaza_delivery_foods listener), which can land mid-search on a
+       guest's phone. Rendering the full unfiltered list at that moment
+       made it look like the search box "auto-reset" — the results snapped
+       back to everything while the typed query sat there doing nothing.
+       applyFilters() re-derives the list from the current search text and
+       category instead, so a live menu update no longer discards it. */
+    applyFilters();
     updateCartUI();
 
     if (window.location.search.includes('openCart=true')) {
@@ -506,10 +514,10 @@ function buildFilters() {
     allFoods.forEach(function(f) {
         if (f.category && cats.indexOf(f.category) === -1) cats.push(f.category);
     });
-    bar.innerHTML = '<button class="filter-btn active" onclick="filterFoods(\'all\', this)">All Delicacies</button>';
+    bar.innerHTML = '<button class="filter-btn' + (_currentCategory === 'all' ? ' active' : '') + '" onclick="filterFoods(\'all\', this)">All Delicacies</button>';
     cats.forEach(function(cat) {
         var btn = document.createElement('button');
-        btn.className = 'filter-btn';
+        btn.className = 'filter-btn' + (cat === _currentCategory ? ' active' : '');
         btn.textContent = cat;
         btn.onclick = function() { filterFoods(cat, this); };
         bar.appendChild(btn);
@@ -854,6 +862,25 @@ function createOrder() {
     closeBillModal();
 }
 
+/* Save to Supabase if the SDK has already loaded, otherwise queue it —
+   the Supabase <script> tags load at the bottom of this page, and on a
+   slow mobile connection a guest can submit an order before that
+   finishes, before window._taazaDB even exists. Without this fallback
+   that write would just be silently skipped forever: the order stays in
+   this phone's own localStorage only, the confirmation screen still
+   shows normally, and the order never reaches the admin dashboard.
+   Queuing into the same outbox supabase-sync.js drains means it gets
+   picked up the moment that script finishes loading. */
+function _taazaSafeSave(table, id, data) {
+    if (window._taazaDB) { window._taazaDB.save(table, id, data); return; }
+    try {
+        var items = JSON.parse(localStorage.getItem('taaza_sync_outbox') || '[]');
+        items = items.filter(function(it) { return !(it.table === table && it.id === id); });
+        items.push({ table: table, id: id, data: data, queuedAt: Date.now() });
+        localStorage.setItem('taaza_sync_outbox', JSON.stringify(items));
+    } catch (e) {}
+}
+
 function saveOrder(order, paymentMethod) {
     try {
         var orders = JSON.parse(localStorage.getItem('taaza_orders') || '[]');
@@ -868,12 +895,9 @@ function saveOrder(order, paymentMethod) {
         if (typeof incrementAdminNotification === 'function') {
             incrementAdminNotification('orders');
         }
-        if (window._taazaDB) {
-            var fsOrder = Object.assign({}, newOrder);
-            delete fsOrder.paymentScreenshot;
-            window._taazaDB.collection('taaza_orders').doc(fsOrder.id).set(fsOrder)
-                .catch(function(e) { console.error('[Taaza] Order sync failed:', e); });
-        }
+        var fsOrder = Object.assign({}, newOrder);
+        delete fsOrder.paymentScreenshot;
+        _taazaSafeSave('taaza_orders', fsOrder.id, fsOrder);
     } catch(e) { console.error('Failed to save order:', e); }
 }
 
@@ -1016,10 +1040,9 @@ function formatDate(dateStr) {
 document.addEventListener('DOMContentLoaded', loadFoods);
 </script>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="js/firebase-config.js?v=2"></script>
-<script src="js/firebase-sync.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js?v=2"></script>
+<script src="js/supabase-sync.js?v=3"></script>
 
 <nav class="mobile-btm-nav">
   <a href="index.html"><span class="mbn-icon">🏠</span>Home</a>

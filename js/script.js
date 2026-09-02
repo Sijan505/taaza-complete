@@ -455,11 +455,46 @@ function saveReservation(booking, status, presetId) {
         reservations.push(newRes);
         localStorage.setItem('taaza_reservations', JSON.stringify(reservations));
         incrementAdminNotification('reservations');
+
+        /* Room Charges — feed the deposit into the shared Daily Sales
+           ledger the same moment it's collected, so room revenue shows
+           up alongside every other department instead of being computed
+           separately. Only the deposit actually taken counts as a sale;
+           the remaining balance is recorded later when markBalancePaid
+           runs (admin.html), not here. */
+        if (newRes.deposit > 0 && (status === 'Advance Paid' || status === 'Fully Paid')) {
+            try {
+                var salesId = newRes.id + '-advance';
+                var salesRec = {
+                    id: salesId, source: 'Room Charges', type: 'reservation', subtype: 'advance',
+                    billNum: newRes.id, orderNum: newRes.id, roomNum: newRes.roomNumber || null,
+                    guestName: newRes.fullName || '', date: newRes.createdAt.slice(0, 10),
+                    time: new Date(newRes.createdAt).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+                    items: [], sub: newRes.deposit, discount: 0, taxAmt: 0, grand: newRes.deposit,
+                    paymentMethod: (newRes.paymentMethod || '').indexOf('Online') !== -1 ? 'Online' : 'Cash',
+                    paymentStatus: 'Paid', createdAt: newRes.createdAt
+                };
+                var sales = JSON.parse(localStorage.getItem('taaza_daily_sales') || '[]');
+                sales.push(salesRec);
+                localStorage.setItem('taaza_daily_sales', JSON.stringify(sales));
+                if (window._taazaDB) {
+                    window._taazaDB.save('taaza_daily_sales', salesId, salesRec);
+                } else {
+                    /* Supabase SDK hasn't finished loading yet (e.g. a slow
+                       connection) — queue it in the same outbox
+                       supabase-sync.js drains once it's ready, instead of
+                       silently dropping this revenue record. */
+                    var outbox = JSON.parse(localStorage.getItem('taaza_sync_outbox') || '[]');
+                    outbox.push({ table: 'taaza_daily_sales', id: salesId, data: salesRec, queuedAt: Date.now() });
+                    localStorage.setItem('taaza_sync_outbox', JSON.stringify(outbox));
+                }
+            } catch (e) {}
+        }
+
         var fsRes = Object.assign({}, newRes);
         delete fsRes.paymentScreenshot;
         if (window._taazaDB) {
-            window._taazaFirestoreResSave = window._taazaDB.collection('taaza_reservations').doc(fsRes.id).set(fsRes)
-                .catch(function(e) { console.error('[Taaza] Reservation sync failed:', e); });
+            window._taazaFirestoreResSave = window._taazaDB.save('taaza_reservations', fsRes.id, fsRes);
         } else {
             window._taazaPendingRes = window._taazaPendingRes || [];
             window._taazaPendingRes.push(fsRes);
@@ -756,7 +791,9 @@ function initScrollAnimations() {
    ============================================================= */
 document.querySelectorAll('a[href^="#"]').forEach(function(anchor) {
     anchor.addEventListener('click', function(e) {
-        var target = document.querySelector(this.getAttribute('href'));
+        var href = this.getAttribute('href');
+        if (!href || href === '#') return;
+        var target = document.querySelector(href);
         if (target) {
             e.preventDefault();
             target.scrollIntoView({ behavior: 'smooth' });

@@ -531,12 +531,11 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
-<script src="js/firebase-config.js?v=2"></script>
-<script src="js/firebase-sync.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js?v=2"></script>
+<script src="js/supabase-sync.js?v=3"></script>
 <script>
-// Inline reservation sync — ensures Firestore save even on cached devices
+// Inline reservation sync — ensures Supabase save even on cached devices
 (function () {
   var _hooked = false;
   function hookSync() {
@@ -553,8 +552,7 @@ document.addEventListener('DOMContentLoaded', function() {
           if (!item.id) return;
           var d = Object.assign({}, item);
           delete d.paymentScreenshot;
-          window._taazaDB.collection('taaza_reservations').doc(d.id).set(d)
-            .catch(function (e) { console.error('[Taaza] inline save err:', e); });
+          window._taazaDB.save('taaza_reservations', d.id, d);
         });
       } catch (e) {}
     };
