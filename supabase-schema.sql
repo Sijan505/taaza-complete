@@ -110,3 +110,34 @@ alter publication supabase_realtime add table taaza_orders;
 alter publication supabase_realtime add table taaza_qr_orders;
 alter publication supabase_realtime add table taaza_daily_sales;
 alter publication supabase_realtime add table taaza_tables;
+
+-- ------------------------------------------------------------
+-- Keep updated_at current on every UPDATE.
+-- The client now does incremental "give me rows changed since X" pulls
+-- (updated_at based) instead of re-downloading whole tables on a timer,
+-- which is what was exhausting the egress quota. Without this trigger,
+-- updated_at only reflects INSERT time, so an edit to an existing row
+-- (e.g. marking a bill paid) would be missed by a catch-up pull after a
+-- realtime gap. Run this block once in the SQL Editor.
+-- ------------------------------------------------------------
+create or replace function taaza_touch_updated_at()
+returns trigger as $$
+begin
+  new.updated_at = now();
+  return new;
+end;
+$$ language plpgsql;
+
+do $$
+declare t text;
+begin
+  foreach t in array array[
+    'taaza_sync','taaza_meta','taaza_reservations','taaza_orders',
+    'taaza_qr_orders','taaza_daily_sales','taaza_tables'
+  ] loop
+    execute format('drop trigger if exists trg_touch_updated_at on %I', t);
+    execute format(
+      'create trigger trg_touch_updated_at before update on %I
+         for each row execute function taaza_touch_updated_at()', t);
+  end loop;
+end $$;

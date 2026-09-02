@@ -542,11 +542,25 @@
       };
     }
 
-    // Refetch an entire id-keyed table and mirror it into localStorage
+    // Highest updated_at seen per table, so a catch-up pull can ask for
+    // "only rows changed since" instead of re-downloading the whole
+    // table every time. In-memory only — a page reload re-hydrates fully
+    // once (via refreshCollection below) and repopulates this.
+    var _lastSeen = {};
+    function _bumpLastSeen(table, rows) {
+      var mx = _lastSeen[table] || '';
+      (rows || []).forEach(function (r) { if (r && r.updated_at && r.updated_at > mx) mx = r.updated_at; });
+      if (mx) _lastSeen[table] = mx;
+    }
+
+    // Refetch an entire id-keyed table and mirror it into localStorage.
+    // Used for the one-time hydration on page load and as the last-resort
+    // recovery when realtime looks dead — NOT on a timer.
     function refreshCollection(table, opts) {
       opts = opts || {};
-      db.from(table).select('data').then(function (res) {
+      db.from(table).select('data,updated_at').then(function (res) {
         if (res.error) { console.error('[Taaza]', table, 'fetch error:', res.error); return; }
+        _bumpLastSeen(table, res.data || []);
         var items = (res.data || []).map(function (row) { return row.data; });
         if (opts.sortByCreatedAtDesc) {
           items.sort(function (a, b) { return new Date(b.createdAt || 0) - new Date(a.createdAt || 0); });
@@ -566,6 +580,77 @@
         }
         applyLocal(table, JSON.stringify(items));
       }).catch(function (e) { console.error('[Taaza]', table, 'fetch error:', e); });
+    }
+
+    // Merge collection items into localStorage[key] by id (upsert +
+    // append only — never drops a local row). The building block for
+    // every incremental sync, so a single new/changed row costs one
+    // small write instead of a full-table download + rewrite.
+    function mergeLocalCollection(key, items, opts) {
+      opts = opts || {};
+      if (!items || !items.length) return;
+      var arr;
+      try { arr = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { arr = []; }
+      if (!Array.isArray(arr)) arr = [];
+      var idx = {};
+      arr.forEach(function (o, i) { if (o && o.id != null) idx[String(o.id)] = i; });
+      items.forEach(function (item) {
+        if (!item || item.id == null) return;
+        var k = String(item.id);
+        if (opts.preserveScreenshot && idx[k] != null && arr[idx[k]] && arr[idx[k]].paymentScreenshot) {
+          item.paymentScreenshot  = arr[idx[k]].paymentScreenshot;
+          item.screenshotFileName = arr[idx[k]].screenshotFileName;
+        }
+        if (idx[k] != null) arr[idx[k]] = item;
+        else { idx[k] = arr.length; arr.push(item); }
+      });
+      if (opts.sortByCreatedAtDesc) {
+        arr.sort(function (a, b) { return new Date(b.createdAt || 0) - new Date(a.createdAt || 0); });
+      }
+      applyLocal(key, JSON.stringify(arr));
+    }
+
+    // Apply ONE realtime row change into localStorage[key] without
+    // touching the rest of the table. Falls back to fullRefetch() only
+    // when the payload can't be applied safely (e.g. a DELETE with no
+    // primary key because replica identity isn't FULL).
+    function applyRowChange(key, payload, fullRefetch, opts) {
+      try {
+        var evt = payload.eventType || payload.event;
+        if (evt === 'DELETE') {
+          var o = payload.old || {};
+          var delId = o.id != null ? o.id : o.key;
+          if (delId == null) { fullRefetch(); return; }
+          var arr;
+          try { arr = JSON.parse(localStorage.getItem(key) || '[]'); } catch (e) { fullRefetch(); return; }
+          if (!Array.isArray(arr)) { fullRefetch(); return; }
+          applyLocal(key, JSON.stringify(arr.filter(function (x) { return String(x.id) !== String(delId); })));
+          return;
+        }
+        var row = payload.new || {};
+        if (!row.data || typeof row.data !== 'object') { fullRefetch(); return; }
+        if (row.updated_at) _bumpLastSeen(key, [row]);
+        mergeLocalCollection(key, [row.data], opts);
+      } catch (e) {
+        console.error('[Taaza] applyRowChange', key, e);
+        fullRefetch();
+      }
+    }
+
+    // Catch-up pull of only the rows changed since we last saw them.
+    // Used by the realtime-is-probably-dead safety net for the big
+    // append-mostly tables, so recovery never re-downloads all history.
+    function refreshCollectionSince(table, opts) {
+      opts = opts || {};
+      var since = _lastSeen[table];
+      if (!since) { refreshCollection(table, opts); return; }
+      db.from(table).select('data,updated_at').gt('updated_at', since).then(function (res) {
+        if (res.error) { console.error('[Taaza]', table, 'incremental fetch error:', res.error); return; }
+        var raw = res.data || [];
+        if (!raw.length) return;
+        _bumpLastSeen(table, raw);
+        mergeLocalCollection(table, raw.map(function (r) { return r.data; }), opts);
+      }).catch(function (e) { console.error('[Taaza]', table, 'incremental fetch error:', e); });
     }
 
     // Refetch Dine-In tables (one row per table, id = table number) and
@@ -596,7 +681,10 @@
       refreshCollection('taaza_orders', { sortByCreatedAtDesc: true, preserveScreenshot: true });
       refreshCollection('taaza_qr_orders');
       refreshCollection('taaza_reservations', { sortByCreatedAtDesc: true, preserveScreenshot: true });
-      refreshCollection('taaza_daily_sales', { sortByCreatedAtDesc: true });
+      // Daily sales is the biggest and fastest-growing table and its
+      // history never changes — catch up only on rows changed since we
+      // last saw them, never the whole log.
+      refreshCollectionSince('taaza_daily_sales', { sortByCreatedAtDesc: true });
       refreshTableOrders();
       db.from('taaza_sync').select('key,data').then(function (res) {
         if (res.error) { console.error('[Taaza] taaza_sync resync error:', res.error); return; }
@@ -612,20 +700,35 @@
     window.addEventListener('focus', resyncAllIfStale);
     window.addEventListener('online', resyncAllIfStale);
 
-    // Belt-and-suspenders: the owner often leaves the admin tab open and
-    // *focused* on screen the whole time (that's the point of a live
-    // dashboard) — in that case neither visibilitychange, focus, nor
-    // online ever fires, so if the websocket dies silently while the tab
-    // is being watched, those listeners above never trigger a recovery.
-    // A plain interval guarantees a fresh pull lands within ~20s no
-    // matter what state the realtime channel is in.
-    setInterval(resyncAllIfStale, 20000);
+    // Realtime channel health — every .subscribe() below reports its
+    // status through _onChannelStatus. The safety-net interval uses this
+    // to skip the catch-up pull entirely while the live channels are up,
+    // which is the normal case: a healthy admin tab now makes ~zero
+    // background requests instead of re-downloading every table on a
+    // timer (the bug that was burning the whole Supabase egress quota).
+    var _chanStatus = {};
+    var _CORE_CHANNELS = ['taaza_sync', 'taaza_orders', 'taaza_qr_orders',
+      'taaza_reservations', 'taaza_daily_sales', 'taaza_tables'];
+    function _realtimeHealthy() {
+      return _CORE_CHANNELS.every(function (c) { return _chanStatus[c] === 'SUBSCRIBED'; });
+    }
+
+    // Belt-and-suspenders for a websocket that dies silently while the
+    // tab stays focused (so visibilitychange/focus/online never fire).
+    // Only actually pulls when realtime looks down; otherwise it's a
+    // cheap no-op. Interval widened from 20s to 5min now that it's
+    // gated and the per-change handlers keep local state live row by row.
+    setInterval(function () {
+      if (_realtimeHealthy()) return;
+      resyncAllIfStale();
+    }, 300000);
 
     // If a channel actively reports an error/timeout/close (as opposed to
     // just going quiet), don't just log it — resync immediately instead
     // of waiting for the next interval tick.
     function _onChannelStatus(label) {
       return function (e) {
+        _chanStatus[label] = e;
         if (e === 'CHANNEL_ERROR' || e === 'TIMED_OUT' || e === 'CLOSED') {
           console.error('[Taaza]', label, 'channel status:', e);
           resyncAllIfStale();
@@ -655,24 +758,39 @@
         .subscribe(_onChannelStatus('taaza_sync'));
 
       // -- Delivery orders (from customers) --
+      // One full pull to hydrate, then every change is applied row by row
+      // from the realtime payload (fallback to a full refetch only if a
+      // payload can't be applied). Previously each change re-downloaded
+      // the whole table on every open admin tab.
       refreshCollection('taaza_orders', { sortByCreatedAtDesc: true, preserveScreenshot: true });
       db.channel('taaza_orders_changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'taaza_orders' },
-          function () { refreshCollection('taaza_orders', { sortByCreatedAtDesc: true, preserveScreenshot: true }); })
+          function (payload) {
+            applyRowChange('taaza_orders', payload,
+              function () { refreshCollection('taaza_orders', { sortByCreatedAtDesc: true, preserveScreenshot: true }); },
+              { sortByCreatedAtDesc: true, preserveScreenshot: true });
+          })
         .subscribe(_onChannelStatus('taaza_orders'));
 
       // -- QR table orders --
       refreshCollection('taaza_qr_orders');
       db.channel('taaza_qr_orders_changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'taaza_qr_orders' },
-          function () { refreshCollection('taaza_qr_orders'); })
+          function (payload) {
+            applyRowChange('taaza_qr_orders', payload,
+              function () { refreshCollection('taaza_qr_orders'); }, {});
+          })
         .subscribe(_onChannelStatus('taaza_qr_orders'));
 
       // -- Reservations --
       refreshCollection('taaza_reservations', { sortByCreatedAtDesc: true, preserveScreenshot: true });
       db.channel('taaza_reservations_changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'taaza_reservations' },
-          function () { refreshCollection('taaza_reservations', { sortByCreatedAtDesc: true, preserveScreenshot: true }); })
+          function (payload) {
+            applyRowChange('taaza_reservations', payload,
+              function () { refreshCollection('taaza_reservations', { sortByCreatedAtDesc: true, preserveScreenshot: true }); },
+              { sortByCreatedAtDesc: true, preserveScreenshot: true });
+          })
         .subscribe(_onChannelStatus('taaza_reservations'));
 
       // -- Daily sales (per-station billing log; kept in COLLECTION_KEYS,
@@ -680,7 +798,11 @@
       refreshCollection('taaza_daily_sales', { sortByCreatedAtDesc: true });
       db.channel('taaza_daily_sales_changes')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'taaza_daily_sales' },
-          function () { refreshCollection('taaza_daily_sales', { sortByCreatedAtDesc: true }); })
+          function (payload) {
+            applyRowChange('taaza_daily_sales', payload,
+              function () { refreshCollection('taaza_daily_sales', { sortByCreatedAtDesc: true }); },
+              { sortByCreatedAtDesc: true });
+          })
         .subscribe(_onChannelStatus('taaza_daily_sales'));
 
       // One-time migration: older builds stored the whole sales log as a
