@@ -2085,6 +2085,15 @@
                         <h3 style="margin:0 0 16px" id="stockFormTitle">&#x2795; Add Stock Item</h3>
                         <input type="hidden" id="stockEditId">
 
+                        <div style="margin-bottom:11px;position:relative">
+                            <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:5px">&#x1F50D; FIND A MENU ITEM <span style="font-weight:400">(fills name &amp; link below)</span></label>
+                            <input id="stockMenuSearch" type="text" placeholder="Type a menu item, e.g. Gorkha 8..."
+                                oninput="filterStockMenuItems()" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+                                onkeydown="if(event.key==='Escape'){var d=document.getElementById('stockMenuDropdown');if(d)d.style.display='none';this.value='';}"
+                                style="width:100%;padding:9px 12px;border:1.5px solid var(--accent);border-radius:8px;font-family:Inter,sans-serif;font-size:0.9rem;box-sizing:border-box;outline:none">
+                            <div id="stockMenuDropdown" style="display:none;position:absolute;left:0;right:0;z-index:20;background:#fff;border:1.5px solid var(--accent);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.14);overflow:hidden;max-height:240px;overflow-y:auto;margin-top:4px"></div>
+                        </div>
+
                         <div style="margin-bottom:11px">
                             <label style="font-size:0.78rem;font-weight:600;color:var(--mid);display:block;margin-bottom:5px">ITEM NAME *</label>
                             <input id="stockName" type="text" placeholder="e.g. Carlsberg Beer"
@@ -4455,8 +4464,8 @@ function saveWalkInReservation(event) {
     if (!collected) return;
     var booking = collected.booking;
 
+    applyStockDeduction(booking, booking.extraItems);
     saveReservation(booking, collected.status);
-    deductStockFromOrder(booking.extraItems);
     auditLog('create', 'Reservation', 'Walk-in reservation created for ' + booking.fullName + ' (' + booking.roomType + ', ' + booking.nights + ' nights)');
     closeWalkInModal();
     renderReservations();
@@ -4472,8 +4481,8 @@ function printWalkInBill() {
     if (!collected) return;
     var booking = collected.booking;
 
+    applyStockDeduction(booking, booking.extraItems);
     saveReservation(booking, 'Fully Paid');
-    deductStockFromOrder(booking.extraItems);
     auditLog('create', 'Reservation', 'Walk-in reservation created for ' + booking.fullName + ' (' + booking.roomType + ', ' + booking.nights + ' nights) — marked Fully Paid on print');
 
     if (_acquirePrintLock()) {
@@ -4695,8 +4704,8 @@ function saveShortStayReservation(event) {
     if (!collected) return;
     var booking = collected.booking;
 
+    applyStockDeduction(booking, booking.extraItems);
     saveReservation(booking, collected.status);
-    deductStockFromOrder(booking.extraItems);
     auditLog('create', 'Reservation', 'Short stay booking created for ' + booking.fullName + ' (' + booking.roomType + ', ' + booking.duration + ')');
     closeShortStayModal();
     renderReservations();
@@ -4712,8 +4721,8 @@ function printShortStayBill() {
     if (!collected) return;
     var booking = collected.booking;
 
+    applyStockDeduction(booking, booking.extraItems);
     saveReservation(booking, 'Fully Paid');
-    deductStockFromOrder(booking.extraItems);
     auditLog('create', 'Reservation', 'Short stay booking created for ' + booking.fullName + ' (' + booking.roomType + ', ' + booking.duration + ') — marked Fully Paid on print');
 
     if (_acquirePrintLock()) {
@@ -5441,8 +5450,10 @@ function saveResBillChanges() {
         target.status        = 'Fully Paid';
     }
 
+    _syncStockDelta(_resBillOriginalItems, _resBillItems);
+    target.stockDeducted = true;
+    delete target.stockRestored;
     saveData('taaza_reservations', list);
-    _deductStockDelta(_resBillOriginalItems, _resBillItems);
     _syncReservationDiscount(target);
 
     if (depositDelta > 0) {
@@ -6735,7 +6746,7 @@ function completePayment(tableNum) {
        table below are the two operations that MUST both happen together;
        everything else here is a best-effort side effect that must never
        be allowed to block them. */
-    sales.push({
+    var _tableSaleRec = {
         id: order.billNum,
         type: 'table', date: todayStr(), time: timeStr, billNum: order.billNum, orderNum: order.billNum,
         tableNum: tableNum, guestName: order.guestName || '',
@@ -6743,13 +6754,16 @@ function completePayment(tableNum) {
         sub: totals.sub, discount: totals.discount, taxPercent: order.taxPercent || 0, taxAmt: totals.taxAmt,
         grand: totals.grand, paymentMethod: order.paymentMethod, paymentStatus: 'Paid',
         createdAt: now.toISOString()
-    });
+    };
+    sales.push(_tableSaleRec);
     saveData(SALES_KEY, sales);
 
     /* Deduct stock and mark related QR orders served — auxiliary
        bookkeeping that must not prevent the table from being released
-       if either throws. */
-    try { deductStockFromOrder(order.items); } catch (e) { console.error('[Taaza] stock deduction failed:', e); }
+       if either throws. Idempotent: the stockDeducted flag on the sale
+       record means a retried payment can't draw the same items down twice. */
+    try { applyStockDeduction(_tableSaleRec, order.items); saveData(SALES_KEY, sales); }
+    catch (e) { console.error('[Taaza] stock deduction failed:', e); }
     try {
         var qrOrders = getQrOrders();
         var changed = false;
@@ -7166,14 +7180,17 @@ function _recordOutsideOrder() {
     var items     = _outsideCart.map(function(i){ return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }; });
 
     var outsideOrders = getData(OUTSIDE_KEY);
-    outsideOrders.push({
+    var _outsideRec = {
         billNum:billNum, guestName:guestName, note:note, items:items,
         sub:sub, discount:discount, total:total, date:todayStr(), time:timeStr,
         printed:false
-    });
-    saveData(OUTSIDE_KEY, outsideOrders);
+    };
+    outsideOrders.push(_outsideRec);
 
-    deductStockFromOrder(_outsideCart);
+    /* Deduct on order creation, flagged so a later reprint / re-record
+       can't draw the same items down again. */
+    applyStockDeduction(_outsideRec, items.map(function(i){ return { name:i.name, qty:i.qty }; }));
+    saveData(OUTSIDE_KEY, outsideOrders);
 
     return { billNum:billNum, guestName:guestName, note:note, items:items, sub:sub, discount:discount, total:total, dateStr:dateStr, timeStr:timeStr };
 }
@@ -7201,6 +7218,11 @@ function _markOutsideOrderPrinted(billNum) {
     target.sub       = o.sub;
     target.discount  = o.discount;
     target.grand     = o.total;
+    /* Stock was drawn down when the order was first recorded
+       (_recordOutsideOrder); carry that onto the Daily Sales row so a
+       later delete from Daily Sales restocks it, and never re-deducts. */
+    target.stockDeducted = o.stockDeducted === true;
+    if (o.stockRestored) target.stockRestored = true;
     saveData(SALES_KEY, sales);
 
     o.printed = true;
@@ -7510,9 +7532,14 @@ function saveEditOutsideChanges() {
     o.total     = grand;
     o.editedAt  = new Date().toISOString();
     o.editedBy  = currentStaffName || 'Admin';
+
+    /* Reconcile stock to the edited items and keep this order flagged as
+       owning a deduction (clearing any stale "restored"). */
+    _syncStockDelta(_editOutsideOriginalItems, _editOutsideItems);
+    o.stockDeducted = true;
+    delete o.stockRestored;
     saveData(OUTSIDE_KEY, orders);
 
-    _deductStockDelta(_editOutsideOriginalItems, _editOutsideItems);
     auditLog('EDIT', 'Outside Order', 'Order ' + o.billNum + ' updated — new total Rs. ' + grand.toLocaleString());
 
     closeEditOutsideModal();
@@ -7591,6 +7618,11 @@ function deleteOutsideOrder(billNum) {
     if (!o) return;
     if (!confirm('Permanently delete order ' + billNum + ' (Rs. ' + (o.total || 0).toLocaleString() + ')?\n\nThis cannot be undone and removes it from all sales reports.')) return;
 
+    /* Counter orders deduct stock the moment they're recorded, so a
+       delete here has to put it back. The order record carries the
+       flag (the Daily Sales row may not even exist yet if it was never
+       printed). */
+    reverseStockDeduction(o, o.items);
     saveData(OUTSIDE_KEY, orders.filter(function(x) { return x.billNum !== billNum; }));
     var sales = getData(SALES_KEY);
     if (sales.some(function(x) { return String(x.id) === String(billNum); })) {
@@ -7974,12 +8006,16 @@ function printSwimTicket() {
     if (discounted > 0) saleItems.push({ name:'Discounted Swimming Ticket', emoji:'&#x1F3CA;', qty:discounted, price:150 });
     _swimFoodCart.forEach(function(i){ saleItems.push({ name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }); });
     var sales = getData(SALES_KEY);
-    sales.push({ id:billNum, type:'swim', date:todayStr(), time:timeStr, billNum:billNum, guestName:guestName,
+    var _swimSaleRec = { id:billNum, type:'swim', date:todayStr(), time:timeStr, billNum:billNum, guestName:guestName,
         items:saleItems, sub:swimSub+foodSub, discount:discountAmt, grand:total,
-        paymentMethod:_swimPaymentMethod, paymentStatus:'Paid', createdAt: now.toISOString() });
-    saveData(SALES_KEY, sales);
+        paymentMethod:_swimPaymentMethod, paymentStatus:'Paid', createdAt: now.toISOString() };
+    sales.push(_swimSaleRec);
 
-    if (_swimFoodCart.length) deductStockFromOrder(_swimFoodCart);
+    /* Only the pool-food lines draw down stock (the ticket lines aren't
+       stocked items). Flag the sale record so a re-issue / re-print of
+       this ticket can't deduct the food twice. */
+    if (_swimFoodCart.length) applyStockDeduction(_swimSaleRec, _swimFoodCart.map(function(i){ return { name:i.name, qty:i.qty }; }));
+    saveData(SALES_KEY, sales);
 
     var rows = '';
     if (adults     > 0) rows += '<tr><td>Adult Swimming Ticket</td><td class="r">' + adults + '</td><td class="r">Rs. 200</td><td class="r">Rs. ' + (adults * 200) + '</td></tr>';
@@ -8064,7 +8100,11 @@ function deleteSwimTicket(billNum) {
 
     saveData(SWIM_KEY, tickets.filter(function(x) { return x.billNum !== billNum; }));
     var sales = getData(SALES_KEY);
-    if (sales.some(function(x) { return String(x.id) === String(billNum); })) {
+    var linkedSale = sales.find(function(x) { return String(x.id) === String(billNum); });
+    if (linkedSale) {
+        /* Return any pool-food stock this ticket drew down (ticket lines
+           aren't stocked items, so they're simply skipped). */
+        reverseStockDeduction(linkedSale, linkedSale.items);
         saveData(SALES_KEY, sales.filter(function(x) { return String(x.id) !== String(billNum); }));
     }
     auditLog('DELETE', 'Swimming Tickets', 'Deleted ticket ' + billNum + ' (Rs. ' + (t.total || 0).toLocaleString() + ')');
@@ -8380,9 +8420,14 @@ function saveEditSwimChanges() {
     target.editedBy  = t.editedBy;
     target.paymentMethod = _editSwimPaymentMethod;
     target.paymentStatus = 'Paid';
+
+    /* Reconcile pool-food stock to the edited item list, and (re)claim
+       the deduction on the sale row so deleting the ticket later puts
+       the current food back. */
+    _syncStockDelta(_editSwimOriginalFoodItems, _editSwimFoodItems);
+    if (_editSwimFoodItems.length) { target.stockDeducted = true; delete target.stockRestored; }
     saveData(SALES_KEY, sales);
 
-    _deductStockDelta(_editSwimOriginalFoodItems, _editSwimFoodItems);
     auditLog('EDIT', 'Swimming Tickets', 'Ticket ' + t.billNum + ' updated — new total Rs. ' + grand.toLocaleString());
     printSaleReceipt(t.billNum);
 
@@ -9294,6 +9339,18 @@ function deleteSaleRecord(id) {
     if (!s) return;
     if (!confirm('Permanently delete bill ' + (s.billNum || s.orderNum || s.id) + ' (Rs. ' + (s.grand || 0).toLocaleString() + ')?\n\nThis cannot be undone and removes it from all sales reports.')) return;
 
+    /* Put the bill's linked stock back — a bill deleted here was a
+       mistake or a duplicate, so its items were never really sold.
+       No-ops unless stock was actually deducted for this record. */
+    reverseStockDeduction(s, s.items);
+    /* A counter order also has an upstream row in taaza_outside_orders
+       that carries its own stock flag — mark it restored too so deleting
+       that row afterwards from the Outside tab can't restock a 2nd time. */
+    if (s.stockRestored && s.type === 'outside') {
+        var oo = getData(OUTSIDE_KEY);
+        var ooRow = oo.find(function(x){ return String(x.billNum) === String(s.id); });
+        if (ooRow && !ooRow.stockRestored) { ooRow.stockRestored = true; saveData(OUTSIDE_KEY, oo); }
+    }
     saveData(SALES_KEY, sales.filter(function(x) { return String(x.id) !== String(id); }));
     auditLog('DELETE', 'Daily Sales', 'Deleted bill ' + (s.billNum || s.id) + ' (Rs. ' + (s.grand || 0).toLocaleString() + ')');
     renderDailySales();
@@ -9520,8 +9577,13 @@ function saveEditBillChanges() {
     target.editedAt = new Date().toISOString();
     target.editedBy = currentStaffName || 'Admin';
 
+    /* Stock is now reconciled to the post-edit line items, so this
+       record owns a deduction — mark it (clearing any prior "restored")
+       so a later delete correctly puts the current items back. */
+    _syncStockDelta(_editBillOriginalItems, _editBillItems);
+    target.stockDeducted = true;
+    delete target.stockRestored;
     saveData(SALES_KEY, sales);
-    _deductStockDelta(_editBillOriginalItems, _editBillItems);
     auditLog('EDIT', 'Daily Sales', 'Bill ' + (target.billNum || target.id) + ' updated — new total Rs. ' + grand.toLocaleString());
     printSaleReceipt(target.id);
 
@@ -9954,6 +10016,78 @@ function renderStock() {
     }).join('');
 }
 
+/* ===== STOCK FORM — MENU ITEM SEARCH =====
+   Autocomplete over the live menu so staff pick the Linked Menu Item
+   from a list instead of hand-typing it (the #1 cause of auto-deduction
+   silently not working — a link that doesn't match a real menu name).
+   Mirrors filterSwimFoodItems / selectSwimFoodItemFromEl. */
+function _menuCatToStockCat(menuCat) {
+    var c = String(menuCat || '').toLowerCase();
+    if (/beer|wine|drink|lassi|beverage|cold|juice|water/.test(c)) return 'Beverages';
+    if (/cigar/.test(c)) return 'Cigarettes';
+    if (/spirit|hard/.test(c)) return 'Spirits';
+    return 'Food';
+}
+
+function filterStockMenuItems() {
+    var q  = (document.getElementById('stockMenuSearch').value || '').trim().toLowerCase();
+    var dd = document.getElementById('stockMenuDropdown');
+    if (!dd) return;
+    if (!q) { dd.style.display = 'none'; dd.innerHTML = ''; return; }
+    var matches = getData(MENU_KEY).filter(function(it) {
+        return it.available !== false && (it.name || '').toLowerCase().indexOf(q) !== -1;
+    }).slice(0, 10);
+    if (!matches.length) {
+        dd.innerHTML = '<div style="padding:12px 14px;color:var(--mid);font-size:0.85rem">No matching menu items.</div>';
+        dd.style.display = 'block';
+        return;
+    }
+    dd.innerHTML = matches.map(function(it) {
+        var nm = esc(it.name), em = esc(it.emoji || '🍽️'), pr = Number(it.price) || 0, ct = esc(it.category || '');
+        return '<div data-name="' + nm + '" data-category="' + ct + '" ' +
+            'ontouchend="event.preventDefault();event.stopPropagation();selectStockMenuItemFromEl(this)" ' +
+            'onclick="selectStockMenuItemFromEl(this)" ' +
+            'style="padding:12px 14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid #f0f0f0" ' +
+            'onmouseover="this.style.background=\'#f0fdf4\'" onmouseout="this.style.background=\'#fff\'">' +
+            '<span>' + em + ' ' + nm + ' <span style="color:var(--mid);font-size:0.78rem">' + ct + '</span></span>' +
+            '<span style="font-weight:700;color:var(--green)">Rs. ' + pr + '</span>' +
+        '</div>';
+    }).join('');
+    dd.style.display = 'block';
+}
+
+function selectStockMenuItemFromEl(el) {
+    var name = el.getAttribute('data-name') || '';
+    var cat  = el.getAttribute('data-category') || '';
+    var linkEl = document.getElementById('stockMenuLink');
+    var nameEl = document.getElementById('stockName');
+    var catEl  = document.getElementById('stockCategory');
+    if (linkEl) linkEl.value = name;
+    if (nameEl && !nameEl.value.trim()) nameEl.value = name;
+    if (catEl) {
+        var mapped = _menuCatToStockCat(cat);
+        if ([].some.call(catEl.options, function(o){ return o.value === mapped; })) catEl.value = mapped;
+    }
+    var dd = document.getElementById('stockMenuDropdown');
+    var sr = document.getElementById('stockMenuSearch');
+    if (dd) { dd.style.display = 'none'; dd.innerHTML = ''; }
+    if (sr) sr.value = '';
+    if (nameEl) nameEl.focus();
+}
+
+document.addEventListener('click', function(e) {
+    var wrap = document.getElementById('stockMenuDropdown');
+    var srch = document.getElementById('stockMenuSearch');
+    if (wrap && wrap.style.display !== 'none' && e.target !== srch && !wrap.contains(e.target)) {
+        wrap.style.display = 'none';
+    }
+});
+
+function _clearStockMenuSearch() {
+    var sr = document.getElementById('stockMenuSearch'); if (sr) sr.value = '';
+    var dd = document.getElementById('stockMenuDropdown'); if (dd) { dd.style.display = 'none'; dd.innerHTML = ''; }
+}
+
 function saveStockItem() {
     var name     = (document.getElementById('stockName')       || {}).value.trim();
     var cat      = (document.getElementById('stockCategory')   || {}).value;
@@ -9998,6 +10132,7 @@ function editStockItem(id) {
     document.getElementById('stockCurrentQty').value  = s.currentQty || 0;
     document.getElementById('stockMinQty').value      = s.minQty || 0;
     document.getElementById('stockMenuLink').value    = s.menuItemName || '';
+    _clearStockMenuSearch();
     document.getElementById('stockFormTitle').textContent = '✏️ Edit Stock Item';
     document.getElementById('stockCancelBtn').style.display = 'inline-block';
     document.getElementById('stockName').focus();
@@ -10010,6 +10145,7 @@ function cancelStockEdit() {
     document.getElementById('stockCurrentQty').value  = '';
     document.getElementById('stockMinQty').value      = '';
     document.getElementById('stockMenuLink').value    = '';
+    _clearStockMenuSearch();
     document.getElementById('stockFormTitle').textContent = '➕ Add Stock Item';
     document.getElementById('stockCancelBtn').style.display = 'none';
 }
@@ -10049,51 +10185,94 @@ function restockPrompt(id) {
     auditLog('STOCK', 'Restock', s.name + ' restocked +' + add + ' → ' + s.currentQty);
 }
 
-function deductStockFromOrder(items) {
+/* Normalise a name for matching: lowercase, collapse any run of
+   internal whitespace to one space, trim. Makes "Gorkha  Strong" (a
+   stray double space typed into the link field) match the menu's
+   "Gorkha Strong", and shrugs off trailing spaces / case differences
+   that used to silently break auto-deduction. */
+function _normName(s) {
+    return String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+/* Find the stock row a sold menu item should draw down. Prefers an
+   explicit Linked Menu Item match, then falls back to the stock item's
+   own name — so a row whose link is slightly misspelled still deducts
+   as long as its display name matches what was sold. */
+function _matchStockRow(stock, itemName) {
+    var n = _normName(itemName);
+    if (!n) return null;
+    return stock.find(function(x){ return x.menuItemName && _normName(x.menuItemName) === n; }) ||
+           stock.find(function(x){ return _normName(x.name) === n; }) ||
+           null;
+}
+
+function _refreshStockBadge(stock) {
+    var alertCount = (stock || getStock()).filter(function(s){ return _stockStatus(s) !== 'ok'; }).length;
+    var badge = document.getElementById('adminNotifStock');
+    if (badge) { badge.textContent = alertCount; badge.style.display = alertCount > 0 ? 'inline-flex' : 'none'; }
+}
+
+/* Shared core for auto-deduct (sign -1) and auto-restock (sign +1).
+   qty never drives currentQty below 0. */
+function _applyStockChange(items, sign) {
     if (!items || !items.length) return;
     var stock   = getStock();
     var changed = false;
     items.forEach(function(it) {
-        var name = (it.name || '').toLowerCase().trim();
-        var s = stock.find(function(x){
-            return x.menuItemName && x.menuItemName.toLowerCase().trim() === name;
-        });
-        if (s) {
-            var before = s.currentQty || 0;
-            s.currentQty  = Math.max(0, before - (it.qty || 1));
-            s.updatedAt   = new Date().toISOString();
-            changed = true;
-            auditLog('STOCK', 'Auto-deduct', s.name + ' −' + it.qty + ' (order) → ' + s.currentQty);
-        }
+        var s = _matchStockRow(stock, it.name);
+        if (!s) return;
+        var qty    = Math.abs(it.qty || 1);
+        var before = s.currentQty || 0;
+        s.currentQty = Math.max(0, before + sign * qty);
+        s.updatedAt  = new Date().toISOString();
+        changed = true;
+        auditLog('STOCK', sign < 0 ? 'Auto-deduct' : 'Auto-restock',
+            s.name + ' ' + (sign < 0 ? '−' : '+') + qty + ' → ' + s.currentQty);
     });
-    if (changed) {
-        saveStock(stock);
-        /* Update low-stock badge if stock tab is not open */
-        var alertCount = stock.filter(function(s){ return _stockStatus(s) !== 'ok'; }).length;
-        var badge = document.getElementById('adminNotifStock');
-        if (badge) { badge.textContent = alertCount; badge.style.display = alertCount > 0 ? 'inline-flex' : 'none'; }
-    }
+    if (changed) { saveStock(stock); _refreshStockBadge(stock); }
 }
 
-/* Deducts stock only for the NET INCREASE between a bill's items before
-   and after an edit — e.g. "Edit Order" adding one more Coke to an
-   already-served table bill deducts just that one Coke, not the whole
-   order again. Never restocks on a decrease/removal (a guest changing
-   their mind after the item already left the kitchen doesn't put it
-   back on the shelf) — staff can still correct stock manually via
-   Stock Management if an item was added to a bill by mistake. */
-function _deductStockDelta(oldItems, newItems) {
-    var oldQty = {};
-    (oldItems || []).forEach(function(i) { oldQty[i.name] = (oldQty[i.name] || 0) + (i.qty || 0); });
+function deductStockFromOrder(items) { _applyStockChange(items, -1); }
+function restockFromOrder(items)     { _applyStockChange(items,  1); }
 
-    var deltaItems = [];
-    (newItems || []).forEach(function(i) {
-        var delta = (i.qty || 0) - (oldQty[i.name] || 0);
-        if (delta > 0) deltaItems.push({ name: i.name, qty: delta });
-    });
-
-    if (deltaItems.length) deductStockFromOrder(deltaItems);
+/* Idempotent wrappers keyed off a flag stamped on the sale/order record
+   itself, so a bill that gets actioned twice (e.g. a mis-double-clicked
+   "Complete Payment" or a re-printed ticket) can never deduct — or
+   later restock — its stock more than once. The caller is responsible
+   for persisting `rec` after the flag is set. */
+function applyStockDeduction(rec, items) {
+    if (!rec || rec.stockDeducted) return;
+    deductStockFromOrder(items || rec.items);
+    rec.stockDeducted = true;
 }
+function reverseStockDeduction(rec, items) {
+    if (!rec || rec.stockDeducted !== true || rec.stockRestored) return;
+    restockFromOrder(items || rec.items);
+    rec.stockRestored = true;
+}
+
+/* Reconciles stock with an edit to a bill's line items — two-way, unlike
+   the deduct-only version this replaces. Per item, delta = newQty −
+   oldQty: a positive delta deducts that many (e.g. "Edit Bill" adding a
+   Coke), a negative delta restocks that many (an item removed or its
+   quantity reduced). Owner-requested: correcting a bill down in Daily
+   Sales now puts the stock back rather than leaving it under-counted. */
+function _syncStockDelta(oldItems, newItems) {
+    var oldQty = {}, newQty = {}, names = {};
+    (oldItems || []).forEach(function(i) { var k = _normName(i.name); oldQty[k] = (oldQty[k] || 0) + (i.qty || 0); names[k] = i.name; });
+    (newItems || []).forEach(function(i) { var k = _normName(i.name); newQty[k] = (newQty[k] || 0) + (i.qty || 0); names[k] = i.name; });
+
+    var deducts = [], restocks = [];
+    Object.keys(names).forEach(function(k) {
+        var delta = (newQty[k] || 0) - (oldQty[k] || 0);
+        if (delta > 0) deducts.push({ name: names[k], qty: delta });
+        else if (delta < 0) restocks.push({ name: names[k], qty: -delta });
+    });
+    if (deducts.length)  deductStockFromOrder(deducts);
+    if (restocks.length) restockFromOrder(restocks);
+}
+/* Back-compat alias — existing call sites keep the old name. */
+function _deductStockDelta(oldItems, newItems) { _syncStockDelta(oldItems, newItems); }
 
 /* ===== AUDIT REPORT ===== */
 
@@ -12370,8 +12549,13 @@ function updateQrOrderStatus(id, newStatus) {
     var loc = isRoom ? 'Room ' + o.roomNum : 'Table ' + o.tableNum;
     auditLog('UPDATE', 'QR Order', 'Order ' + id + ' (' + loc + ') status changed to ' + newStatus);
 
-    /* Deduct stock when served */
-    if (newStatus === 'served') deductStockFromOrder(o.items);
+    /* Deduct stock when served — flagged on the order so re-marking it
+       served (or a later table-payment that also deducts) can't draw the
+       same items down twice. */
+    if (newStatus === 'served') {
+        applyStockDeduction(o, (o.items || []).map(function(i){ return { name:i.name, qty:i.qty }; }));
+        saveQrOrders(orders);
+    }
 
     /* Record to daily sales once when served */
     if (newStatus === 'served') {
@@ -12404,6 +12588,7 @@ function updateQrOrderStatus(id, newStatus) {
                 taxPercent: o.taxPercent || 0,
                 taxAmt:     o.taxAmt || 0,
                 grand:      o.total || sub,
+                stockDeducted: o.stockDeducted === true,
                 createdAt: orderedAt.toISOString()
             });
             saveData(SALES_KEY, sales);
