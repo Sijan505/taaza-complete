@@ -1715,6 +1715,17 @@
             <div class="admin-tab" id="tab-tableBills">
                 <h2 class="admin-section-title">&#x1F37D;&#xFE0F; Dine In</h2>
 
+                <div class="admin-card" style="padding:12px 16px;margin-bottom:16px">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+                        <span style="font-size:0.76rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.04em">&#x1F4C5; View past dine-in bills</span>
+                        <button type="button" class="ds-preset-btn" onclick="_dineInHistoryJump('today')">Today</button>
+                        <button type="button" class="ds-preset-btn" onclick="_dineInHistoryJump('yesterday')">Yesterday</button>
+                        <input type="date" id="tblInlineHistoryDate" onchange="_dineInHistoryJump('pick', this.value)" style="padding:6px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:inherit;font-size:0.83rem;outline:none">
+                        <button type="button" class="ds-preset-btn" onclick="_dineInHistoryJump('clear')">Clear</button>
+                        <span style="font-size:0.74rem;color:var(--mid)">opens Billing History below, filtered to that day</span>
+                    </div>
+                </div>
+
                 <div id="tblStatsRow" class="tbl-stats-row"></div>
 
                 <div class="admin-two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start;">
@@ -1845,6 +1856,15 @@
                             <div style="display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--success-border);padding-top:8px;margin-top:8px">
                                 <span style="font-size:0.88rem;color:var(--success);font-weight:700">GRAND TOTAL</span>
                                 <span id="swimTotalPreview" style="font-size:1.15rem;font-weight:800;color:var(--success)">Rs. 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Payment method -->
+                        <div style="margin-bottom:16px">
+                            <label style="font-size:0.8rem;font-weight:600;color:var(--mid);display:block;margin-bottom:6px">PAYMENT METHOD</label>
+                            <div id="swimPayMethodRow" style="display:flex;gap:8px">
+                                <button type="button" class="tbl-pay-method selected" data-method="Cash" onclick="setSwimPaymentMethod('Cash')">&#x1F4B5; Cash</button>
+                                <button type="button" class="tbl-pay-method" data-method="Online" onclick="setSwimPaymentMethod('Online')">&#x1F310; Online</button>
                             </div>
                         </div>
 
@@ -3231,8 +3251,8 @@
     </div>
 </div><!-- end ownerPanel -->
 
-<script src="js/script.js"></script>
-<script src="js/weather.js"></script>
+<script src="js/script.js?v=2"></script>
+<script src="js/weather.js?v=2"></script>
 <script>
 /* =============================================================
    ADMIN PANEL — Standalone Script
@@ -6758,6 +6778,38 @@ function toggleBillingHistory() {
     }
 }
 
+/* Inline "View past dine-in bills" row at the top of the Dine In tab.
+   Dine In's main view is the live table grid (no date concept), so past
+   bills live in the Billing History card — this makes it reachable the
+   same way every other section's date row is: pick Today / Yesterday /
+   a date, and it force-opens that card pre-filtered and scrolls to it.
+   Reuses the same date maths as _applyBillDatePreset and drives the
+   card's own #thFilterDate + renderBillingHistory(). */
+function _dineInHistoryJump(preset, value) {
+    var th = document.getElementById('thFilterDate');
+    if (!th) return;
+    if (preset === 'today') {
+        th.value = todayStr();
+    } else if (preset === 'yesterday') {
+        var d = new Date();
+        d.setDate(d.getDate() - 1);
+        th.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    } else if (preset === 'pick') {
+        th.value = value || '';
+    } else {
+        th.value = '';
+    }
+    var inline = document.getElementById('tblInlineHistoryDate');
+    if (inline && preset !== 'pick') inline.value = th.value;
+
+    _tblHistoryOpen = true;
+    var card = document.getElementById('tblHistoryCard');
+    if (card) card.style.display = 'block';
+    _populateHistoryTableFilter();
+    renderBillingHistory();
+    if (card && card.scrollIntoView) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function _populateHistoryTableFilter() {
     var sel = document.getElementById('thFilterTable');
     if (!sel || sel.options.length > 1) return;
@@ -6769,7 +6821,7 @@ function _populateHistoryTableFilter() {
 }
 
 function clearBillingHistoryFilters() {
-    ['thFilterDate', 'thFilterOrderNum'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
+    ['thFilterDate', 'thFilterOrderNum', 'tblInlineHistoryDate'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
     ['thFilterTable', 'thFilterMethod'].forEach(function(id) { var el = document.getElementById(id); if (el) el.value = ''; });
     renderBillingHistory();
 }
@@ -6901,6 +6953,21 @@ function calcSwimPrice() {
 
 /* ===== SWIM FOOD CART ===== */
 var _swimFoodCart = [];
+
+/* Pool-desk swim tickets are paid on the spot — Cash by default, or
+   Online (eSewa / bank QR etc.). Stored on both the swim-ticket record
+   and its single linked Daily Sales row so the payment-method breakdown
+   there can tell them apart. Room-guest tickets (printRoomSwimTicket)
+   are billed to the room instead, so they don't use this. */
+var _swimPaymentMethod = 'Cash';
+
+function setSwimPaymentMethod(m) {
+    _swimPaymentMethod = (m === 'Online') ? 'Online' : 'Cash';
+    var row = document.getElementById('swimPayMethodRow');
+    if (row) [].forEach.call(row.querySelectorAll('.tbl-pay-method'), function(b) {
+        b.classList.toggle('selected', b.getAttribute('data-method') === _swimPaymentMethod);
+    });
+}
 
 function filterSwimFoodItems() {
     var query = (document.getElementById('swimFoodSearch').value || '').trim().toLowerCase();
@@ -7749,10 +7816,12 @@ function renderSwimTickets() {
         var statusBadge = isPaid
             ? '<span style="background:var(--success-bg);color:var(--success);border:1px solid var(--success-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">&#x2705; Paid</span>'
             : '<span style="background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">&#x23F3; Pending</span>';
+        var payLabel = t.paymentMethod || (t.roomNum ? 'Room account' : 'Cash');
+        var payChip = '<span style="background:var(--info-bg);color:var(--info);border:1px solid var(--info-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">' + (payLabel === 'Online' ? '&#x1F310;' : payLabel === 'Cash' ? '&#x1F4B5;' : '&#x1F3E8;') + ' ' + esc(payLabel) + '</span>';
         return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--border)">' +
             '<div>' +
                 '<div style="font-weight:600;font-size:0.9rem">&#x1F3CA; ' + esc(t.guestName || 'Guest') + (t.roomNum ? ' &nbsp;<small style="color:var(--mid);font-weight:400">(Room ' + esc(String(t.roomNum)) + ')</small>' : '') + '</div>' +
-                '<div style="font-size:0.78rem;color:var(--mid)">' + t.billNum + ' &nbsp;|&nbsp; ' + t.time + ' &nbsp;|&nbsp; ' + t.qty + ' ticket(s) &nbsp;|&nbsp; ' + statusBadge + '</div>' +
+                '<div style="font-size:0.78rem;color:var(--mid)">' + t.billNum + ' &nbsp;|&nbsp; ' + t.time + ' &nbsp;|&nbsp; ' + t.qty + ' ticket(s) &nbsp;|&nbsp; ' + statusBadge + ' &nbsp;' + payChip + '</div>' +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">' +
                 '<span style="font-weight:700;color:var(--green)">Rs. ' + t.total + '</span>' +
@@ -7842,6 +7911,7 @@ function _buildSwimReceiptHtml(t) {
                 (kids       > 0 ? ' (' + kids       + ' Kid'        + (kids       > 1 ? 's' : '') + ')' : '') +
                 (discounted > 0 ? ' (' + discounted + ' Discounted' + (discounted > 1 ? 's' : '') + ')' : '') + '</p>' : '') +
             (t.note ? '<p><span class="label">Note:</span> ' + esc(t.note) + '</p>' : '') +
+            '<p><span class="label">Payment:</span> <strong>' + esc(t.paymentMethod || (t.roomNum ? 'Room account' : 'Cash')) + '</strong></p>' +
         '</div>' +
         '<table class="receipt-table">' +
             '<thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
@@ -7893,6 +7963,7 @@ function printSwimTicket() {
         swimSub:swimSub, foodSub:foodSub, discount:discountAmt, total:total,
         foodItems: _swimFoodCart.map(function(i){ return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }; }),
         note:foodNote, date:todayStr(), time:timeStr,
+        paymentMethod:_swimPaymentMethod,
         paymentStatus:'Paid' // collected at the pool desk when the ticket is issued
     });
     saveData(SWIM_KEY, tickets);
@@ -7904,7 +7975,8 @@ function printSwimTicket() {
     _swimFoodCart.forEach(function(i){ saleItems.push({ name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }); });
     var sales = getData(SALES_KEY);
     sales.push({ id:billNum, type:'swim', date:todayStr(), time:timeStr, billNum:billNum, guestName:guestName,
-        items:saleItems, sub:swimSub+foodSub, discount:discountAmt, grand:total, paymentStatus:'Paid', createdAt: now.toISOString() });
+        items:saleItems, sub:swimSub+foodSub, discount:discountAmt, grand:total,
+        paymentMethod:_swimPaymentMethod, paymentStatus:'Paid', createdAt: now.toISOString() });
     saveData(SALES_KEY, sales);
 
     if (_swimFoodCart.length) deductStockFromOrder(_swimFoodCart);
@@ -7945,6 +8017,7 @@ function printSwimTicket() {
                 (kids       > 0 ? ' (' + kids       + ' Kid'        + (kids       > 1 ? 's' : '') + ')' : '') +
                 (discounted > 0 ? ' (' + discounted + ' Discounted' + (discounted > 1 ? 's' : '') + ')' : '') + '</p>' : '') +
             (foodNote ? '<p><span class="label">Note:</span> ' + esc(foodNote) + '</p>' : '') +
+            '<p><span class="label">Payment:</span> <strong>' + esc(_swimPaymentMethod) + '</strong></p>' +
         '</div>' +
         '<table class="receipt-table">' +
             '<thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
@@ -7967,6 +8040,7 @@ function printSwimTicket() {
     var daEl = document.getElementById('swimDiscountAmt'); if (daEl) daEl.value = 0;
     var fnEl = document.getElementById('swimFoodNote'); if (fnEl) fnEl.value = '';
     _swimFoodCart = [];
+    setSwimPaymentMethod('Cash');
     renderSwimFoodCart();
     renderSwimTickets();
     calcSwimPrice();
@@ -8012,6 +8086,7 @@ var _editSwimAdults     = 0;
 var _editSwimKids       = 0;
 var _editSwimDiscounted = 0;
 var _editSwimGuestName  = '';
+var _editSwimPaymentMethod = 'Cash';
 
 function _editSwimTicket() {
     return getData(SWIM_KEY).find(function(t) { return t.billNum === _editSwimBillNum; });
@@ -8029,6 +8104,7 @@ function openEditSwimModal(billNum) {
     _editSwimKids       = Number(t.kids) || 0;
     _editSwimDiscounted = Number(t.discounted) || 0;
     _editSwimGuestName  = t.guestName || '';
+    _editSwimPaymentMethod = t.paymentMethod || (t.roomNum ? 'Room account' : 'Cash');
 
     var titleEl = document.getElementById('editSwimTitle');
     if (titleEl) titleEl.innerHTML = '&#x1F3CA; Edit Ticket — ' + esc(t.billNum);
@@ -8051,6 +8127,7 @@ function closeEditSwimModal() {
     _editSwimKids       = 0;
     _editSwimDiscounted = 0;
     _editSwimGuestName  = '';
+    _editSwimPaymentMethod = 'Cash';
 }
 
 /* A guest who only bought a swim ticket at the counter (no roomNum on
@@ -8146,6 +8223,14 @@ function renderEditSwimModal() {
 
         '<div class="tbl-total-box"><span class="tbl-total-label">New Grand Total</span><span class="tbl-total-val">Rs. ' + grand.toLocaleString() + '</span></div>' +
 
+        '<div class="walkin-section-label">Payment Method</div>' +
+        (t.roomNum
+            ? '<div style="margin-bottom:6px;font-size:0.82rem;color:var(--mid)">Billed to Room ' + esc(String(t.roomNum)) + ' — settled on the room bill.</div>'
+            : '<div id="editSwimPayMethodRow" style="display:flex;gap:8px;margin-bottom:6px">' +
+                  '<button type="button" class="tbl-pay-method' + (_editSwimPaymentMethod === 'Cash'   ? ' selected' : '') + '" data-method="Cash"   onclick="setEditSwimPaymentMethod(\'Cash\')">&#x1F4B5; Cash</button>' +
+                  '<button type="button" class="tbl-pay-method' + (_editSwimPaymentMethod === 'Online' ? ' selected' : '') + '" data-method="Online" onclick="setEditSwimPaymentMethod(\'Online\')">&#x1F310; Online</button>' +
+              '</div>') +
+
         '<div style="display:flex;gap:10px;margin-top:14px">' +
             '<button class="tbl-update-btn" style="flex:1" onclick="saveEditSwimChanges()">&#x2705; Save Changes</button>' +
             '<button class="tbl-clear-btn" onclick="closeEditSwimModal()">Cancel</button>' +
@@ -8225,6 +8310,14 @@ function setEditSwimGuestName(value) {
     _editSwimGuestName = (value || '').trim();
 }
 
+function setEditSwimPaymentMethod(m) {
+    _editSwimPaymentMethod = (m === 'Online') ? 'Online' : 'Cash';
+    var row = document.getElementById('editSwimPayMethodRow');
+    if (row) [].forEach.call(row.querySelectorAll('.tbl-pay-method'), function(b) {
+        b.classList.toggle('selected', b.getAttribute('data-method') === _editSwimPaymentMethod);
+    });
+}
+
 function saveEditSwimChanges() {
     if (!_editSwimAdults && !_editSwimKids && !_editSwimDiscounted && !_editSwimFoodItems.length) {
         alert('A ticket must have at least one swimming ticket or food item.');
@@ -8252,6 +8345,7 @@ function saveEditSwimChanges() {
     t.total     = grand;
     t.editedAt  = new Date().toISOString();
     t.editedBy  = currentStaffName || 'Admin';
+    t.paymentMethod = _editSwimPaymentMethod;
     /* Saving here always ends in a bill print — treat that print as
        payment being settled, same as issuing a fresh ticket does. */
     t.paymentStatus = 'Paid';
@@ -8284,6 +8378,7 @@ function saveEditSwimChanges() {
     target.grand     = grand;
     target.editedAt  = t.editedAt;
     target.editedBy  = t.editedBy;
+    target.paymentMethod = _editSwimPaymentMethod;
     target.paymentStatus = 'Paid';
     saveData(SALES_KEY, sales);
 
