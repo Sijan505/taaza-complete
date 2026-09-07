@@ -6295,8 +6295,11 @@ function _tblItemRowsHtml(order) {
 
 /* Update only the item list + totals + Generate-Bill state in place. Leaves
    the Add Item search field (and page scroll position) completely untouched
-   so many items can be added back-to-back without the view moving. */
-function refreshTableItemsAndTotals() {
+   so items can be added / re-quantified back-to-back without the view moving.
+   Pass {revealLast:true} when a new row was appended and should be scrolled
+   into view inside the list's own overflow box. */
+function refreshTableItemsAndTotals(opts) {
+    opts = opts || {};
     var orders = getTableOrders();
     var order  = orders[activeTable];
     if (!order || !_tableStatus(order) || order.status === 'billing') { renderTableOrderPanel(); return; }
@@ -6304,11 +6307,14 @@ function refreshTableItemsAndTotals() {
     var list = document.getElementById('tblItemsList');
     if (!list) { renderTableOrderPanel(); return; }
 
+    /* Snapshot both scroll positions so neither the page nor this list jumps. */
+    var pageScroller = document.scrollingElement || document.documentElement;
+    var pageTop = pageScroller.scrollTop;
+    var listTop = list.scrollTop;
+
     var totals = _tableTotal(order);
     list.innerHTML = _tblItemRowsHtml(order);
-    /* Keep the newest row visible by scrolling this list's own overflow box —
-       never the page. */
-    list.scrollTop = list.scrollHeight;
+    list.scrollTop = opts.revealLast ? list.scrollHeight : listTop;
 
     var subEl = document.getElementById('tblSubtotalVal');
     if (subEl) subEl.textContent = 'Rs. ' + totals.sub.toLocaleString();
@@ -6321,6 +6327,10 @@ function refreshTableItemsAndTotals() {
         genBtn.style.opacity = order.items.length ? '' : '.5';
         genBtn.style.cursor  = order.items.length ? '' : 'not-allowed';
     }
+
+    /* Nothing above should move the page, but a re-layout can nudge the
+       scroll position — pin it back so +/- and remove taps never bounce. */
+    if (pageScroller.scrollTop !== pageTop) pageScroller.scrollTop = pageTop;
 }
 
 function renderTableOrderPanel() {
@@ -6503,7 +6513,7 @@ function selectTblItem(name, price, emoji) {
        panel here. The #tblSearch field is never removed, so it keeps focus and
        the page never scrolls, letting the user add item after item back-to-back.
        renderTablesGrid() only redraws the left-hand table grid, not this panel. */
-    refreshTableItemsAndTotals();
+    refreshTableItemsAndTotals({ revealLast: true });
     renderTablesGrid();
 
     if (searchEl) {
@@ -6512,15 +6522,24 @@ function selectTblItem(name, price, emoji) {
     }
 }
 
+/* True when the on-screen order panel is showing this table's editable
+   (occupied) order, so we can refresh it in place instead of rebuilding. */
+function _tblPanelLive(tableNum) {
+    return tableNum === activeTable && !!document.getElementById('tblItemsList');
+}
+
 function tableQty(tableNum, idx, delta) {
     var orders = getTableOrders();
-    if (!orders[tableNum]) return;
+    if (!orders[tableNum] || !orders[tableNum].items[idx]) return;
     orders[tableNum].items[idx].qty += delta;
     if (orders[tableNum].items[idx].qty <= 0) {
         orders[tableNum].items.splice(idx, 1);
     }
     saveTableOrders(orders);
-    renderTableOrderPanel();
+    /* Partial in-place refresh keeps the page (and the item list's own scroll
+       position) exactly put when tapping +/- repeatedly. */
+    if (_tblPanelLive(tableNum)) refreshTableItemsAndTotals();
+    else renderTableOrderPanel();
     renderTablesGrid();
 }
 
@@ -6529,7 +6548,8 @@ function tableRemoveItem(tableNum, idx) {
     if (!orders[tableNum] || !orders[tableNum].items[idx]) return;
     orders[tableNum].items.splice(idx, 1);
     saveTableOrders(orders);
-    renderTableOrderPanel();
+    if (_tblPanelLive(tableNum)) refreshTableItemsAndTotals();
+    else renderTableOrderPanel();
     renderTablesGrid();
 }
 
@@ -13122,7 +13142,12 @@ function startQrOrdersPolling() {
                 var _tblD = document.getElementById('tblDropdown');
                 var _userSearching = (_tblS && document.activeElement === _tblS) ||
                                      (_tblD && _tblD.style.display !== 'none');
-                if (!_userSearching) renderTableOrderPanel();
+                /* Use the in-place refresh for a live occupied order so the
+                   4-second tick never yanks the page while items are edited. */
+                if (!_userSearching) {
+                    if (_tblPanelLive(activeTable)) refreshTableItemsAndTotals();
+                    else renderTableOrderPanel();
+                }
             }
         }
         /* Auto-refresh Food Orders tab */
