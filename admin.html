@@ -1869,10 +1869,10 @@
                         </div>
 
                         <div style="display:flex;gap:10px;flex-wrap:wrap">
-                            <button onclick="saveSwimTicketOnly()" style="flex:1 1 140px;background:#fff;border:1.5px solid var(--gold);color:var(--green-deep);padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.95rem;font-family:Inter,sans-serif">&#x1F4BE; Save Ticket</button>
+                            <button onclick="saveSwimTicketOnly()" style="flex:1 1 140px;background:#fff;border:1.5px solid var(--gold);color:var(--green-deep);padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.95rem;font-family:Inter,sans-serif">&#x1F4BE; Save Bill</button>
                             <button class="admin-print-btn" onclick="printSwimTicket()" style="flex:2 1 180px;background:var(--gold);color:var(--green-deep);border:none;padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Ticket &amp; Bill</button>
                         </div>
-                        <p style="font-size:0.74rem;color:var(--mid);margin-top:8px;text-align:center">On mobile without a printer? Use <strong>Save Ticket</strong> to record it now — it won't count in Daily Sales until its bill is printed (from here or later in Today's Issued Tickets).</p>
+                        <p style="font-size:0.74rem;color:var(--mid);margin-top:8px;text-align:center">On mobile without a printer? Use <strong>Save Bill</strong> to record it now — it won't count in Daily Sales until its bill is printed (from here or later in Today's Issued Tickets).</p>
                     </div>
 
                     <!-- Today summary + history -->
@@ -8193,7 +8193,7 @@ function saveSwimTicketOnly() {
     var rec = _recordSwimTicket();
     if (!rec) return;
     renderSwimTickets();
-    showBanner('&#x2705; Ticket saved — ' + rec.billNum + ' (Rs. ' + rec.total.toLocaleString() + '). Print its bill to add it to Daily Sales.');
+    showBanner('&#x2705; Bill saved — ' + rec.billNum + ' (Rs. ' + rec.total.toLocaleString() + '). Print it to add it to Daily Sales.');
 }
 
 /* Prints the bill for a saved-but-unbilled ticket from Today's Issued
