@@ -1868,7 +1868,11 @@
                             </div>
                         </div>
 
-                        <button class="admin-print-btn" onclick="printSwimTicket()" style="width:100%;background:var(--gold);color:var(--green-deep);border:none;padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Ticket &amp; Bill</button>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap">
+                            <button onclick="saveSwimTicketOnly()" style="flex:1 1 140px;background:#fff;border:1.5px solid var(--gold);color:var(--green-deep);padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.95rem;font-family:Inter,sans-serif">&#x1F4BE; Save Ticket</button>
+                            <button class="admin-print-btn" onclick="printSwimTicket()" style="flex:2 1 180px;background:var(--gold);color:var(--green-deep);border:none;padding:13px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Ticket &amp; Bill</button>
+                        </div>
+                        <p style="font-size:0.74rem;color:var(--mid);margin-top:8px;text-align:center">On mobile without a printer? Use <strong>Save Ticket</strong> to record it now — it won't count in Daily Sales until its bill is printed (from here or later in Today's Issued Tickets).</p>
                     </div>
 
                     <!-- Today summary + history -->
@@ -7921,7 +7925,12 @@ function renderSwimTickets() {
     var isToday     = target === todayStr();
     var todayList   = tickets.filter(function(t){ return t.date === target; });
     var totalQty    = todayList.reduce(function(s,t){ return s + t.qty; }, 0);
-    var totalRev    = todayList.reduce(function(s,t){ return s + t.total; }, 0);
+    /* Revenue counts only billed (printed) tickets, matching what Daily
+       Sales actually shows — a ticket saved but not yet printed hasn't
+       been added there (see _recordSwimTicket / _markSwimTicketBilled).
+       "Tickets Today" still counts every ticket issued, billed or not. */
+    var totalRev    = todayList.filter(function(t){ return t.printed !== false; })
+                               .reduce(function(s,t){ return s + t.total; }, 0);
 
     document.getElementById('swimTodayQty').textContent   = totalQty;
     document.getElementById('swimTodayTotal').textContent = 'Rs. ' + totalRev;
@@ -7941,17 +7950,25 @@ function renderSwimTickets() {
             : '<span style="background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">&#x23F3; Pending</span>';
         var payLabel = t.paymentMethod || (t.roomNum ? 'Room account' : 'Cash');
         var payChip = '<span style="background:var(--info-bg);color:var(--info);border:1px solid var(--info-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">' + (payLabel === 'Online' ? '&#x1F310;' : payLabel === 'Cash' ? '&#x1F4B5;' : '&#x1F3E8;') + ' ' + esc(payLabel) + '</span>';
+        /* printed === false only on tickets saved via "Save Ticket" and
+           not yet billed; anything older/legacy (undefined) is billed. */
+        var isBilled = t.printed !== false;
+        var billedBadge = isBilled ? '' :
+            ' &nbsp;<span style="background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">&#x23F3; Not billed</span>';
+        var eb = String(t.billNum).replace(/'/g, "\\'");
         return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--border)">' +
             '<div>' +
                 '<div style="font-weight:600;font-size:0.9rem">&#x1F3CA; ' + esc(t.guestName || 'Guest') + (t.roomNum ? ' &nbsp;<small style="color:var(--mid);font-weight:400">(Room ' + esc(String(t.roomNum)) + ')</small>' : '') + '</div>' +
-                '<div style="font-size:0.78rem;color:var(--mid)">' + t.billNum + ' &nbsp;|&nbsp; ' + t.time + ' &nbsp;|&nbsp; ' + t.qty + ' ticket(s) &nbsp;|&nbsp; ' + statusBadge + ' &nbsp;' + payChip + '</div>' +
+                '<div style="font-size:0.78rem;color:var(--mid)">' + t.billNum + ' &nbsp;|&nbsp; ' + t.time + ' &nbsp;|&nbsp; ' + t.qty + ' ticket(s) &nbsp;|&nbsp; ' + statusBadge + ' &nbsp;' + payChip + billedBadge + '</div>' +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">' +
                 '<span style="font-weight:700;color:var(--green)">Rs. ' + t.total + '</span>' +
-                '<button class="ds-action-btn" onclick="viewSwimBill(\'' + String(t.billNum).replace(/'/g, "\\'") + '\')">&#x1F4C4; View Bill</button>' +
-                '<button class="ds-edit-btn" onclick="openEditSwimModal(\'' + String(t.billNum).replace(/'/g, "\\'") + '\')">Edit Bill</button>' +
-                (isPaid ? '' : '<button class="ds-edit-btn" style="background:var(--success-bg);color:var(--success);border-color:var(--success)" onclick="markSwimTicketPaid(\'' + String(t.billNum).replace(/'/g, "\\'") + '\')">&#x2705; Paid</button>') +
-                '<button class="ds-delete-btn" onclick="deleteSwimTicket(\'' + String(t.billNum).replace(/'/g, "\\'") + '\')">Delete</button>' +
+                (isBilled
+                    ? '<button class="ds-action-btn" onclick="viewSwimBill(\'' + eb + '\')">&#x1F4C4; View Bill</button>'
+                    : '<button class="ds-action-btn" onclick="printSwimTicketFromHistory(\'' + eb + '\')">&#x1F5A8; Print &amp; Bill</button>') +
+                '<button class="ds-edit-btn" onclick="openEditSwimModal(\'' + eb + '\')">Edit Bill</button>' +
+                (isPaid ? '' : '<button class="ds-edit-btn" style="background:var(--success-bg);color:var(--success);border-color:var(--success)" onclick="markSwimTicketPaid(\'' + eb + '\')">&#x2705; Paid</button>') +
+                '<button class="ds-delete-btn" onclick="deleteSwimTicket(\'' + eb + '\')">Delete</button>' +
             '</div>' +
         '</div>';
     }).join('');
@@ -8058,8 +8075,14 @@ function viewSwimBill(billNum) {
     _printReceipt('Swim Ticket ' + t.billNum, _buildSwimReceiptHtml(t), _releasePrintLock);
 }
 
-function printSwimTicket() {
-    if (!_acquirePrintLock()) return;
+/* Validates the swim form and writes the ticket to the log (plus
+   pool-food stock deduction), then resets the form — shared by the
+   "Print Ticket & Bill" and the print-free "Save Ticket" path. Like a
+   counter/outside order, this deliberately does NOT touch the Daily
+   Sales ledger here: a ticket only counts toward Daily Sales once its
+   bill is printed (see _markSwimTicketBilled). Returns the ticket
+   record, or null (after an alert) if nothing was entered. */
+function _recordSwimTicket() {
     var guestName  = document.getElementById('swimGuestName').value.trim() || 'Guest';
     var adults     = parseInt(document.getElementById('swimAdultQty').value) || 0;
     var kids       = parseInt(document.getElementById('swimKidsQty').value)  || 0;
@@ -8067,7 +8090,7 @@ function printSwimTicket() {
     var discountAmt = Math.max(0, parseInt((document.getElementById('swimDiscountAmt') || {}).value) || 0);
     if (adults === 0 && kids === 0 && discounted === 0 && !_swimFoodCart.length) {
         alert('Please enter at least 1 ticket or add food items.');
-        _releasePrintLock(); return;
+        return null;
     }
     var swimSub  = adults * 200 + kids * 100 + discounted * 150;
     var foodSub  = _swimFoodCart.reduce(function(s,i){ return s + i.price * i.qty; }, 0);
@@ -8075,90 +8098,28 @@ function printSwimTicket() {
     var total    = swimSub + foodSub - discountAmt;
     var totalQty = adults + kids + discounted;
     var now      = new Date();
-    var dateStr  = now.toISOString().split('T')[0];
     var timeStr  = now.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
     var billNum  = 'ST-' + Date.now().toString().slice(-6);
     var foodNote = ((document.getElementById('swimFoodNote') || {}).value || '').trim();
 
-    var tickets = getData(SWIM_KEY);
-    tickets.push({
+    var ticketRec = {
         billNum:billNum, guestName:guestName, qty:totalQty, adults:adults, kids:kids, discounted:discounted,
         swimSub:swimSub, foodSub:foodSub, discount:discountAmt, total:total,
         foodItems: _swimFoodCart.map(function(i){ return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }; }),
         note:foodNote, date:todayStr(), time:timeStr,
         paymentMethod:_swimPaymentMethod,
-        paymentStatus:'Paid' // collected at the pool desk when the ticket is issued
-    });
-    saveData(SWIM_KEY, tickets);
-
-    var saleItems = [];
-    if (adults     > 0) saleItems.push({ name:'Adult Swimming Ticket', emoji:'&#x1F3CA;', qty:adults, price:200 });
-    if (kids       > 0) saleItems.push({ name:'Kids Swimming Ticket',  emoji:'&#x1F3CA;', qty:kids,   price:100 });
-    if (discounted > 0) saleItems.push({ name:'Discounted Swimming Ticket', emoji:'&#x1F3CA;', qty:discounted, price:150 });
-    _swimFoodCart.forEach(function(i){ saleItems.push({ name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }); });
-    var sales = getData(SALES_KEY);
-    var _swimSaleRec = { id:billNum, type:'swim', date:todayStr(), time:timeStr, billNum:billNum, guestName:guestName,
-        items:saleItems, sub:swimSub+foodSub, discount:discountAmt, grand:total,
-        paymentMethod:_swimPaymentMethod, paymentStatus:'Paid', createdAt: now.toISOString() };
-    sales.push(_swimSaleRec);
+        paymentStatus:'Paid', // collected at the pool desk when the ticket is issued
+        printed:false         // flips true once its bill is printed (see _markSwimTicketBilled)
+    };
+    var tickets = getData(SWIM_KEY);
+    tickets.push(ticketRec);
 
     /* Only the pool-food lines draw down stock (the ticket lines aren't
-       stocked items). Flag the sale record so a re-issue / re-print of
-       this ticket can't deduct the food twice. */
-    if (_swimFoodCart.length) applyStockDeduction(_swimSaleRec, _swimFoodCart.map(function(i){ return { name:i.name, qty:i.qty }; }));
-    saveData(SALES_KEY, sales);
-
-    var rows = '';
-    if (adults     > 0) rows += '<tr><td>Adult Swimming Ticket</td><td class="r">' + adults + '</td><td class="r">Rs. 200</td><td class="r">Rs. ' + (adults * 200) + '</td></tr>';
-    if (kids       > 0) rows += '<tr><td>Kids Swimming Ticket</td><td class="r">'  + kids   + '</td><td class="r">Rs. 100</td><td class="r">Rs. ' + (kids   * 100) + '</td></tr>';
-    if (discounted > 0) rows += '<tr><td>Discounted Swimming Ticket</td><td class="r">' + discounted + '</td><td class="r">Rs. 150</td><td class="r">Rs. ' + (discounted * 150) + '</td></tr>';
-    if (_swimFoodCart.length) {
-        rows += '<tr><td colspan="4" style="padding-top:8px;font-weight:700;font-size:0.78rem;color:#555;border-top:1px dashed #ccc">FOOD ITEMS</td></tr>';
-        _swimFoodCart.forEach(function(i) {
-            rows += '<tr><td>' + esc(i.name) + '</td><td class="r">' + i.qty + '</td><td class="r">Rs. ' + i.price + '</td><td class="r">Rs. ' + (i.price * i.qty) + '</td></tr>';
-        });
-    }
-
-    var totalsSection = '';
-    if (swimSub > 0 && foodSub > 0) {
-        totalsSection += '<div class="rtotal-row"><span>Swimming Total</span><span>Rs. ' + swimSub + '</span></div>';
-        totalsSection += '<div class="rtotal-row"><span>Food Total</span><span>Rs. ' + foodSub + '</span></div>';
-    }
-    if (discountAmt > 0) totalsSection += '<div class="rtotal-row"><span>Discount</span><span>&minus; Rs. ' + discountAmt + '</span></div>';
-    totalsSection += '<div class="rtotal-row grand"><span>GRAND TOTAL</span><span>Rs. ' + total + '</span></div>';
-
-    var bodyHtml =
-        '<div class="receipt-header">' +
-            '<h2>Taaza Resort</h2>' +
-            '<div class="sub">Swimming Pool Entry Ticket</div>' +
-            '<div class="sub">Bharatpur-5, Narayanpur, Chitwan</div>' +
-            '<div class="sub">PAN No: 608568546</div>' +
-        '</div>' +
-        '<div class="receipt-info">' +
-            '<p><span class="label">Ticket No:</span> <strong>' + billNum + '</strong></p>' +
-            '<p><span class="label">Date:</span> ' + formatDate(dateStr) + ' &nbsp;<span class="label">Time:</span> ' + timeStr + '</p>' +
-            '<hr>' +
-            '<p><span class="label">Guest:</span> ' + esc(guestName) + '</p>' +
-            (totalQty > 0 ? '<p><span class="label">Tickets:</span> <strong>' + totalQty + '</strong>' +
-                (adults     > 0 ? ' (' + adults     + ' Adult'      + (adults     > 1 ? 's' : '') + ')' : '') +
-                (kids       > 0 ? ' (' + kids       + ' Kid'        + (kids       > 1 ? 's' : '') + ')' : '') +
-                (discounted > 0 ? ' (' + discounted + ' Discounted' + (discounted > 1 ? 's' : '') + ')' : '') + '</p>' : '') +
-            (foodNote ? '<p><span class="label">Note:</span> ' + esc(foodNote) + '</p>' : '') +
-            '<p><span class="label">Payment:</span> <strong>' + esc(_swimPaymentMethod) + '</strong></p>' +
-        '</div>' +
-        '<table class="receipt-table">' +
-            '<thead><tr><th>Item</th><th class="r">Qty</th><th class="r">Rate</th><th class="r">Amount</th></tr></thead>' +
-            '<tbody>' + rows + '</tbody>' +
-        '</table>' +
-        '<div class="receipt-totals">' + totalsSection + '</div>' +
-        '<div class="receipt-footer">' +
-            (totalQty > 0 ? '<p style="font-weight:bold;font-size:0.9rem;color:#333">Valid for same day only</p>' : '') +
-            '<p>Enjoy your time at Taaza Resort!</p>' +
-            '<p>+977 9742864405 &nbsp;|&nbsp; tamanganish421@gmail.com</p>' +
-            '<p style="margin-top:8px;font-size:0.72rem;color:#bbb">PAN No: 608568546 &nbsp;|&nbsp; This is a computer-generated ticket.</p>' +
-        '</div>';
-
-    _printReceipt('Swim Ticket ' + billNum, bodyHtml, _releasePrintLock);
+       stocked items), and they do so the moment the ticket is recorded —
+       same as an Outside Counter order. Flagged on the ticket record so
+       a later bill-print / reprint can't deduct the same food again. */
+    if (_swimFoodCart.length) applyStockDeduction(ticketRec, _swimFoodCart.map(function(i){ return { name:i.name, qty:i.qty }; }));
+    saveData(SWIM_KEY, tickets);
 
     document.getElementById('swimGuestName').value = '';
     document.getElementById('swimAdultQty').value = 0;
@@ -8169,8 +8130,85 @@ function printSwimTicket() {
     _swimFoodCart = [];
     setSwimPaymentMethod('Cash');
     renderSwimFoodCart();
-    renderSwimTickets();
     calcSwimPrice();
+
+    return ticketRec;
+}
+
+/* The one place a swim ticket is added to (or refreshed in) the shared
+   Daily Sales ledger — called only at print time (fresh "Print Ticket &
+   Bill", or a later "Print & Bill" of a saved-but-unbilled ticket from
+   history), never at save time. Find-or-create keyed on billNum, so a
+   plain reprint can never double-count it. */
+function _markSwimTicketBilled(billNum) {
+    var tickets = getData(SWIM_KEY);
+    var t = tickets.find(function(x){ return x.billNum === billNum; });
+    if (!t) return;
+
+    var saleItems = [];
+    if (t.adults     > 0) saleItems.push({ name:'Adult Swimming Ticket', emoji:'&#x1F3CA;', qty:t.adults, price:200 });
+    if (t.kids       > 0) saleItems.push({ name:'Kids Swimming Ticket',  emoji:'&#x1F3CA;', qty:t.kids,   price:100 });
+    if (t.discounted > 0) saleItems.push({ name:'Discounted Swimming Ticket', emoji:'&#x1F3CA;', qty:t.discounted, price:150 });
+    (t.foodItems || []).forEach(function(i){ saleItems.push({ name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }); });
+
+    var sales  = getData(SALES_KEY);
+    var target = sales.find(function(x){ return String(x.id) === String(billNum); });
+    if (!target) {
+        target = { id:billNum, type:'swim', date:t.date, time:t.time, billNum:billNum, createdAt: new Date().toISOString() };
+        sales.push(target);
+    }
+    target.guestName     = t.guestName;
+    target.items         = saleItems;
+    target.sub           = (t.swimSub || 0) + (t.foodSub || 0);
+    target.discount      = t.discount || 0;
+    target.grand         = t.total;
+    target.paymentMethod = t.paymentMethod || 'Cash';
+    target.paymentStatus = 'Paid';
+    /* Pool-food stock was drawn down when the ticket was recorded
+       (_recordSwimTicket); carry that flag onto the Daily Sales row so a
+       later delete from Daily Sales restocks it, and never re-deducts. */
+    target.stockDeducted = t.stockDeducted === true;
+    if (t.stockRestored) target.stockRestored = true;
+    saveData(SALES_KEY, sales);
+
+    t.printed = true;
+    saveData(SWIM_KEY, tickets);
+}
+
+function printSwimTicket() {
+    if (!_acquirePrintLock()) return;
+    var rec = _recordSwimTicket();
+    if (!rec) { _releasePrintLock(); return; }
+    _markSwimTicketBilled(rec.billNum);
+    _printReceipt('Swim Ticket ' + rec.billNum, _buildSwimReceiptHtml(rec), _releasePrintLock);
+    renderSwimTickets();
+}
+
+/* Records the ticket without opening the print dialog — for staff
+   issuing a ticket on a phone with no printer to hand. Same rule as
+   Outside Orders: this does NOT add anything to Daily Sales; that only
+   happens once the bill is printed, whether now via "Print Ticket &
+   Bill" or later via printSwimTicketFromHistory(). */
+function saveSwimTicketOnly() {
+    var rec = _recordSwimTicket();
+    if (!rec) return;
+    renderSwimTickets();
+    showBanner('&#x2705; Ticket saved — ' + rec.billNum + ' (Rs. ' + rec.total.toLocaleString() + '). Print its bill to add it to Daily Sales.');
+}
+
+/* Prints the bill for a saved-but-unbilled ticket from Today's Issued
+   Tickets — the counterpart to saveSwimTicketOnly(), and the moment an
+   unbilled ticket first reaches Daily Sales. A plain reprint of an
+   already-billed ticket is harmless (find-or-create in
+   _markSwimTicketBilled). */
+function printSwimTicketFromHistory(billNum) {
+    if (!_acquirePrintLock()) return;
+    var t = getData(SWIM_KEY).find(function(x){ return String(x.billNum) === String(billNum); });
+    if (!t) { _releasePrintLock(); alert('Swim ticket not found.'); return; }
+    _markSwimTicketBilled(billNum);
+    _printReceipt('Swim Ticket ' + t.billNum, _buildSwimReceiptHtml(t), _releasePrintLock);
+    renderSwimTickets();
+    if (typeof renderDailySales === 'function' && document.getElementById('salesDate')) renderDailySales();
 }
 
 function clearSwimHistory() {
@@ -8197,6 +8235,10 @@ function deleteSwimTicket(billNum) {
            aren't stocked items, so they're simply skipped). */
         reverseStockDeduction(linkedSale, linkedSale.items);
         saveData(SALES_KEY, sales.filter(function(x) { return String(x.id) !== String(billNum); }));
+    } else {
+        /* Unbilled ticket — no Daily Sales row was ever created, so put
+           back any pool-food stock straight from the ticket record. */
+        reverseStockDeduction(t, t.foodItems);
     }
     auditLog('DELETE', 'Swimming Tickets', 'Deleted ticket ' + billNum + ' (Rs. ' + (t.total || 0).toLocaleString() + ')');
     renderSwimTickets();
@@ -8478,8 +8520,10 @@ function saveEditSwimChanges() {
     t.editedBy  = currentStaffName || 'Admin';
     t.paymentMethod = _editSwimPaymentMethod;
     /* Saving here always ends in a bill print — treat that print as
-       payment being settled, same as issuing a fresh ticket does. */
+       payment being settled and the ticket as billed, same as issuing a
+       fresh ticket does. */
     t.paymentStatus = 'Paid';
+    t.printed = true;
     saveData(SWIM_KEY, tickets);
 
     /* Keep the linked Daily Sales record (same billNum) in sync so the
