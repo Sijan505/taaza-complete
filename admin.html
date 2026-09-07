@@ -6458,8 +6458,25 @@ function selectTblItem(name, price, emoji) {
         orders[activeTable].items.push({ name: name, price: price, emoji: emoji || '🍽️', qty: 1, note: '' });
     }
     saveTableOrders(orders);
+
+    /* renderTableOrderPanel() rebuilds the whole panel via innerHTML, which
+       drops the focused #tblSearch field and lets the page jump. Remember the
+       scroll position (and whether the search box was focused) and restore
+       both afterwards so adding several items in a row stays put. */
+    var searchWasFocused = !!searchEl && document.activeElement === searchEl;
+    var scrollY = window.pageYOffset;
+
     renderTableOrderPanel();
     renderTablesGrid();
+
+    if (searchWasFocused) {
+        var newSearch = document.getElementById('tblSearch');
+        if (newSearch) {
+            try { newSearch.focus({ preventScroll: true }); }
+            catch (e) { newSearch.focus(); }
+        }
+    }
+    window.scrollTo(0, scrollY);
 }
 
 function tableQty(tableNum, idx, delta) {
