@@ -7944,22 +7944,24 @@ function renderSwimTickets() {
         return;
     }
     el.innerHTML = todayList.slice().reverse().map(function(t) {
+        /* printed === false only on tickets saved via "Save Bill" and
+           not yet billed; anything older/legacy (undefined) is billed. */
+        var isBilled = t.printed !== false;
         var isPaid = t.paymentStatus !== 'Pending';
-        var statusBadge = isPaid
+        /* An unbilled ticket carries no payment status yet — show only
+           the "Not billed" badge, not Paid/Pending. */
+        var statusBadge = !isBilled
+            ? '<span style="background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">&#x23F3; Not billed</span>'
+            : isPaid
             ? '<span style="background:var(--success-bg);color:var(--success);border:1px solid var(--success-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">&#x2705; Paid</span>'
             : '<span style="background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">&#x23F3; Pending</span>';
         var payLabel = t.paymentMethod || (t.roomNum ? 'Room account' : 'Cash');
         var payChip = '<span style="background:var(--info-bg);color:var(--info);border:1px solid var(--info-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">' + (payLabel === 'Online' ? '&#x1F310;' : payLabel === 'Cash' ? '&#x1F4B5;' : '&#x1F3E8;') + ' ' + esc(payLabel) + '</span>';
-        /* printed === false only on tickets saved via "Save Ticket" and
-           not yet billed; anything older/legacy (undefined) is billed. */
-        var isBilled = t.printed !== false;
-        var billedBadge = isBilled ? '' :
-            ' &nbsp;<span style="background:var(--warning-bg);color:var(--warning);border:1px solid var(--warning-border);padding:2px 8px;border-radius:20px;font-size:0.7rem;font-weight:700">&#x23F3; Not billed</span>';
         var eb = String(t.billNum).replace(/'/g, "\\'");
         return '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px dashed var(--border)">' +
             '<div>' +
                 '<div style="font-weight:600;font-size:0.9rem">&#x1F3CA; ' + esc(t.guestName || 'Guest') + (t.roomNum ? ' &nbsp;<small style="color:var(--mid);font-weight:400">(Room ' + esc(String(t.roomNum)) + ')</small>' : '') + '</div>' +
-                '<div style="font-size:0.78rem;color:var(--mid)">' + t.billNum + ' &nbsp;|&nbsp; ' + t.time + ' &nbsp;|&nbsp; ' + t.qty + ' ticket(s) &nbsp;|&nbsp; ' + statusBadge + ' &nbsp;' + payChip + billedBadge + '</div>' +
+                '<div style="font-size:0.78rem;color:var(--mid)">' + t.billNum + ' &nbsp;|&nbsp; ' + t.time + ' &nbsp;|&nbsp; ' + t.qty + ' ticket(s) &nbsp;|&nbsp; ' + statusBadge + ' &nbsp;' + payChip + '</div>' +
             '</div>' +
             '<div style="display:flex;align-items:center;gap:10px;flex-shrink:0">' +
                 '<span style="font-weight:700;color:var(--green)">Rs. ' + t.total + '</span>' +
@@ -7967,7 +7969,7 @@ function renderSwimTickets() {
                     ? '<button class="ds-action-btn" onclick="viewSwimBill(\'' + eb + '\')">&#x1F4C4; View Bill</button>'
                     : '<button class="ds-action-btn" onclick="printSwimTicketFromHistory(\'' + eb + '\')">&#x1F5A8; Print &amp; Bill</button>') +
                 '<button class="ds-edit-btn" onclick="openEditSwimModal(\'' + eb + '\')">Edit Bill</button>' +
-                (isPaid ? '' : '<button class="ds-edit-btn" style="background:var(--success-bg);color:var(--success);border-color:var(--success)" onclick="markSwimTicketPaid(\'' + eb + '\')">&#x2705; Paid</button>') +
+                (isPaid || !isBilled ? '' : '<button class="ds-edit-btn" style="background:var(--success-bg);color:var(--success);border-color:var(--success)" onclick="markSwimTicketPaid(\'' + eb + '\')">&#x2705; Paid</button>') +
                 '<button class="ds-delete-btn" onclick="deleteSwimTicket(\'' + eb + '\')">Delete</button>' +
             '</div>' +
         '</div>';
@@ -8108,8 +8110,11 @@ function _recordSwimTicket() {
         foodItems: _swimFoodCart.map(function(i){ return { name:i.name, emoji:i.emoji||'🍽️', qty:i.qty, price:i.price }; }),
         note:foodNote, date:todayStr(), time:timeStr,
         paymentMethod:_swimPaymentMethod,
-        paymentStatus:'Paid', // collected at the pool desk when the ticket is issued
-        printed:false         // flips true once its bill is printed (see _markSwimTicketBilled)
+        /* Not settled until the bill is issued: a ticket saved via
+           "Save Bill" shows no Paid status while it sits unbilled;
+           _markSwimTicketBilled flips both flags when its bill prints. */
+        paymentStatus:'Pending',
+        printed:false
     };
     var tickets = getData(SWIM_KEY);
     tickets.push(ticketRec);
@@ -8172,6 +8177,10 @@ function _markSwimTicketBilled(billNum) {
     saveData(SALES_KEY, sales);
 
     t.printed = true;
+    /* Issuing the bill settles it — collected at the pool desk. (Room
+       guest tickets keep their own Pending status; they never come
+       through here.) */
+    t.paymentStatus = 'Paid';
     saveData(SWIM_KEY, tickets);
 }
 
