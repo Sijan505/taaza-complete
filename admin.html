@@ -6267,6 +6267,62 @@ function seatCustomer(num) {
     showBanner('Customer seated at Table T-' + num + '.');
 }
 
+/* Item rows for the occupied-table order panel. Shared by the full panel
+   render and refreshTableItemsAndTotals() so adding an item can update just
+   this list without rebuilding (and scroll-jumping) the whole panel. */
+function _tblItemRowsHtml(order) {
+    if (!order.items.length) {
+        return '<p style="color:#94a3b8;font-size:0.85rem;padding:12px 0">No items yet. Add from menu below.</p>';
+    }
+    return order.items.map(function(item, idx) {
+        return '<div class="tbl-item-row" style="flex-direction:column;align-items:stretch;gap:6px">' +
+            '<div style="display:flex;align-items:center;gap:10px">' +
+                '<span class="tbl-item-emoji">' + (item.emoji||'🍽️') + '</span>' +
+                '<span class="tbl-item-name">' + esc(item.name) + '</span>' +
+                '<div style="display:flex;align-items:center;gap:6px">' +
+                    '<button class="tbl-qty-btn" onclick="tableQty(' + activeTable + ',' + idx + ',-1)">−</button>' +
+                    '<span class="tbl-qty-val">' + item.qty + '</span>' +
+                    '<button class="tbl-qty-btn" onclick="tableQty(' + activeTable + ',' + idx + ',1)">+</button>' +
+                '</div>' +
+                '<span class="tbl-item-price">Rs. ' + (item.price*item.qty) + '</span>' +
+                '<button class="tbl-qty-btn" title="Remove item" onclick="tableRemoveItem(' + activeTable + ',' + idx + ')" style="color:var(--danger);border-color:var(--danger-border)">&#x2715;</button>' +
+            '</div>' +
+            '<input class="tbl-item-note" type="text" placeholder="Note (e.g. no spicy)" value="' + esc(item.note||'') + '" ' +
+                'onchange="setTableItemNote(' + activeTable + ',' + idx + ',this.value)">' +
+        '</div>';
+    }).join('');
+}
+
+/* Update only the item list + totals + Generate-Bill state in place. Leaves
+   the Add Item search field (and page scroll position) completely untouched
+   so many items can be added back-to-back without the view moving. */
+function refreshTableItemsAndTotals() {
+    var orders = getTableOrders();
+    var order  = orders[activeTable];
+    if (!order || !_tableStatus(order) || order.status === 'billing') { renderTableOrderPanel(); return; }
+
+    var list = document.getElementById('tblItemsList');
+    if (!list) { renderTableOrderPanel(); return; }
+
+    var totals = _tableTotal(order);
+    list.innerHTML = _tblItemRowsHtml(order);
+    /* Keep the newest row visible by scrolling this list's own overflow box —
+       never the page. */
+    list.scrollTop = list.scrollHeight;
+
+    var subEl = document.getElementById('tblSubtotalVal');
+    if (subEl) subEl.textContent = 'Rs. ' + totals.sub.toLocaleString();
+    var grandEl = document.getElementById('tblGrandVal');
+    if (grandEl) grandEl.textContent = 'Rs. ' + totals.grand.toLocaleString();
+
+    var genBtn = document.getElementById('tblGenerateBtn');
+    if (genBtn) {
+        genBtn.disabled = !order.items.length;
+        genBtn.style.opacity = order.items.length ? '' : '.5';
+        genBtn.style.cursor  = order.items.length ? '' : 'not-allowed';
+    }
+}
+
 function renderTableOrderPanel() {
     var orders = getTableOrders();
     var order  = orders[activeTable];
@@ -6285,23 +6341,7 @@ function renderTableOrderPanel() {
 
     if (order.status === 'billing') { renderBillPanel(order); return; }
 
-    var itemsHtml = order.items.length ? order.items.map(function(item, idx) {
-        return '<div class="tbl-item-row" style="flex-direction:column;align-items:stretch;gap:6px">' +
-            '<div style="display:flex;align-items:center;gap:10px">' +
-                '<span class="tbl-item-emoji">' + (item.emoji||'🍽️') + '</span>' +
-                '<span class="tbl-item-name">' + esc(item.name) + '</span>' +
-                '<div style="display:flex;align-items:center;gap:6px">' +
-                    '<button class="tbl-qty-btn" onclick="tableQty(' + activeTable + ',' + idx + ',-1)">−</button>' +
-                    '<span class="tbl-qty-val">' + item.qty + '</span>' +
-                    '<button class="tbl-qty-btn" onclick="tableQty(' + activeTable + ',' + idx + ',1)">+</button>' +
-                '</div>' +
-                '<span class="tbl-item-price">Rs. ' + (item.price*item.qty) + '</span>' +
-                '<button class="tbl-qty-btn" title="Remove item" onclick="tableRemoveItem(' + activeTable + ',' + idx + ')" style="color:var(--danger);border-color:var(--danger-border)">&#x2715;</button>' +
-            '</div>' +
-            '<input class="tbl-item-note" type="text" placeholder="Note (e.g. no spicy)" value="' + esc(item.note||'') + '" ' +
-                'onchange="setTableItemNote(' + activeTable + ',' + idx + ',this.value)">' +
-        '</div>';
-    }).join('') : '<p style="color:#94a3b8;font-size:0.85rem;padding:12px 0">No items yet. Add from menu below.</p>';
+    var itemsHtml = _tblItemRowsHtml(order);
 
     var totals = _tableTotal(order);
 
@@ -6326,17 +6366,17 @@ function renderTableOrderPanel() {
             '<div id="tblDropdown" style="display:none;background:#fff;border:1.5px solid var(--accent);border-radius:10px;box-shadow:0 4px 20px rgba(0,0,0,0.14);overflow:hidden;max-height:260px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-top:4px"></div>' +
         '</div>' +
 
-        '<div style="min-height:120px;max-height:240px;overflow-y:auto;margin-bottom:4px">' + itemsHtml + '</div>' +
+        '<div id="tblItemsList" style="min-height:120px;max-height:240px;overflow-y:auto;margin-bottom:4px">' + itemsHtml + '</div>' +
 
-        '<div class="tbl-calc-row"><span>Subtotal</span><span>Rs. ' + totals.sub.toLocaleString() + '</span></div>' +
+        '<div class="tbl-calc-row"><span>Subtotal</span><span id="tblSubtotalVal">Rs. ' + totals.sub.toLocaleString() + '</span></div>' +
         '<div class="tbl-calc-row"><span>Discount (Rs.)</span><input type="number" min="0" value="' + (order.discount||0) + '" onchange="setTableDiscount(' + activeTable + ',this.value)"></div>' +
         '<div class="tbl-calc-row"><span>Service Charge (%)</span><input type="number" min="0" max="100" step="0.5" value="' + (order.taxPercent||0) + '" onchange="setTableTax(' + activeTable + ',this.value)"></div>' +
 
         '<div class="tbl-total-box">' +
-            '<span class="tbl-total-label">Grand Total</span><span class="tbl-total-val">Rs. ' + totals.grand.toLocaleString() + '</span>' +
+            '<span class="tbl-total-label">Grand Total</span><span class="tbl-total-val" id="tblGrandVal">Rs. ' + totals.grand.toLocaleString() + '</span>' +
         '</div>' +
 
-        '<button class="tbl-update-btn" ' + (order.items.length ? '' : 'disabled style="opacity:.5;cursor:not-allowed"') + ' onclick="generateBill(' + activeTable + ')">&#x1F9FE; Generate Bill</button>';
+        '<button id="tblGenerateBtn" class="tbl-update-btn" ' + (order.items.length ? '' : 'disabled style="opacity:.5;cursor:not-allowed"') + ' onclick="generateBill(' + activeTable + ')">&#x1F9FE; Generate Bill</button>';
 }
 
 function renderBillPanel(order) {
@@ -6459,24 +6499,17 @@ function selectTblItem(name, price, emoji) {
     }
     saveTableOrders(orders);
 
-    /* renderTableOrderPanel() rebuilds the whole panel via innerHTML, which
-       drops the focused #tblSearch field and lets the page jump. Remember the
-       scroll position (and whether the search box was focused) and restore
-       both afterwards so adding several items in a row stays put. */
-    var searchWasFocused = !!searchEl && document.activeElement === searchEl;
-    var scrollY = window.pageYOffset;
-
-    renderTableOrderPanel();
+    /* Update only the item list + totals in place — do NOT rebuild the whole
+       panel here. The #tblSearch field is never removed, so it keeps focus and
+       the page never scrolls, letting the user add item after item back-to-back.
+       renderTablesGrid() only redraws the left-hand table grid, not this panel. */
+    refreshTableItemsAndTotals();
     renderTablesGrid();
 
-    if (searchWasFocused) {
-        var newSearch = document.getElementById('tblSearch');
-        if (newSearch) {
-            try { newSearch.focus({ preventScroll: true }); }
-            catch (e) { newSearch.focus(); }
-        }
+    if (searchEl) {
+        try { searchEl.focus({ preventScroll: true }); }
+        catch (e) { searchEl.focus(); }
     }
-    window.scrollTo(0, scrollY);
 }
 
 function tableQty(tableNum, idx, delta) {
