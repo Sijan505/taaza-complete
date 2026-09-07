@@ -274,6 +274,21 @@
       .on('postgres_changes', { event: '*', schema: 'public', table: 'taaza_tables' }, refreshTableOrdersCache)
       .subscribe();
 
+    // Keep menu prices in step with the admin panel, the same way the
+    // customer-facing menu page does — so a price the owner edits shows
+    // identically on the QR ordering page and the digital menu.
+    function applyMenuPrices(row) {
+      if (!row) return;
+      localStorage.setItem('taaza_menu_items', JSON.stringify(row.data || []));
+      if (typeof window.refreshMenuPrices === 'function') window.refreshMenuPrices();
+    }
+    db.from('taaza_sync').select('data').eq('key', 'taaza_menu_items').maybeSingle()
+      .then(function (res) { applyMenuPrices(res.data); });
+    db.channel('taaza_menu_items_table_order_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'taaza_sync', filter: 'key=eq.taaza_menu_items' },
+        function (payload) { applyMenuPrices(payload.new); })
+      .subscribe();
+
     // Real-time status updates for customer's order
     if (typeof startStatusPolling === 'function') {
       var _origStartPolling = startStatusPolling;

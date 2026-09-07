@@ -940,9 +940,9 @@ var MENU = [
     {
         cat: 'Breakfast', emoji: '☕',
         items: [
-            { name: 'Milk Tea',               price: 35,  emoji: '🍵' },
-            { name: 'Black Tea',              price: 20,  emoji: '🍵' },
-            { name: 'Lemon Tea',              price: 25,  emoji: '🍋' },
+            { name: 'Milk Tea',               price: 20,  emoji: '🍵' },
+            { name: 'Black Tea',              price: 25,  emoji: '🍵' },
+            { name: 'Lemon Tea',              price: 35,  emoji: '🍋' },
             { name: 'Milk Coffee',            price: 100, emoji: '☕' },
             { name: 'Black Coffee',           price: 60,  emoji: '☕' },
             { name: 'Toast Bread & Omelette', price: 150, emoji: '🍳' },
@@ -1037,7 +1037,7 @@ var MENU = [
             { name: 'Wings Poleko',   price: 300, emoji: '🍗' },
             { name: 'Chicken Sekuwa', price: 300, emoji: '🍢' },
             { name: 'Mutton Sekuwa',  price: 400, emoji: '🍢' },
-            { name: 'Buff Sekuwa',    price: 200, emoji: '🍢' },
+            { name: 'Buff Sekuwa',    price: 300, emoji: '🍢' },
             { name: 'Mushroom Sekuwa',price: 300, emoji: '🍄' }
         ]
     },
@@ -1231,30 +1231,100 @@ function init() {
     document.getElementById('errorState').style.display = 'none';
     document.getElementById('orderingApp').style.display = 'block';
 
-    // Merge admin-added menu items
-    var adminItems = [];
-    try { adminItems = JSON.parse(localStorage.getItem('taaza_menu_items') || '[]'); } catch(e) {}
-    if (adminItems.length) {
-        adminItems.forEach(function(ai) {
-            if (!ai.name || !ai.price || ai.available === 'no') return;
-            var catName = ai.category || 'Special Items';
-            var existing = MENU.find(function(m){ return m.cat === catName; });
-            var item = { name: ai.name, price: Number(ai.price) || 0, emoji: ai.emoji || '🍽️' };
-            if (existing) {
-                // Only add if not already present
-                if (!existing.items.find(function(x){ return x.name === item.name; })) {
-                    existing.items.push(item);
-                }
-            } else {
-                MENU.push({ cat: catName, emoji: ai.emoji || '🍽️', items: [item] });
-            }
-        });
-    }
-
+    applyAdminMenu();
     renderCategoryTabs();
     renderMenu();
     updateFAB();
 }
+
+/* ================================================================
+   ADMIN MENU SYNC
+   Keeps this QR ordering page in step with the admin panel's
+   "taaza_menu_items" (the same source menu.html follows), so a
+   price the owner changes in admin shows the same here and on the
+   printed digital menu. Overrides the price/availability of items
+   already built into MENU and appends any brand-new admin items.
+   ================================================================ */
+function _amNorm(s) {
+    return (s || '').toString().toLowerCase()
+        .replace(/omlete/g, 'omelette')
+        .replace(/lolipop/g, 'lollipop')
+        .replace(/[()]/g, '')
+        .replace(/[^a-z0-9]+/g, ' ')
+        .trim();
+}
+
+/* Admin sells a few things under one combined name; here they are
+   separate rows. Map the admin name -> the local names it covers. */
+var _AM_SPLIT = {
+    'kothe momo jhol momo': ['kothe momo', 'jhol momo']
+};
+
+function applyAdminMenu() {
+    var adminItems = [];
+    try { adminItems = JSON.parse(localStorage.getItem('taaza_menu_items') || '[]'); } catch (e) { return; }
+    if (!adminItems.length) return;
+
+    // Index built-in items by normalized name.
+    var byName = {};
+    MENU.forEach(function (section) {
+        section.items.forEach(function (it) { byName[_amNorm(it.name)] = { section: section, item: it }; });
+    });
+
+    adminItems.forEach(function (ai) {
+        if (!ai || !ai.name) return;
+        var price = Number(ai.price);
+        var unavailable = (ai.available === false || ai.available === 'no');
+        var targets = _AM_SPLIT[_amNorm(ai.name)] || [_amNorm(ai.name)];
+        var matchedAny = false;
+
+        targets.forEach(function (key) {
+            var hit = byName[key];
+            if (!hit) return;
+            matchedAny = true;
+            if (unavailable) {
+                var idx = hit.section.items.indexOf(hit.item);
+                if (idx !== -1) hit.section.items.splice(idx, 1);
+                delete byName[key];
+            } else if (!isNaN(price) && price > 0) {
+                hit.item.price = price;
+            }
+        });
+
+        // Brand-new admin item that isn't part of the built-in menu.
+        if (!matchedAny && !unavailable && !isNaN(price) && price > 0) {
+            var catName = ai.category || 'Special Items';
+            var section = MENU.find(function (m) { return m.cat === catName; });
+            var newItem = { name: ai.name, price: price, emoji: ai.emoji || '🍽️' };
+            if (section) {
+                if (!section.items.find(function (x) { return x.name === newItem.name; })) {
+                    section.items.push(newItem);
+                    byName[_amNorm(newItem.name)] = { section: section, item: newItem };
+                }
+            } else {
+                var added = { cat: catName, emoji: ai.emoji || '🍽️', items: [newItem] };
+                MENU.push(added);
+                byName[_amNorm(newItem.name)] = { section: added, item: newItem };
+            }
+        }
+    });
+
+    // Drop any category left with no items (e.g. all 86'd).
+    for (var i = MENU.length - 1; i >= 0; i--) {
+        if (!MENU[i].items.length) MENU.splice(i, 1);
+    }
+}
+
+/* Called by supabase-sync.js when admin pushes a live menu update. */
+window.refreshMenuPrices = function () {
+    applyAdminMenu();
+    if (document.getElementById('orderingApp') &&
+        document.getElementById('orderingApp').style.display === 'block') {
+        renderCategoryTabs();
+        renderMenu();
+        updateFAB();
+    }
+};
 
 /* ================================================================
    RENDER CATEGORY TABS
