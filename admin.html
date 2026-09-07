@@ -1947,12 +1947,13 @@
                                 <span id="outsideTotalPreview" style="font-size:1.2rem;font-weight:800;color:var(--warning)">Rs. 0</span>
                             </div>
                         </div>
-                        <div style="display:flex;gap:10px">
-                            <button onclick="clearOutsideCart()" style="flex:1;background:#fff;border:1.5px solid var(--border);color:var(--mid);padding:12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.9rem;font-family:Inter,sans-serif">Clear</button>
-                            <button onclick="saveOutsideOrderOnly()" style="flex:1.5;background:var(--gold);color:var(--green-deep);border:none;padding:12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;font-family:Inter,sans-serif">&#x1F4BE; Save Order</button>
-                            <button class="admin-print-btn" onclick="printOutsideBill()" style="flex:2;background:var(--green);color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Bill</button>
+                        <div style="display:flex;gap:10px;flex-wrap:wrap">
+                            <button onclick="clearOutsideCart()" style="flex:1 1 80px;background:#fff;border:1.5px solid var(--border);color:var(--mid);padding:12px;border-radius:8px;cursor:pointer;font-weight:600;font-size:0.9rem;font-family:Inter,sans-serif">Clear</button>
+                            <button onclick="saveOutsideOrderOnly()" style="flex:2 1 130px;background:#fff;border:1.5px solid var(--gold);color:var(--green-deep);padding:12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;font-family:Inter,sans-serif">&#x1F4BE; Save Order</button>
+                            <button onclick="saveOutsideOrderToSales()" style="flex:2 1 150px;background:var(--gold);color:var(--green-deep);border:none;padding:12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:0.9rem;font-family:Inter,sans-serif">&#x2705; Save &amp; Bill</button>
+                            <button class="admin-print-btn" onclick="printOutsideBill()" style="flex:2 1 130px;background:var(--green);color:#fff;border:none;padding:12px;border-radius:8px;cursor:pointer;font-weight:700;font-size:1rem;font-family:Inter,sans-serif">&#x1F5A8; Print Bill</button>
                         </div>
-                        <p style="font-size:0.74rem;color:var(--mid);margin-top:8px;text-align:center">On mobile without a printer? Use <strong>Save Order</strong> to record it now — it won't count in Daily Sales until you print its bill (from here or later in Today's Counter Sales).</p>
+                        <p style="font-size:0.74rem;color:var(--mid);margin-top:8px;text-align:center"><strong>Save Order</strong> records it as unbilled — it won't count in Daily Sales until its bill is printed. <strong>Save &amp; Bill</strong> records it <em>and</em> adds it to Daily Sales right away (like issuing a swim ticket), no printer needed — you can still print its bill later from Today's Counter Sales.</p>
                     </div>
 
                     <!-- Today's history -->
@@ -7357,6 +7358,26 @@ function saveOutsideOrderOnly() {
     clearOutsideCart();
     renderOutsideOrders();
     showBanner('&#x2705; Order saved — Bill #' + order.billNum + ' (Rs. ' + order.total.toLocaleString() + '). Print it to add it to Daily Sales.');
+}
+
+/* "Save & Bill" — records the counter order AND books it into Daily
+   Sales in one step, without opening the print dialog. This is the
+   Swimming Tickets model: issuing a swim ticket counts toward Daily
+   Sales immediately, no separate print step. Reuses
+   _markOutsideOrderPrinted (the single place an outside order reaches
+   Daily Sales), so the order is flagged billed and its linked sales
+   row is created exactly as a printed bill would create it — the only
+   difference is no paper/PDF is produced now. The bill can still be
+   printed later from Today's Counter Sales (a reprint won't
+   double-count it). */
+function saveOutsideOrderToSales() {
+    var order = _recordOutsideOrder();
+    if (!order) return;
+    _markOutsideOrderPrinted(order.billNum);
+    clearOutsideCart();
+    renderOutsideOrders();
+    if (typeof renderDailySales === 'function' && document.getElementById('salesDate')) renderDailySales();
+    showBanner('&#x2705; Order saved &amp; added to Daily Sales — Bill #' + order.billNum + ' (Rs. ' + order.total.toLocaleString() + '). Print its bill anytime from Today\'s Counter Sales.');
 }
 
 /* Prints a bill from Outside Orders history — the counterpart to
